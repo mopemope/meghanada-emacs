@@ -109,7 +109,7 @@
     (let ((process-connection-type nil)
           (process-adaptive-read-buffering nil)
           process)
-      (message "meghanada-server process start ...")
+      (message "Meghanada-Server Starting ...")
       (setq process
             (start-process-shell-command
              "meghanada-server"
@@ -121,7 +121,7 @@
       (set-process-query-on-exit-flag process nil)
       (set-process-sentinel process 'meghanada--server-process-sentinel)
       (set-process-filter process 'meghanada--server-process-filter)
-      (message "meghanada-server process started")
+      (message "Meghanada-Server Started")
       process)))
 
 (defun meghanada--get-server-process-create ()
@@ -149,7 +149,7 @@
           (if moving
               (goto-char (process-mark process)))
           (when (string-match "Start server" output)
-            (message "Server waiting client ...")
+            (message "Server waiting client connection ...")
             (when meghanada--server-pending
               (funcall meghanada--server-pending)
               (setq meghanada--server-pending nil))))))))
@@ -195,7 +195,7 @@
            :sentinel 'meghanada--client-process-sentinel
            :filter 'meghanada--client-process-filter))
       (buffer-disable-undo meghanada--client-buffer)
-      (message "Started Meghanada")
+      (message "Meghanada Ready")
       (setq meghanada--task-client-process (meghanada--start-task-client-process))
       process))
 
