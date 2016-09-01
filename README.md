@@ -4,20 +4,22 @@
 
 `meghanada-mode` is a new java-mode that aims at improving the editing
 experience for the Java. It works by using a combination of an Emacs
-package and `meghanada-server`.
+package and [meghanada-server][].
+
+<i>WARNING! This is a project beta quality. Under heavy development now.</i>
 
 **Features:**
 
-* `Gradle` and `Maven`(Beta) project support
+* [Gradle][] and [Maven][](Beta) project support
 * Run build tool task
 * Compile your project
 * Analyze java source
-* Support Generics
-* Code completion with company-mode (`company-meghanada`)
+* Support `Generics`
+* Code completion with [company-mode][] (`company-meghanada`)
 * Optimize import
 * Jump declaration
-* Run junit test (include test runner)
-* Diagnostic reporting with flycheck (`flycheck-meghanada`)
+* Run [Junit][] test (include test runner)
+* Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 
 `meghanada-mode` tested only `linux` (maybe macOS OK). windows not support.
 
@@ -29,16 +31,17 @@ package and `meghanada-server`.
 | Package              | Comment                           |
 | -------------------- | --------------------------------- |
 | `cl-lib`             | Built-in since Emacs 24.3         |
-| `company-mode`       | Optional                          |
-| `flycheck`           | Optional                          |
+| [company-mode][]     | Optional                          |
+| [flycheck][]         | Optional                          |
 
 ### Meghanada-Server
 
-`meghanada-server` provides interface to `meghanada-mode`.It uses a simple protocol
+`meghanada-mode` require [meghanada-server][] and JDK .
+[meghanada-server][] provides interface to `meghanada-mode`. It uses a simple protocol
 based on S-expression. This server, written in java and requires the following
 packages to be installed on your system:
 
-* jdk >= 1.8
+* JDK >= 1.8
 
 ## Installation
 
@@ -71,9 +74,9 @@ And add `company-meghanada.el` and `flycheck-meghanada.el` load path.
 
 ### Meghanada-Server
 
-To do so, type `M-x meghanada-install-server RET`. server program is installed `~/.meghanada/meghanada.jar`.
+To do so, type `M-x meghanada-install-server RET`. Server program is installed `~/.meghanada/meghanada.jar`.
 
-If you open java file and set major-mode `meghanada-mode`, `meghanada-server` process autostart and connect to your editor.
+If you open java file and set major-mode `meghanada-mode`, [meghanada-server][] process autostart and connect to your emacs.
 
 ## Usage
 
@@ -81,35 +84,37 @@ Here is a list of available interactive commands.
 
 ### meghanada-install-server
 
-TODO
+Download and install [meghanada-server] jar. 
 
 ### meghanada-server-start
 
-TODO
+Start [meghanada-server][] process and connect to server.
+
+`meghanada-mode` call this function by default. when open java file and set `meghanada-mode`.
 
 ### meghanada-server-kill
 
-TODO
+Kill [meghanada-server][] process.
 
 ### meghanada-client-direct-connect
 
-TODO
+Connect to other [meghanada-server][] directly.
 
 ### meghanada-client-connect
 
-TODO
+Connect to [meghanada-server][] .
 
 ### meghanada-client-disconnect
 
-TODO
+Disconnect from [meghanada-server][] .
 
 ### meghanada-client-ping
 
-TODO
+Send ping [meghanada-server][]
 
 ### meghanada-clear-cache
 
-TODO
+Clear [meghanada-server][]'s project cache data.
 
 ### meghanada-import-all
 
@@ -167,7 +172,7 @@ TODO
 
 ## TODO
 
-* Fully support `maven` project.
+* Fully support [Maven][] project.
 * Fully support `lambda expression`
 * Fully support `method reference`
 * Reformat source (IntelliJ Rule)
@@ -176,3 +181,15 @@ TODO
 ## License
 
 GPL v3, See [LICENSE](LICENSE) file.
+
+
+[meghanada-server]: https://github.com/mopemope/meghanada-server
+[Maven]: http://maven.apache.org/
+[Gradle]: https://gradle.org
+[company-mode]: http://company-mode.github.io/
+[flycheck]: http://flycheck.org
+[Junit]: http://www.junit.org/
+[Junit]: http://www.junit.org/
+
+
+
