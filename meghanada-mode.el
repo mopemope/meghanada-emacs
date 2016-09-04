@@ -221,7 +221,6 @@
         (meghanada--client-kill)
         (setq meghanada--server-pending
               #'(lambda ()
-                  (sleep-for 2)
                   (setq meghanada--client-process (meghanada--start-client-process))))
         (meghanada--get-server-process-create)))))
 
