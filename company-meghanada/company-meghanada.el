@@ -198,7 +198,8 @@
     (meta (get-text-property 0 'meta arg))
     (annotation (when company-meghanada-show-annotation
                   (concat " " (get-text-property 0 'desc arg))))
-    (sorted t)
+    ;; (sorted t)
+    (no-cache t)
     (post-completion (company-meghanada--post-completion arg))))
 
 (defun meghanada-grab-symbol-test ()
