@@ -85,7 +85,7 @@
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
-        (re "^package \\|new \\w\\{2,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*"))
+        (re "^package \\|new \\w\\{3,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*"))
     (setq meghanada--sp-prefix nil)
     (when symbol
       (save-excursion
@@ -198,7 +198,7 @@
     (meta (get-text-property 0 'meta arg))
     (annotation (when company-meghanada-show-annotation
                   (concat " " (get-text-property 0 'desc arg))))
-    ;; (sorted t)
+    (sorted t)
     (no-cache t)
     (post-completion (company-meghanada--post-completion arg))))
 
