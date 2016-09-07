@@ -2,7 +2,7 @@
 
 ## A Java Develop Environment for Emacs
 
-`meghanada-mode` is a new java-mode that aims at improving the editing
+`meghanada` is a new java-mode (`meghanada-mode`) that aims at improving the editing
 experience for the Java. It works by using a combination of an Emacs
 package and [meghanada-server][].
 
@@ -21,7 +21,7 @@ package and [meghanada-server][].
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 
-`meghanada-mode` tested only `linux` (maybe macOS OK). windows not support.
+`meghanada` tested only `linux` (maybe macOS OK). windows not support.
 
 ## Dependencies
 
@@ -31,8 +31,8 @@ package and [meghanada-server][].
 | Package              | Comment                           |
 | -------------------- | --------------------------------- |
 | `cl-lib`             | Built-in since Emacs 24.3         |
-| [company-mode][]     | Optional                          |
-| [flycheck][]         | Optional                          |
+| [company-mode][]     | Optional (company "0.9.0")        |
+| [flycheck][]         | Optional (flycheck "0.23")        |
 
 ### Meghanada-Server
 
@@ -47,27 +47,20 @@ packages to be installed on your system:
 
 ### Elisp
 
-Add `meghanada-mode.el` your elisp load path and write settings.
-And add `company-meghanada.el` and `flycheck-meghanada.el` load path.
+First add project directory to emacs `load-path`. and write configuration.
+
+TODO install from melpa
 
 #### Configuration
 
 ```
-(load-file "path/to/meghanada-mode.el")
-;; optional
-(load-file "path/to/company-meghanada.el")
-;; optional
-(load-file "path/to/flycheck-meghanada.el")
-
-(require 'meghanada-mode)
-(require 'company-meghanada)
-(require 'flycheck-meghanada)
+(require 'meghanada)
 
 (add-hook 'meghanada-mode-hook
-  (lambda ()
-    (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
-    (setq company-transformers '(company-sort-by-backend-importance))
-    (add-hook 'before-save-hook 'delete-trailing-whitespace)))
+          (lambda ()
+            ;; customize
+            (setq company-transformers '(company-sort-by-backend-importance))
+            (add-hook 'before-save-hook 'delete-trailing-whitespace)))
 
 (add-to-list 'auto-mode-alist '("\\.java\\'" . meghanada-mode))
 ```
@@ -84,7 +77,7 @@ Here is a list of available interactive commands.
 
 ### meghanada-install-server
 
-Download and install [meghanada-server] jar. 
+Download and install [meghanada-server] jar.
 
 ### meghanada-server-start
 
@@ -189,7 +182,3 @@ GPL v3, See [LICENSE](LICENSE) file.
 [company-mode]: http://company-mode.github.io/
 [flycheck]: http://flycheck.org
 [Junit]: http://www.junit.org/
-[Junit]: http://www.junit.org/
-
-
-
