@@ -1,13 +1,21 @@
 ;;; flycheck-meghanada.el --- Flycheck support for Meghanada -*- coding: utf-8; lexical-binding: t -*-
 
+;; Copyright (C) 2016 Yutaka Matsubara
+;; License: http://www.gnu.org/licenses/gpl.html
+
+;; Homepage: https://github.com/mopemope/meghanada-emacs
+;; Keywords: languages
+;; Package-Version: 0.1.0
+;; Package-Requires: ((emacs "24") (company "0.9") (flycheck "0.23"))
+
 ;;; Commentary:
 ;;
-;; Java support for Flycheck, using Meghanada Mode.
+;; The `flycheck-meghanada' provides `flycheck-chcker' for java.
 
 ;;; Code:
 
 (require 'flycheck)
-(require 'meghanada-mode)
+(require 'meghanada)
 
 (eval-when-compile
   (require 'pcase))
@@ -15,6 +23,7 @@
 (defgroup flycheck-meghanada nil
   "meghanada mode's flycheck checker."
   :group 'meghanada)
+
 
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
   (let ((severity (intern (nth 2 diagnostic))))
@@ -62,15 +71,17 @@
                (and (meghanada-alive-p)
                     (flycheck-buffer-saved-p))))
 
-(add-to-list 'flycheck-checkers 'meghanada)
-
 ;;;###autoload
-(defun flycheck-meghanda-setup ()
-  "Setup Flycheck Meghanada.
-Add `meghanada' to `flycheck-checkers'."
-  (interactive)
+;; (defun flycheck-meghanda-setup ()
+;;   "Setup Flycheck Meghanada.
+;; Add `meghanada' to `flycheck-checkers'."
+;;   (interactive)
+;;   (add-to-list 'flycheck-checkers 'meghanada))
+
+(defun meghanada-flycheck-enable ()
+  "Setup Flycheck meghanada.  add `meghanada' to `flycheck-checkers'."
   (add-to-list 'flycheck-checkers 'meghanada))
 
-
 (provide 'flycheck-meghanada)
+
 ;;; flycheck-meghanada.el ends here

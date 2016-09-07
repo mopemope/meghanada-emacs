@@ -1,8 +1,17 @@
-;;; meghanada-mode.el --- A better new java-mode -*- coding: utf-8; lexical-binding: t; -*-
+;;; meghanada.el --- A better new java-mode -*- coding: utf-8; lexical-binding: t; -*-
+
+;; Copyright (C) 2016 Yutaka Matsubara
+;; License: http://www.gnu.org/licenses/gpl.html
+
+;; Homepage: https://github.com/mopemope/meghanada-emacs
+;; Keywords: languages
+;; Package-Version: 0.1.0
+;; Package-Requires: ((emacs "24") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
 ;;
-;; Better new java-mode for GNU Emacs 24.
+;;  Meghanada has a server component which can read the AST of your
+;;  project and its dependencies, providing features.
 ;;
 
 ;;; Code:
@@ -10,6 +19,19 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'imenu)
+
+
+(autoload 'meghanada-company-enable "company-meghanada")
+(autoload 'meghanada-flycheck-enable "flycheck-meghanada")
+
+;;
+;; Const
+;;
+
+(defconst meghanada-version "0.1.0")
+(defconst meghanada--eot "\n;;EOT\n")
+(defconst meghanada--junit-buf-name "*meghanada-junit*")
+(defconst meghanada--task-buf-name "*meghanada-task*")
 
 ;;
 ;; Customizable variables
@@ -34,10 +56,23 @@
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-use-company t
+  "If true, company-mode auto-comletion is enabled."
+  :group 'meghanada
+  :type 'boolean)
 
-(defconst meghanada--eot "\n;;EOT\n")
-(defconst meghanada--junit-buf-name "*meghanada-junit*")
-(defconst meghanada--task-buf-name "*meghanada-task*")
+(defcustom meghanada-use-flycheck t
+  "If true, diagnostics report with flyecheck is denabled."
+  :group 'meghanada
+  :type 'boolean)
+
+(defcustom meghanada-server-install-dir
+  (expand-file-name "~/.meghanada/meghanada.jar")
+  "Install directory for meghanada-server."
+  :group 'meghanada
+  :type 'directory)
+
+
 
 ;;
 ;; utility
@@ -67,10 +102,12 @@
   (replace-regexp-in-string meghanada--eot "" out))
 
 (defun meghanada--goto-line (line)
+  "TODO: FIX LINE ."
   (goto-char (point-min))
   (forward-line (1- line)))
 
 (defun meghanada--line-column-to-point (line column)
+  "TODO: FIX LINE COLUMN."
   (save-excursion
     (meghanada--goto-line line)
     (forward-char (1- column))
@@ -80,32 +117,38 @@
 ;; meghanada-server process management.
 ;;
 
-(defvar meghanada--server-jar nil)
 (defvar meghanada--server-process nil)
 (defvar meghanada--server-buffer "*meghanada-server-log*")
 (defvar meghanada--server-pending nil)
 
-;; curl -L "https://dl.bintray.com/mopemope/meghanada/meghanada.jar" -o meghanada.jar
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
   (let ((d (expand-file-name "~/.meghanada"))
-        (dest (expand-file-name "~/.meghanada/meghanada.jar")))
+        (dest meghanada-server-install-dir)
+        (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
     (shell-command (format "mkdir -p %s" d))
-    (call-process "curl" nil nil t "-L" "https://dl.bintray.com/mopemope/meghanada/meghanada.jar" "-o" dest)
-    (message "SUCCESS install meghanada-server. Please restart emacs")))
+    (call-process
+     "curl"
+     nil
+     nil
+     t
+     "-L"
+     url
+     "-o"
+     dest)
+    (message (format "SUCCESS installed meghanada-server %s. Please restart emacs" dest))))
 
 (defun meghanada--locate-server-jar ()
   "TODO: FIX DOC ."
-  (let ((jar (expand-file-name "~/.meghanada/meghanada.jar")))
+  (let ((jar meghanada-server-install-dir))
     (if (file-exists-p jar)
         jar
       (message "missing meghanada.jar"))))
 
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
-  (when (setq meghanada--server-jar (or meghanada--server-jar
-                                        (meghanada--locate-server-jar)))
+  (when (setq meghanada--server-jar (meghanada--locate-server-jar))
     (let ((process-connection-type nil)
           (process-adaptive-read-buffering nil)
           process)
@@ -114,9 +157,12 @@
             (start-process-shell-command
              "meghanada-server"
              meghanada--server-buffer
-             (format "java -ea -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx2G -Dfile.encoding=UTF-8 -jar %s -p %d"
+             (format "java -ea -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx2G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
                      (shell-quote-argument meghanada--server-jar)
-                     meghanada-port)))
+                     meghanada-port
+                     (if meghanada-debug
+                         "-v"
+                       ""))))
       (buffer-disable-undo meghanada--server-buffer)
       (set-process-query-on-exit-flag process nil)
       (set-process-sentinel process 'meghanada--server-process-sentinel)
@@ -277,9 +323,7 @@
 
 (defun meghanada--task-client-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT."
-  (let* ((buf meghanada--task-buffer)
-         (cwin (get-buffer-window (current-buffer) t))
-         (bwin (get-buffer-window buf t)))
+  (let* ((buf meghanada--task-buffer))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
       (setq buffer-read-only nil)
@@ -424,8 +468,7 @@
 
 (defun meghanada-optimize-import--callback (out)
   "TODO: FIX DOC OUT ."
-  (let ((result (read out))
-        (start-imp t))
+  (let ((result (read out)))
     (when result
       (save-excursion
         (meghanada--goto-imports-start)
@@ -598,6 +641,7 @@
 ;;
 
 (defun kill-buf (name)
+  "TODO: FIX NAME ."
   (when (get-buffer name)
     (delete-windows-on (get-buffer name))
     (kill-buffer name)))
@@ -685,6 +729,7 @@
           (shrink-window (- h height)))))))
 
 (defun meghanada--junit-callback (output)
+  "A junit callback dummy function.  OUTPUT is not used."
   )
 
 (defun meghanada--run-junit (test)
@@ -784,9 +829,14 @@
 ;;;###autoload
 (define-derived-mode meghanada-mode java-mode "Meghanada"
   "A new, better, Java mode."
+  (when meghanada-use-company
+    (meghanada-company-enable))
+  (when meghanada-use-flycheck
+    (meghanada-flycheck-enable))
   (meghanada-client-connect))
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
 
-(provide 'meghanada-mode)
-;;; meghanada-mode.el ends here
+(provide 'meghanada)
+
+;;; meghanada.el ends here

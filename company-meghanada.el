@@ -1,19 +1,27 @@
 ;;; company-meghanada.el --- Company support for Meganada -*- coding: utf-8; lexical-binding: t; -*-
 
+;; Copyright (C) 2016 Yutaka Matsubara
+;; License: http://www.gnu.org/licenses/gpl.html
+
+;; Homepage: https://github.com/mopemope/meghanada-emacs
+;; Keywords: languages
+;; Package-Version: 0.1.0
+;; Package-Requires: ((emacs "24") (company "0.9") (flycheck "0.23"))
+
 ;;; Commentary:
 ;;
-;; Better new java-mode for GNU Emacs 24.
+;; The `company-meghanada' is a `company' backend that
+;; will serve completion candidates asynchronously.
 ;;
 
 ;;; Code:
 
-(require 'company-template)
-
 (eval-when-compile
   (require 'cl))
 
-(require 'meghanada-mode)
 (require 'company)
+(require 'company-template)
+(require 'meghanada)
 
 (defgroup company-meghanada nil
   "Company-mode completion back-end for Meghanada."
@@ -28,6 +36,16 @@
   "Add new package class autoimport."
   :group 'company-meghanada
   :type 'boolean)
+
+(defun meghanada-company-enable ()
+  (make-local-variable 'company-backends)
+  (push #'company-meghanada company-backends)
+  (company-mode t)
+
+  (set (make-local-variable 'company-idle-delay) 0)
+  ;; https://github.com/joaotavora/yasnippet/issues/708#issuecomment-222517433
+  (yas-minor-mode t)
+  (make-local-variable 'yas-minor-mode-map))
 
 (defun company-meghanada--to-candidate (result)
   (mapcar (lambda (candidate)
@@ -198,7 +216,7 @@
     (meta (get-text-property 0 'meta arg))
     (annotation (when company-meghanada-show-annotation
                   (concat " " (get-text-property 0 'desc arg))))
-    (sorted t)
+    ;; (sorted t)
     (no-cache t)
     (post-completion (company-meghanada--post-completion arg))))
 
@@ -213,4 +231,5 @@
     (message (format "prop:%s" (get-text-property (point) 'return-type)))))
 
 (provide 'company-meghanada)
+
 ;;; company-meghanada.el ends here
