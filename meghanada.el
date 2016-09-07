@@ -121,6 +121,7 @@
 (defvar meghanada--server-buffer "*meghanada-server-log*")
 (defvar meghanada--server-pending nil)
 
+;;;###autoload
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
@@ -200,11 +201,13 @@
               (funcall meghanada--server-pending)
               (setq meghanada--server-pending nil))))))))
 
+;;;###autoload
 (defun meghanada-server-start ()
   "TODO: FIX DOC ."
   (interactive)
   (meghanada--get-server-process-create))
 
+;;;###autoload
 (defun meghanada-server-kill ()
   "TODO: FIX DOC ."
   (interactive)
@@ -505,16 +508,19 @@
 ;; meghanada client api
 ;;
 
+;;;###autoload
 (defun meghanada-client-direct-connect ()
   "TODO: FIX DOC ."
   (interactive)
   (meghanada--get-client-process-create))
 
+;;;###autoload
 (defun meghanada-client-connect ()
   "TODO: FIX DOC ."
   (interactive)
   (meghanada--start-server-and-client))
 
+;;;###autoload
 (defun meghanada-client-disconnect ()
   "TODO: FIX DOC ."
   (interactive)
@@ -823,17 +829,19 @@
 
 (defvar meghanada-mode-map
   (let ((map (make-sparse-keymap)))
+    ;; TODO default keymap
     map)
   "Keymap of Meghanada interactive commands.")
 
 ;;;###autoload
-(define-derived-mode meghanada-mode java-mode "Meghanada"
-  "A new, better, Java mode."
+(define-derived-mode meghanada-mode java-mode "MEGHANADA"
+  "Major mode for java delopment."
   (when meghanada-use-company
-    (meghanada-company-enable))
+   (meghanada-company-enable))
   (when meghanada-use-flycheck
     (meghanada-flycheck-enable))
   (meghanada-client-connect))
+
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
 

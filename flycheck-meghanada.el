@@ -72,14 +72,8 @@
                     (flycheck-buffer-saved-p))))
 
 ;;;###autoload
-;; (defun flycheck-meghanda-setup ()
-;;   "Setup Flycheck Meghanada.
-;; Add `meghanada' to `flycheck-checkers'."
-;;   (interactive)
-;;   (add-to-list 'flycheck-checkers 'meghanada))
-
 (defun meghanada-flycheck-enable ()
-  "Setup Flycheck meghanada.  add `meghanada' to `flycheck-checkers'."
+  "Setup flycheck meghanada-mode.  add `meghanada' to `flycheck-checkers'."
   (add-to-list 'flycheck-checkers 'meghanada))
 
 (provide 'flycheck-meghanada)

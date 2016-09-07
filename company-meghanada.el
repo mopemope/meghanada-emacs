@@ -37,13 +37,12 @@
   :group 'company-meghanada
   :type 'boolean)
 
+;;;###autoload
 (defun meghanada-company-enable ()
+  (company-mode t)
   (make-local-variable 'company-backends)
   (push #'company-meghanada company-backends)
-  (company-mode t)
-
   (set (make-local-variable 'company-idle-delay) 0)
-  ;; https://github.com/joaotavora/yasnippet/issues/708#issuecomment-222517433
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
 
