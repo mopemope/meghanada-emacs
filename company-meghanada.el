@@ -43,6 +43,7 @@
   (make-local-variable 'company-backends)
   (push #'company-meghanada company-backends)
   (set (make-local-variable 'company-idle-delay) 0)
+  (set (make-local-variable 'company-minimum-prefix-length) 2)
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
 
@@ -62,20 +63,6 @@
   (when (> (length output) 0)
     (company-meghanada--to-candidate (read output))))
 
-;; (defun company-meghanada--candidates-prefix (prefix)
-;;   (if (string= prefix "")
-;;       (save-excursion
-;;         (cond
-;;          ((= ?\. (preceding-char))
-;;           (progn
-;;             (forward-char (- 1))
-;;             (concat "@" (thing-at-point 'symbol))))
-;;          ((= ?\s (preceding-char))
-;;           (progn
-;;             (forward-char (- 1))
-;;             (concat "@" (thing-at-point 'symbol))))))
-;;     prefix))
-
 (defun company-meghanada--autocomplete-callback (output &rest args)
   (let ((callback (car args)))
     (funcall callback (company-meghanada--to-candidates output))))
@@ -89,20 +76,20 @@
     (when prefix
       (cons :async
             #'(lambda (callback)
-                ;; (message (format "send-prefix prefix '%s'" prefix))
                 (meghanada-autocomplete-prefix-async
                  prefix
                  (list #'company-meghanada--autocomplete-callback callback)))))))
 
 (defun meghanada--search-return-type ()
   (save-excursion
-    (backward-sexp)
+    (backward-list)
     (forward-char -1)
+    (message (format "%s" (meghanada--what-word)))
     (get-text-property (point) 'return-type)))
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
-        (re "^package \\|new \\w\\{3,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*"))
+        (re "^package \\|new \\w\\{2,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*"))
     (setq meghanada--sp-prefix nil)
     (when symbol
       (save-excursion
@@ -116,16 +103,21 @@
                      ((string-prefix-p "new" match)
                       (concat "*" (replace-regexp-in-string " " ":" match)))
 
-                     ((string-suffix-p ")." match)
-                      (let ((rt (meghanada--search-return-type)))
+                     ((string-match "\)\\.\\(\\w*\\)$" match)
+                      (let ((rt (meghanada--search-return-type))
+                            (prefix (match-string 1 match)))
                         (if rt
-                            (concat "*method:" rt)
-                          "*method")))
+                            (concat "*method:" rt "#" prefix)
+                            (concat "*method#" prefix)
+                          )))
 
-                     ((string-suffix-p "." match)
-                      (concat "*" (replace-regexp-in-string "\\." "" match)))
+                     ((string-match "\\(.*\\)\\.\\(\\w*\\)$" match)
+                      (let* ((var (match-string 1 match))
+                             (prefix (match-string 2 match)))
+                        (concat "*" var "#" prefix)))
 
                      (t match))))
+
               ;; (message (format "match:%s send-keyword:%s" match keyword))
               (setq meghanada--sp-prefix keyword)
               (cons symbol t))
@@ -215,9 +207,12 @@
     (meta (get-text-property 0 'meta arg))
     (annotation (when company-meghanada-show-annotation
                   (concat " " (get-text-property 0 'desc arg))))
-    ;; (sorted t)
-    (no-cache t)
-    (post-completion (company-meghanada--post-completion arg))))
+    (ignore-case t)
+    ;; (sorted t) ;; sort ranking??
+    (no-cache nil)
+    (require-match 'never)
+    (post-completion
+     (company-meghanada--post-completion arg))))
 
 (defun meghanada-grab-symbol-test ()
   (interactive)
