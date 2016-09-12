@@ -1,4 +1,4 @@
-;;; meghanada.el --- A better new java-mode -*- coding: utf-8; lexical-binding: t; -*-
+;;; meghanada.el --- A better java development mode -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright (C) 2016 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
@@ -62,7 +62,12 @@
   :type 'boolean)
 
 (defcustom meghanada-use-flycheck t
-  "If true, diagnostics report with flyecheck is denabled."
+  "If true, diagnostics report with flyecheck is enabled."
+  :group 'meghanada
+  :type 'boolean)
+
+(defcustom meghanada-auto-start t
+  "If true, meghanada-server start automatically."
   :group 'meghanada
   :type 'boolean)
 
@@ -245,10 +250,10 @@
            :noquery t
            :sentinel 'meghanada--client-process-sentinel
            :filter 'meghanada--client-process-filter))
-      (buffer-disable-undo meghanada--client-buffer)
-      (message "Meghanada Ready")
-      (setq meghanada--task-client-process (meghanada--start-task-client-process))
-      process))
+    (buffer-disable-undo meghanada--client-buffer)
+    (message "Meghanada Ready")
+    (setq meghanada--task-client-process (meghanada--start-task-client-process))
+    process))
 
 (defun meghanada--start-task-client-process ()
   "TODO: FIX DOC ."
@@ -291,7 +296,7 @@
   "TODO: FIX DOC PROCESS EVENT."
   (unless (process-live-p process)
     (setq meghanada--task-client-process nil)
-    (message "meghanada-client process stopped")))
+    (message "meghanada-task-client process stopped")))
 
 (defun meghanada--process-client-response (process response)
   "TODO: FIX DOC PROCESS RESPONSE ."
@@ -418,7 +423,8 @@
 
 (defun meghanada-alive-p ()
   "TODO: FIX DOC ."
-  (and meghanada--client-process (process-live-p meghanada--client-process)))
+  (and meghanada--client-process
+       (process-live-p meghanada--client-process)))
 
 ;;
 ;; import
@@ -833,19 +839,34 @@
   (let ((map (make-sparse-keymap)))
     ;; TODO default keymap
     map)
-  "Keymap of Meghanada interactive commands.")
+  "Keymap for Meghanada-mode.")
 
 ;;;###autoload
-(define-derived-mode meghanada-mode java-mode "MEGHANADA"
-  "Major mode for java delopment."
-  (when meghanada-use-company
-   (meghanada-company-enable))
-  (when meghanada-use-flycheck
-    (meghanada-flycheck-enable))
-  (meghanada-client-connect))
-
+(define-minor-mode meghanada-mode
+  "A better java development mode for Emacs (minor-mode).
+\\{meghanada-mode-map}"
+  nil
+  nil
+  meghanada-mode-map
+  (progn
+    (when meghanada-use-company
+      (meghanada-company-enable))
+    (when meghanada-use-flycheck
+      (meghanada-flycheck-enable))
+    (when meghanada-auto-start
+      (meghanada-client-connect))))
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
+
+(add-to-list 'minor-mode-alist
+             '(meghanada-mode (:eval (meghanada-modeline-string))))
+
+(defun meghanada-modeline-string ()
+  "Return modeline string."
+  (cond ((not (meghanada-alive-p))
+         "MEGHANADA:Disconnected")
+        ((meghanada-alive-p)
+         "MEGHANADA")))
 
 (provide 'meghanada)
 

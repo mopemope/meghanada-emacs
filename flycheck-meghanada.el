@@ -1,4 +1,4 @@
-;;; flycheck-meghanada.el --- Flycheck support for Meghanada -*- coding: utf-8; lexical-binding: t -*-
+;;; flycheck-meghanada.el --- Flycheck support for meghanada -*- coding: utf-8; lexical-binding: t -*-
 
 ;; Copyright (C) 2016 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html

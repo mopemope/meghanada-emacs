@@ -1,4 +1,4 @@
-;;; company-meghanada.el --- Company support for Meganada -*- coding: utf-8; lexical-binding: t; -*-
+;;; company-meghanada.el --- Company support for meganada -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright (C) 2016 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
@@ -84,7 +84,6 @@
   (save-excursion
     (backward-list)
     (forward-char -1)
-    (message (format "%s" (meghanada--what-word)))
     (get-text-property (point) 'return-type)))
 
 (defun meghanada--grab-symbol-cons ()
@@ -199,7 +198,7 @@
 
 (defun company-meghanada (command &optional arg &rest ignored)
   (case command
-    (prefix (and (derived-mode-p 'meghanada-mode)
+    (prefix (and (meghanada-alive-p)
                  (not (company-in-string-or-comment))
                  (not (company-meghanada--in-num-literal-p))
                  (or (company-meghanada--prefix) 'stop)))
@@ -214,15 +213,15 @@
     (post-completion
      (company-meghanada--post-completion arg))))
 
-(defun meghanada-grab-symbol-test ()
-  (interactive)
-  (message (format "%s" (meghanad--grab-symbol-cons))))
+;; (defun meghanada-grab-symbol-test ()
+;;   (interactive)
+;;   (message (format "%s" (meghanad--grab-symbol-cons))))
 
-(defun meghanada-prop-test ()
-  (interactive)
-  (let ((pos (next-property-change (point))))
-    (goto-char pos)
-    (message (format "prop:%s" (get-text-property (point) 'return-type)))))
+;; (defun meghanada-prop-test ()
+;;   (interactive)
+;;   (let ((pos (next-property-change (point))))
+;;     (goto-char pos)
+;;     (message (format "prop:%s" (get-text-property (point) 'return-type)))))
 
 (provide 'company-meghanada)
 

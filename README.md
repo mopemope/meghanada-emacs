@@ -1,6 +1,6 @@
 # Meghanada-Mode
 
-## A Java Develop Environment for Emacs
+## A Better Java Development Environment for Emacs
 
 `meghanada` is a new java-mode (`meghanada-mode`) that aims at improving the editing
 experience for the Java. It works by using a combination of an Emacs
@@ -25,6 +25,7 @@ package and [meghanada-server][].
 
 ## Dependencies
 
+Meghanada-Mode has been developed Emacs 24.5.
 
 ### Elisp dependencies
 
@@ -55,21 +56,18 @@ TODO install from melpa
 
 ```
 (require 'meghanada)
-
-(add-hook 'meghanada-mode-hook
+(add-hook 'java-mode-hook
           (lambda ()
-            ;; customize
-            (setq company-transformers '(company-sort-by-backend-importance))
+            ;; meghanada-mode on
+            (meghanada-mode t)
             (add-hook 'before-save-hook 'delete-trailing-whitespace)))
-
-(add-to-list 'auto-mode-alist '("\\.java\\'" . meghanada-mode))
 ```
 
 ### Meghanada-Server
 
 To do so, type `M-x meghanada-install-server RET`. Server program is installed `~/.meghanada/meghanada.jar`.
 
-If you open java file and set major-mode `meghanada-mode`, [meghanada-server][] process autostart and connect to your emacs.
+If you open java file and set `meghanada-mode`, [meghanada-server][] process start automatically and connect to your emacs.
 
 ## Usage
 
