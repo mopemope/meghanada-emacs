@@ -174,7 +174,9 @@
 (defun meghanada--get-server-process-create ()
   "TODO: FIX DOC ."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      meghanada--server-process
+      (progn
+        (message "already started meghanada-server. see *meghanada-server-log* buffer.")
+        meghanada--server-process)
     (setq meghanada--server-process (meghanada--start-server-process))))
 
 (defun meghanada--server-process-sentinel (process event)
