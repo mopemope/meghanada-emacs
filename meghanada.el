@@ -77,6 +77,11 @@
   :group 'meghanada
   :type 'directory)
 
+(defcustom meghanada-auto-parse-code t
+  "If true, auto parse buffer code when you save buffer.
+So you can get updated code completion."
+  :group 'meghanada
+  :type 'boolean)
 
 
 ;;
@@ -854,7 +859,10 @@
     (when meghanada-use-flycheck
       (meghanada-flycheck-enable))
     (when meghanada-auto-start
-      (meghanada-client-connect))))
+      (meghanada-client-connect))
+    (if meghanada-auto-parse-code
+        (add-hook 'after-save-hook #'meghanada-parse-file))
+    ))
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
 
