@@ -107,56 +107,48 @@ Send ping [meghanada-server][]
 
 Clear [meghanada-server][]'s project cache data.
 
-### meghanada-import-all
+### meghanada-import-all (C-c C-r i)
 
-TODO
+Add import all unqualified classes.
 
-### meghanada-optimize-import
+### meghanada-optimize-import (C-c C-r o)
 
-TODO
+Import all and remove unused import statement.
 
-### meghanada-local-variable
+### meghanada-local-variable (C-c C-r r)
 
-TODO
+Introduce local variable. (need expression is end `;`)
 
-### meghanada-parse-file
 
-TODO
+### meghanada-compile-file (C-c C-c C-c)
 
-### meghanada-compile-file
+Compile file.
 
-TODO
+### meghanada-project-compile (C-c C-c c)
 
-### meghanada-project-compile
+Compile project.
 
-TODO
+### meghanada-switch-testcase (M-,)
 
-### meghanada-switch-testcase
+Switch testcase or source.
 
-TODO
+### meghanada-run-junit-class (C-c C-c C-t)
 
-### meghanada-run-junit-class
+Run Junit .
 
-TODO
+### meghanada-run-junit-test-case (C-c C-c t)
 
-### meghanada-run-junit-test-case
+Run Junit testcase (select from imenu).
 
-TODO
+### meghanada-run-task (C-v t)
 
-### meghanada-run-junit-recent
+Run build tool task.
 
-TODO
+### meghanada-jump-declaration (M-.)
 
-### meghanada-run-task
-
-TODO
-
-### meghanada-jump-declaration
-
-TODO
+Goto declaration.
 
 ### meghanada-back-jump
-
 
 TODO
 

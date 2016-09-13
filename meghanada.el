@@ -78,6 +78,11 @@
   :type 'directory)
 
 
+(defcustom meghanada-mode-key-prefix [?\C-c]
+  "The prefix key for meghanada-mode commands."
+  :group 'meghanada
+  :type 'sexp)
+
 
 ;;
 ;; utility
@@ -642,13 +647,12 @@
 ;; meghanada interactive-command (async)
 ;;
 
-(defun meghanada-parse-file ()
-  "TODO: FIX DOC ."
-  (interactive)
-  (when (eq major-mode 'meghanada-mode)
-    (if (and meghanada--client-process (process-live-p meghanada--client-process))
-        (meghanada--send-request "p" #'message (buffer-file-name))
-      (message "client connection not established"))))
+;; (defun meghanada-parse-file ()
+;;   "TODO: FIX DOC ."
+;;   (when (meghanada-alive-p)
+;;     (if (and meghanada--client-process (process-live-p meghanada--client-process))
+;;         (meghanada--send-request "p" #'message (buffer-file-name))
+;;       (message "client connection not established"))))
 
 ;;
 ;; meghanada compile-command (async)
@@ -683,7 +687,7 @@
 (defun meghanada-compile-file ()
   "TODO: FIX DOC ."
   (interactive)
-  (when (eq major-mode 'meghanada-mode)
+  (when (meghanada-alive-p)
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
         (let ((buf (buffer-file-name)))
           (message "compiling ... ")
@@ -695,7 +699,7 @@
 (defun meghanada-compile-project ()
   "TODO: FIX DOC ."
   (interactive)
-  (when (eq major-mode 'meghanada-mode)
+  (when (meghanada-alive-p)
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
         (progn
           (message "compiling ... ")
@@ -836,10 +840,52 @@
 ;;
 
 (defvar meghanada-mode-map
-  (let ((map (make-sparse-keymap)))
-    ;; TODO default keymap
+  (let* ((map (make-sparse-keymap))
+         (prefix-map (make-sparse-keymap)))
+
+    (define-key prefix-map (kbd "C-c c") 'meghanada-compile-project)
+    (define-key prefix-map (kbd "C-c C-c") 'meghanada-compile-file)
+
+    (define-key prefix-map (kbd "C-r o") 'meghanada-optimize-import)
+    (define-key prefix-map (kbd "C-r i") 'meghanada-import-all)
+    (define-key prefix-map (kbd "C-r r") 'meghanada-local-variable)
+
+    (define-key prefix-map (kbd "C-c t") 'meghanada-run-junit-test-case)
+    (define-key prefix-map (kbd "C-c C-t") 'meghanada-run-junit-class)
+
+    (define-key prefix-map (kbd "C-v t") 'meghanada-run-task)
+
+    (define-key map (kbd "M-.") 'meghanada-jump-declaration)
+    (define-key map (kbd "M-,") 'meghanada-switch-testcase)
+
+    (define-key map meghanada-mode-key-prefix prefix-map)
+
     map)
   "Keymap for Meghanada-mode.")
+
+(easy-menu-define meghanada-mode-menu meghanada-mode-map
+  "Menu for Meghanada mode"
+  '("Meghanada"
+    ("Test"
+     ["Run JUnit Class" meghanada-run-junit-class]
+     ["Run JUnit TestCase" meghanada-run-junit-test-case])
+
+    ("Navigation"
+     ["Goto Declaration" meghanada-jump-declaration]
+     ["Goto Test" meghanada-switch-testcase])
+
+    ("Project"
+     ["Run task" meghanada-run-task])
+
+    ("Compile"
+     ["Compile file" meghanada-compile-file]
+     ["Compile project" meghanada-compile-project])
+
+    ("Refactor"
+     ["Optimize import" meghanada-optimize-import]
+     ["Import all" meghanada-import-all]
+     ["Introduce local variable" meghanada-local-variable])
+    ))
 
 ;;;###autoload
 (define-minor-mode meghanada-mode
