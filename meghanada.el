@@ -339,7 +339,8 @@
 
 (defun meghanada--task-client-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT."
-  (let* ((buf meghanada--task-buffer))
+  (let* ((buf meghanada--task-buffer)
+         (eot nil))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
       (setq buffer-read-only nil)
@@ -349,14 +350,16 @@
                (search-backward meghanada--eot nil t))
           (progn
             (while (re-search-forward meghanada--eot nil t)
-              (replace-match ""))
-            (goto-char (point-min))
-            (compilation-mode)
-            (compilation-next-error 1))
+              (replace-match "")
+              (setq eot t))
+            (when eot
+              (compilation-mode)))
         (progn
           (while (re-search-backward meghanada--eot nil t)
-            (replace-match ""))
-            (compilation-mode))))))
+            (replace-match "")
+            (setq eot t))
+          (when eot
+            (compilation-mode)))))))
 
 (defun meghanada--process-push-callback (process cb)
   "TODO: FIX DOC PROCESS CB."
