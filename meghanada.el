@@ -130,6 +130,7 @@
 (defvar meghanada--server-process nil)
 (defvar meghanada--server-buffer "*meghanada-server-log*")
 (defvar meghanada--server-pending nil)
+(defvar meghanada--server-jar nil)
 
 ;;;###autoload
 (defun meghanada-install-server ()
