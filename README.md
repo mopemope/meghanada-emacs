@@ -128,7 +128,7 @@ Compile file.
 
 Compile project.
 
-### meghanada-switch-testcase (M-,)
+### meghanada-switch-testcase (C-M-,)
 
 Switch testcase or source.
 
@@ -148,9 +148,9 @@ Run build tool task.
 
 Goto declaration.
 
-### meghanada-back-jump
+### meghanada-back-jump (M-,)
 
-TODO
+Go back from declaration position.
 
 
 ## TODO

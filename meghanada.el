@@ -809,8 +809,11 @@
          (filename (nth 0 res))
          (line (nth 1 res))
          (col (nth 2 res)))
-    (message filename)
-    (funcall #'find-file-other-window filename)
+    ;; (message (format "%s :: %s" filename))
+
+    (unless (string= filename (buffer-file-name))
+      (funcall #'find-file filename))
+
     (meghanada--goto-line line)
     (beginning-of-line)
     (forward-char (1- col))
@@ -856,7 +859,8 @@
     (define-key prefix-map (kbd "C-v t") 'meghanada-run-task)
 
     (define-key map (kbd "M-.") 'meghanada-jump-declaration)
-    (define-key map (kbd "M-,") 'meghanada-switch-testcase)
+    (define-key map (kbd "M-,") 'meghanada-back-jump)
+    (define-key map (kbd "C-M-,") 'meghanada-switch-testcase)
 
     (define-key map meghanada-mode-key-prefix prefix-map)
 
@@ -867,12 +871,13 @@
   "Menu for Meghanada mode"
   '("Meghanada"
     ("Test"
-     ["Run JUnit Class" meghanada-run-junit-class]
-     ["Run JUnit TestCase" meghanada-run-junit-test-case])
+     ["Run junit class" meghanada-run-junit-class]
+     ["Run junit testcase" meghanada-run-junit-test-case])
 
     ("Navigation"
-     ["Goto Declaration" meghanada-jump-declaration]
-     ["Goto Test" meghanada-switch-testcase])
+     ["Goto declaration" meghanada-jump-declaration]
+     ["Go back" meghanada-back-jump]
+     ["Goto testcase" meghanada-switch-testcase])
 
     ("Project"
      ["Run task" meghanada-run-task])
@@ -884,8 +889,7 @@
     ("Refactor"
      ["Optimize import" meghanada-optimize-import]
      ["Import all" meghanada-import-all]
-     ["Introduce local variable" meghanada-local-variable])
-    ))
+     ["Introduce local variable" meghanada-local-variable])))
 
 ;;;###autoload
 (define-minor-mode meghanada-mode
