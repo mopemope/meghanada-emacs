@@ -43,9 +43,11 @@
   "Enable auto completion with company."
   (company-mode t)
   (make-local-variable 'company-backends)
-  (push #'company-meghanada company-backends)
+  (make-local-variable 'company-transformers)
   (set (make-local-variable 'company-idle-delay) 0)
   (set (make-local-variable 'company-minimum-prefix-length) 2)
+  (add-to-list company-backends '(company-meghanada :with company-dabbrev-code))
+  (setq company-transformers '(company-sort-by-backend-importance))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
 
