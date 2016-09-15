@@ -198,7 +198,7 @@
       (`CONSTRUCTOR (progn (insert "()") (backward-char 1))))))
 
 (defun company-meghanada (command &optional arg &rest ignored)
-  (case command
+  (cl-case command
     (prefix (and (meghanada-alive-p)
                  (not (company-in-string-or-comment))
                  (not (company-meghanada--in-num-literal-p))
