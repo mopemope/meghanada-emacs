@@ -39,6 +39,7 @@
 
 ;;;###autoload
 (defun meghanada-company-enable ()
+  "Enable auto completion with company."
   (company-mode t)
   (make-local-variable 'company-backends)
   (push #'company-meghanada company-backends)
@@ -107,8 +108,7 @@
                             (prefix (match-string 1 match)))
                         (if rt
                             (concat "*method:" rt "#" prefix)
-                            (concat "*method#" prefix)
-                          )))
+                            (concat "*method#" prefix))))
 
                      ((string-match "\\(.*\\)\\.\\(\\w*\\)$" match)
                       (let* ((var (match-string 1 match))
@@ -150,7 +150,7 @@
     (unless (meghanada--import-exists-p meta)
       (if company-meghanada-auto-import
           (meghanada--add-import meta)
-        (when (y-or-n-p (format "Add import %s ?" (meghanada--import-name meta)))
+        (when (y-or-n-p (format "Add import %s ? " (meghanada--import-name meta)))
           (meghanada--add-import meta))))
 
     (save-excursion

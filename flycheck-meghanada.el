@@ -14,11 +14,11 @@
 
 ;;; Code:
 
-(require 'flycheck)
-(require 'meghanada)
-
 (eval-when-compile
   (require 'pcase))
+
+(require 'flycheck)
+(require 'meghanada)
 
 (defgroup flycheck-meghanada nil
   "meghanada mode's flycheck checker."
@@ -64,7 +64,7 @@
      (list #'flycheck-meghanada--callback callback checker buffer))))
 
 (flycheck-define-generic-checker 'meghanada
-  "A syntax checker for Java, using meghanada mode."
+  "A syntax checker for java, using meghanada-mode."
   :start #'flycheck-meghanada--start
   :modes '(java-mode meghanada-mode)
   :predicate (lambda ()
@@ -73,7 +73,7 @@
 
 ;;;###autoload
 (defun meghanada-flycheck-enable ()
-  "Setup flycheck meghanada-mode.  add `meghanada' to `flycheck-checkers'."
+  "Enable flycheck for meghanada-mode."
   (add-to-list 'flycheck-checkers 'meghanada))
 
 (provide 'flycheck-meghanada)
