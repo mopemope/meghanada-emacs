@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "24") (company "0.9.0") (flycheck "0.23"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
 ;;
@@ -17,9 +17,9 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'thingatpt)
 (require 'compile)
 (require 'imenu)
-
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -190,8 +190,8 @@
         meghanada--server-process)
     (setq meghanada--server-process (meghanada--start-server-process))))
 
-(defun meghanada--server-process-sentinel (process event)
-  "TODO: FIX DOC PROCESS EVENT ."
+(defun meghanada--server-process-sentinel (process ignored)
+  "TODO: FIX DOC PROCESS IGNORED ."
   (unless (process-live-p process)
     (setq meghanada--server-process nil)
     (message "meghanada-server process stopped")))
@@ -292,14 +292,14 @@
       meghanada--client-process
     (setq meghanada--client-process (meghanada--start-client-process))))
 
-(defun meghanada--client-process-sentinel (process event)
-  "TODO: FIX DOC PROCESS EVENT."
+(defun meghanada--client-process-sentinel (process ignored)
+  "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
     (setq meghanada--client-process nil)
     (message "meghanada-client process stopped")))
 
-(defun meghanada--task-client-process-sentinel (process event)
-  "TODO: FIX DOC PROCESS EVENT."
+(defun meghanada--task-client-process-sentinel (process ignored)
+  "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
     (setq meghanada--task-client-process nil)
     (message "meghanada-task-client process stopped")))
@@ -337,8 +337,8 @@
               (meghanada--process-client-response process r))
           (nreverse responses))))
 
-(defun meghanada--task-client-process-filter (process output)
-  "TODO: FIX DOC PROCESS OUTPUT."
+(defun meghanada--task-client-process-filter (ignored output)
+  "TODO: FIX DOC IGNORED OUTPUT."
   (let* ((buf meghanada--task-buffer)
          (eot nil))
     ;; (pop-to-buffer buf)
@@ -750,8 +750,8 @@
           (switch-to-buffer buf-name)
           (shrink-window (- h height)))))))
 
-(defun meghanada--junit-callback (output)
-  "A junit callback dummy function.  OUTPUT is not used."
+(defun meghanada--junit-callback (ignored)
+  "A junit callback dummy function.  IGNORED is not used."
   )
 
 (defun meghanada--run-junit (test)

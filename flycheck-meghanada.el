@@ -54,7 +54,7 @@
       (`success (funcall callback 'finished nil))
       (`error (let* ((errors (flycheck-meghanada--build-errors (cdr result) checker buffer)))
                 (funcall callback 'finished (delq nil errors))))
-      (t (progn
+      (_ (progn
            (message "WARN not match type")
            (funcall callback 'finished nil))))))
 

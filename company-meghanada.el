@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages
 ;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "24") (company "0.9") (flycheck "0.23"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5")  (yasnippet "0.6.1") (company "0.9") (flycheck "0.23"))
 
 ;;; Commentary:
 ;;
@@ -17,10 +17,11 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 (require 'company)
 (require 'company-template)
+(require 'thingatpt)
 (require 'meghanada)
 
 (defgroup company-meghanada nil
