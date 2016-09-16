@@ -3,11 +3,6 @@
 ;; Copyright (C) 2016 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
 
-;; Homepage: https://github.com/mopemope/meghanada-emacs
-;; Keywords: languages
-;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "24") (cl-lib "0.5")  (yasnippet "0.6.1") (company "0.9") (flycheck "0.23"))
-
 ;;; Commentary:
 ;;
 ;; The `company-meghanada' is a `company' backend that
@@ -42,11 +37,11 @@
 (defun meghanada-company-enable ()
   "Enable auto completion with company."
   (company-mode t)
-  (make-local-variable 'company-backends)
-  (make-local-variable 'company-transformers)
+  (set (make-local-variable 'company-backends) nil)
+  (set (make-local-variable 'company-transformers) nil)
   (set (make-local-variable 'company-idle-delay) 0)
   (set (make-local-variable 'company-minimum-prefix-length) 2)
-  (add-to-list company-backends '(company-meghanada :with company-dabbrev-code))
+  (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
   (setq company-transformers '(company-sort-by-backend-importance))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))

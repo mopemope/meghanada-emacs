@@ -12,6 +12,7 @@
 ;;
 ;;  Meghanada has a server component which can read the AST of your
 ;;  project and its dependencies, providing features.
+;;  Meghanada does not yet support Windows.
 ;;
 
 ;;; Code:
@@ -72,7 +73,7 @@
   :type 'boolean)
 
 (defcustom meghanada-server-install-dir
-  (expand-file-name "~/.meghanada/meghanada.jar")
+  (expand-file-name "~/.emacs.d/meghanada/meghanada.jar")
   "Install directory for meghanada-server."
   :group 'meghanada
   :type 'directory)
@@ -136,10 +137,12 @@
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
-  (let ((d (expand-file-name "~/.meghanada"))
+  (let ((d (expand-file-name "~/.emacs.d/meghanada"))
         (dest meghanada-server-install-dir)
         (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
-    (shell-command (format "mkdir -p %s" d))
+    (unless (file-exists-p d)
+      (make-directory d))
+    (message (format "download server module from %s. please wait." url))
     (call-process
      "curl"
      nil
