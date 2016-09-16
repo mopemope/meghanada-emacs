@@ -72,10 +72,12 @@
   :group 'meghanada
   :type 'boolean)
 
-(defcustom meghanada-server-install-dir
-  (expand-file-name "~/.emacs.d/meghanada/meghanada.jar")
-  "Install directory for meghanada-server."
+(defcustom meghanada-server-install-dir (locate-user-emacs-file "meghanada/")
+  "Install directory for meghanada-server.
+
+The slash is expected at the end."
   :group 'meghanada
+  :risky t
   :type 'directory)
 
 
@@ -137,12 +139,12 @@
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
-  (let ((d (expand-file-name "~/.emacs.d/meghanada"))
-        (dest meghanada-server-install-dir)
+  (let ((dest meghanada-server-install-dir)
+        (dest-jar (meghanada--locate-server-jar))
         (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
-    (unless (file-exists-p d)
-      (make-directory d))
-    (message (format "download server module from %s. please wait." url))
+    (unless (file-exists-p dest)
+      (make-directory dest t))
+    (message (format "Download server module from %s. Please wait." url))
     (call-process
      "curl"
      nil
@@ -151,39 +153,40 @@
      "-L"
      url
      "-o"
-     dest)
-    (message (format "SUCCESS installed meghanada-server %s. Please restart emacs" dest))))
+     dest-jar)
+    (message (format "SUCCESS installed meghanada-server %s. Please restart Emacs" dest-jar))))
 
 (defun meghanada--locate-server-jar ()
   "TODO: FIX DOC ."
-  (let ((jar meghanada-server-install-dir))
-    (if (file-exists-p jar)
-        jar
-      (message "missing meghanada.jar"))))
+  (expand-file-name "meghanada.jar" meghanada-server-install-dir))
 
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
-  (when (setq meghanada--server-jar (meghanada--locate-server-jar))
-    (let ((process-connection-type nil)
-          (process-adaptive-read-buffering nil)
-          process)
-      (message "Meghanada-Server Starting ...")
-      (setq process
-            (start-process-shell-command
-             "meghanada-server"
-             meghanada--server-buffer
-             (format "java -ea -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx2G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
-                     (shell-quote-argument meghanada--server-jar)
-                     meghanada-port
-                     (if meghanada-debug
-                         "-v"
-                       ""))))
-      (buffer-disable-undo meghanada--server-buffer)
-      (set-process-query-on-exit-flag process nil)
-      (set-process-sentinel process 'meghanada--server-process-sentinel)
-      (set-process-filter process 'meghanada--server-process-filter)
-      (message "Meghanada-Server Started")
-      process)))
+  (let ((jar (meghanada--locate-server-jar)))
+  (if (file-exists-p jar)
+      (let ((process-connection-type nil)
+            (process-adaptive-read-buffering nil)
+            process)
+        (message "Meghanada-Server Starting ...")
+        (setq process
+              (start-process-shell-command
+               "meghanada-server"
+               meghanada--server-buffer
+               (format "java -ea -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx2G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+                       (shell-quote-argument jar)
+                       meghanada-port
+                       (if meghanada-debug
+                           "-v"
+                         ""))))
+        (buffer-disable-undo meghanada--server-buffer)
+        (set-process-query-on-exit-flag process nil)
+        (set-process-sentinel process 'meghanada--server-process-sentinel)
+        (set-process-filter process 'meghanada--server-process-filter)
+        (message "Meghanada-Server Started")
+        process)
+    (message "%s"
+             (substitute-command-keys
+              "Missing server module. Type `\\[meghanada-install-server]' to install meghanada-server")))))
 
 (defun meghanada--get-server-process-create ()
   "TODO: FIX DOC ."
