@@ -924,9 +924,9 @@ The slash is expected at the end."
 (defun meghanada-modeline-string ()
   "Return modeline string."
   (cond ((not (meghanada-alive-p))
-         "MEGHANADA:Disconnected")
+         " MEGHANADA:Disconnected")
         ((meghanada-alive-p)
-         "MEGHANADA")))
+         " MEGHANADA")))
 
 (provide 'meghanada)
 
