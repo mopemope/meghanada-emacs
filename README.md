@@ -1,5 +1,7 @@
 # Meghanada-Mode
 
+[![Join the chat at https://gitter.im/mopemope/meghanada-emacs](https://badges.gitter.im/mopemope/meghanada-emacs.svg)](https://gitter.im/mopemope/meghanada-emacs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## A Better Java Development Environment for Emacs
 
 `meghanada` is a new java-mode (`meghanada-mode`) that aims at improving the editing
