@@ -1,14 +1,12 @@
-# Meghanada-Mode
+# Meghanada-Mode [![MELPA](https://melpa.org/packages/meghanada-badge.svg)](https://melpa.org/#/meghanada)
 
 [![Join the chat at https://gitter.im/mopemope/meghanada-emacs](https://badges.gitter.im/mopemope/meghanada-emacs.svg)](https://gitter.im/mopemope/meghanada-emacs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## A Better Java Development Environment for Emacs
 
-`meghanada` is a new java-mode (`meghanada-mode`) that aims at improving the editing
+`Meghanada` is a new minor-mode (`meghanada-mode`) that aims at improving the editing
 experience for the Java. It works by using a combination of an Emacs
 package and [meghanada-server][].
-
-<i>WARNING! This is a project beta quality. Under heavy development now.</i>
 
 **Features:**
 
@@ -23,19 +21,20 @@ package and [meghanada-server][].
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 
-`meghanada` tested only `linux` (maybe macOS OK). windows not support.
+`Meghanada` tested only `linux` (maybe macOS OK). windows not support.
 
 ## Dependencies
 
-Meghanada-Mode has been developed Emacs 24.5.
+Meghanada has been developed Emacs 24.5.
 
 ### Elisp dependencies
 
-| Package              | Comment                           |
+| Package              | Version                           |
 | -------------------- | --------------------------------- |
-| `cl-lib`             | Built-in since Emacs 24.3         |
-| [company-mode][]     | Optional (company "0.9.0")        |
-| [flycheck][]         | Optional (flycheck "0.23")        |
+| `cl-lib`             | 0.5                               |
+| [yasnippet][]        | 0.6.1                             |
+| [company-mode][]     | 0.9.0                             |
+| [flycheck][]         | 0.23                              |
 
 ### Meghanada-Server
 
@@ -50,9 +49,7 @@ packages to be installed on your system:
 
 ### Elisp
 
-First add project directory to emacs `load-path`. and write configuration.
-
-TODO install from melpa
+Install meghanada from melpa.
 
 #### Configuration
 
