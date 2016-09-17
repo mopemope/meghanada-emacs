@@ -18,6 +18,7 @@
 (require 'company-template)
 (require 'thingatpt)
 (require 'meghanada)
+(require 'yasnippet)
 
 (defgroup company-meghanada nil
   "Company-mode completion back-end for Meghanada."
