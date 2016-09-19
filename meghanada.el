@@ -126,6 +126,11 @@ The slash is expected at the end."
     (forward-char (1- column))
     (point)))
 
+(defun meghanada-version ()
+  "Show meghanada-version ."
+  (interactive)
+  (message meghanada-version))
+
 ;;
 ;; meghanada-server process management.
 ;;
