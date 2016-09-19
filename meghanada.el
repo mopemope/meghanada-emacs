@@ -283,8 +283,7 @@ The slash is expected at the end."
   "TODO: FIX DOC ."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       meghanada--client-process
-    (if (and meghanada--server-process (process-live-p meghanada--server-process))
-        (setq meghanada--client-process (meghanada--start-client-process))
+    (unless (and meghanada--server-process (process-live-p meghanada--server-process))
       (progn
         (meghanada--client-kill)
         (setq meghanada--server-pending
