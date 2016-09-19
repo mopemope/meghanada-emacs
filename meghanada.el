@@ -161,6 +161,11 @@ The slash is expected at the end."
      dest-jar)
     (message (format "SUCCESS installed meghanada-server %s. Please restart Emacs" dest-jar))))
 
+;;;###autoload
+(defun meghanada-update-server ()
+  "Update meghanada-server's jar file from bintray ."
+  (meghanada-install-server))
+
 (defun meghanada--locate-server-jar ()
   "TODO: FIX DOC ."
   (expand-file-name "meghanada.jar" meghanada-server-install-dir))
