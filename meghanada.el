@@ -164,6 +164,7 @@ The slash is expected at the end."
 ;;;###autoload
 (defun meghanada-update-server ()
   "Update meghanada-server's jar file from bintray ."
+  (interactive)
   (meghanada-install-server))
 
 (defun meghanada--locate-server-jar ()
