@@ -3,10 +3,11 @@
 ;; Copyright (C) 2016 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
 
+;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
-;; Keywords: languages
-;; Package-Version: 0.1.0
-;; Package-Requires: ((emacs "24") (cl-lib "0.5") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
+;; Keywords: languages java
+;; Package-Version: 0.2.1
+;; Package-Requires: ((emacs "24.3") (cl-lib "0.5") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
 ;;
@@ -29,7 +30,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "0.2.0")
+(defconst meghanada-version "0.2.1")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
