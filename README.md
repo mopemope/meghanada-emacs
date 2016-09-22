@@ -10,7 +10,7 @@ package and [meghanada-server][].
 
 **Features:**
 
-* [Gradle][] and [Maven][](Beta) project support
+* [Gradle][] and [Maven][] project support
 * Run build tool task
 * Compile your project
 * Analyze java source
@@ -154,7 +154,6 @@ Go back from declaration position.
 
 ## TODO
 
-* Fully support [Maven][] project.
 * Fully support `lambda expression`
 * Fully support `method reference`
 * Reformat source (IntelliJ Rule)
