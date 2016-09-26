@@ -912,6 +912,14 @@ The slash is expected at the end."
      ["Import all" meghanada-import-all]
      ["Introduce local variable" meghanada-local-variable])))
 
+
+(defun meghanada-change-project ()
+  "Change project root."
+  (when (meghanada-alive-p)
+    (if (and meghanada--client-process (process-live-p meghanada--client-process))
+        (meghanada--send-request "pc" #'message (buffer-file-name))
+      (message "client connection not established"))))
+
 ;;;###autoload
 (define-minor-mode meghanada-mode
   "A better java development mode for Emacs (minor-mode).
@@ -925,7 +933,8 @@ The slash is expected at the end."
     (when meghanada-use-flycheck
       (meghanada-flycheck-enable))
     (when meghanada-auto-start
-      (meghanada-client-connect))))
+      (meghanada-client-connect))
+    (meghanada-change-project)))
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
 
