@@ -30,7 +30,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "0.2.1")
+(defconst meghanada-version "0.2.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
@@ -160,13 +160,14 @@ The slash is expected at the end."
      url
      "-o"
      dest-jar)
-    (message (format "SUCCESS installed meghanada-server %s. Please restart Emacs" dest-jar))))
+    (message (format "SUCCESS installed meghanada-server %s." dest-jar))))
 
 ;;;###autoload
 (defun meghanada-update-server ()
   "Update meghanada-server's jar file from bintray ."
   (interactive)
-  (meghanada-install-server))
+  (meghanada-install-server)
+  (meghanada-restart))
 
 (defun meghanada--locate-server-jar ()
   "TODO: FIX DOC ."
@@ -244,8 +245,8 @@ The slash is expected at the end."
   (interactive)
   (when (and meghanada--server-process (process-live-p meghanada--server-process))
     (kill-process meghanada--server-process)
-    (setq meghanada--server-process nil)))
-
+    (setq meghanada--server-process nil)
+    (kill-buffer meghanada--server-buffer)))
 
 ;;
 ;; meghanada-client process management.
@@ -392,12 +393,12 @@ The slash is expected at the end."
     (car callbacks)))
 
 (defun meghanada--client-kill ()
-  "TODO: FIX DOC ."
+  "Disconnect and kill meghanada-client."
   (when (and meghanada--client-process (process-live-p meghanada--client-process))
-    (kill-process meghanada--client-process)
+    (delete-process meghanada--client-process)
     (setq meghanada--client-process nil))
   (when (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
-    (kill-process meghanada--task-client-process)
+    (delete-process meghanada--task-client-process)
     (setq meghanada--task-client-process nil)))
 
 (defun meghanada--send-request (request callback &rest args)
@@ -559,6 +560,15 @@ The slash is expected at the end."
   "TODO: FIX DOC ."
   (interactive)
   (meghanada--client-kill))
+
+;;;###autoload
+(defun meghanada-restart ()
+  "Restart meghanada server and client."
+  (interactive)
+  (meghanada--client-kill)
+  (meghanada-server-kill)
+  (sleep-for 3)
+  (meghanada--start-server-and-client))
 
 ;;
 ;; meghanada other api

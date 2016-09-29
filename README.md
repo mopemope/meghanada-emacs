@@ -76,11 +76,19 @@ Here is a list of available interactive commands.
 
 Download and install [meghanada-server] jar.
 
+### meghanada-update-server
+
+Download and update [meghanada-server] jar. and restart server process.
+
 ### meghanada-server-start
 
 Start [meghanada-server][] process and connect to server.
 
 `meghanada-mode` call this function by default. when open java file and set `meghanada-mode`.
+
+### meghanada-restart
+
+Restart [meghanada-server][] process and client process.
 
 ### meghanada-server-kill
 
