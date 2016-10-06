@@ -10,14 +10,16 @@ package and [meghanada-server][].
 
 **Features:**
 
+* Easy Install
 * [Gradle][] and [Maven][] project support
+* No need build tool's plugin
 * Run build tool task
 * Compile your project
 * Analyze java source
 * Support `Generics`
 * Code completion with [company-mode][] (`company-meghanada`)
 * Optimize import
-* Jump declaration
+* Jump declaration (only project source)
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 
@@ -67,6 +69,16 @@ Install meghanada from melpa.
 To do so, type `M-x meghanada-install-server RET`. Server program is installed `~/.meghanada/meghanada.jar`.
 
 If you open java file and set `meghanada-mode`, [meghanada-server][] process start automatically and connect to your emacs.
+
+### Updating
+
+Meghanadauses does not support automatically updade.
+
+If you update `meghanada-mode`, you should update server by typing:
+
+```
+M-x meghanada-update-server
+```
 
 ## Usage
 
@@ -159,6 +171,10 @@ Goto declaration.
 
 Go back from declaration position.
 
+
+## Troubleshooting
+
+See `*meghanada-server-log` buffer.
 
 ## TODO
 
