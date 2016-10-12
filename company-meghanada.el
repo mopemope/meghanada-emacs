@@ -88,7 +88,7 @@
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
-        (re "^package \\|new \\w\\{2,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*"))
+        (re "^package \\|new \\w\\{2,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*"))
     (setq meghanada--sp-prefix nil)
     (when symbol
       (save-excursion
@@ -96,24 +96,30 @@
             (let* ((match (match-string 0))
                    (keyword
                     (cond
-
                      ((string-prefix-p "package" match) "*package")
-
                      ((string-prefix-p "new" match)
                       (concat "*" (replace-regexp-in-string " " ":" match)))
-
                      ((string-match "\)\\.\\(\\w*\\)$" match)
                       (let ((rt (meghanada--search-return-type))
                             (prefix (match-string 1 match)))
                         (if rt
                             (concat "*method:" rt "#" prefix)
-                            (concat "*method#" prefix))))
-
+                          (concat "*method#" prefix))))
+                     ((string-match "\\.\\(\\w*\\)$" match)
+                      (let ((rt (meghanada--search-return-type))
+                            (prefix (match-string 1 match))
+                            (sym (progn
+                                   (search-backward ".")
+                                   (backward-word)
+                                   (meghanada--what-word))))
+                        (message (format "sym:%s" sym))
+                        (if rt
+                            (concat "*method:" rt "#" prefix)
+                          (concat "*" sym "#" prefix))))
                      ((string-match "\\(.*\\)\\.\\(\\w*\\)$" match)
                       (let* ((var (match-string 1 match))
                              (prefix (match-string 2 match)))
                         (concat "*" var "#" prefix)))
-
                      (t match))))
 
               ;; (message (format "match:%s send-keyword:%s" match keyword))
