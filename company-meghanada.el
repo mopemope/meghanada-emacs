@@ -21,8 +21,8 @@
 (require 'yasnippet)
 
 (defgroup company-meghanada nil
-  "Company-mode completion back-end for Meghanada."
-  :group 'company)
+  "Company-mode completion backend for Meghanada."
+  :group 'meghanada)
 
 (defcustom company-meghanada-show-annotation t
   "Show an annotation inline with the candidate."
@@ -34,6 +34,11 @@
   :group 'company-meghanada
   :type 'boolean)
 
+(defcustom company-meghanada-prefix-length 2
+  "Start completion prefix-length."
+  :group 'company-meghanada
+  :type 'integer)
+
 ;;;###autoload
 (defun meghanada-company-enable ()
   "Enable auto completion with company."
@@ -41,7 +46,7 @@
   (set (make-local-variable 'company-backends) nil)
   (set (make-local-variable 'company-transformers) nil)
   (set (make-local-variable 'company-idle-delay) 0)
-  (set (make-local-variable 'company-minimum-prefix-length) 2)
+  (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
   (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
   (setq company-transformers '(company-sort-by-backend-importance))
   (yas-minor-mode t)

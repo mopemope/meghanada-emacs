@@ -80,6 +80,10 @@ If you update `meghanada-mode`, you should update server by typing:
 M-x meghanada-update-server
 ```
 
+## Customize
+
+type `M-x customize-group RET meghanada` .
+
 ## Usage
 
 Here is a list of available interactive commands.

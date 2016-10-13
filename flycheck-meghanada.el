@@ -16,7 +16,7 @@
 (require 'meghanada)
 
 (defgroup flycheck-meghanada nil
-  "meghanada mode's flycheck checker."
+  "Meghanada mode's flycheck checker."
   :group 'meghanada)
 
 

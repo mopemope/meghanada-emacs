@@ -51,7 +51,7 @@
 (defcustom meghanada-port 55555
   "Meghanada server port."
   :group 'meghanada
-  :type 'int)
+  :type 'integer)
 
 (defcustom meghanada-debug nil
   "Meghanada server debug mode."
