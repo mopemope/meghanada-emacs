@@ -39,6 +39,10 @@
   :group 'company-meghanada
   :type 'integer)
 
+(defconst company-meghanada--trigger "^package \\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
+
+(defvar company-meghanada-trigger-regex nil)
+
 ;;;###autoload
 (defun meghanada-company-enable ()
   "Enable auto completion with company."
@@ -47,6 +51,7 @@
   (set (make-local-variable 'company-transformers) nil)
   (set (make-local-variable 'company-idle-delay) 0)
   (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
+  (setq company-meghanada-trigger-regex (format company-meghanada--trigger company-meghanada-prefix-length company-meghanada-prefix-length))
   (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
   (setq company-transformers '(company-sort-by-backend-importance))
   (yas-minor-mode t)
@@ -93,7 +98,8 @@
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
-        (re "^package \\|new \\w\\{2,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*"))
+        (re company-meghanada-trigger-regex))
+
     (setq meghanada--sp-prefix nil)
     (when symbol
       (save-excursion
@@ -118,7 +124,6 @@
                                    (search-backward ".")
                                    (backward-word)
                                    (meghanada--what-word))))
-                        (message (format "sym:%s" sym))
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*" sym "#" prefix))))
@@ -169,15 +174,23 @@
       (set-text-properties
        (beginning-of-thing 'symbol) (end-of-thing 'symbol)
        (list 'class t 'return-type meta 'meta meta)))
-    (if (and meghanada--sp-prefix (string-prefix-p "*new" meghanada--sp-prefix))
+
+    (if (and meghanada--sp-prefix
+             (or (string-prefix-p "*new" meghanada--sp-prefix)
+                 (string-prefix-p "@" meghanada--sp-prefix)))
         (if anno
-              ;; complete diamond op. like a new HashMap<>()
-              (progn
-                (insert "<>()")
-                (backward-char 3))
+            ;; complete diamond op. like a new HashMap<>()
+            (progn
+              (insert "<>()")
+              (backward-char 3))
+          (progn
+            (when (string-prefix-p "@" meghanada--sp-prefix)
+              (save-excursion
+                (backward-word)
+                (insert "@")))
             (progn
               (insert "()")
-              (backward-char 1)))
+              (backward-char 1))))
       (when anno
         (insert anno)
         (company-template-c-like-templatify anno)))))
