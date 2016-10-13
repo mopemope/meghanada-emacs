@@ -111,7 +111,8 @@
                             (concat "*method:" rt "#" prefix)
                           (concat "*method#" prefix))))
                      ((string-match "\\.\\(\\w*\\)$" match)
-                      (let ((rt (meghanada--search-return-type))
+                      (let ((rt (ignore-errors
+                                  (meghanada--search-return-type)))
                             (prefix (match-string 1 match))
                             (sym (progn
                                    (search-backward ".")
