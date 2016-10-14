@@ -184,13 +184,8 @@
               (insert "<>()")
               (backward-char 3))
           (progn
-            (when (string-prefix-p "@" meghanada--sp-prefix)
-              (save-excursion
-                (backward-word)
-                (insert "@")))
-            (progn
               (insert "()")
-              (backward-char 1))))
+              (backward-char 1)))
       (when anno
         (insert anno)
         (company-template-c-like-templatify anno)))))
