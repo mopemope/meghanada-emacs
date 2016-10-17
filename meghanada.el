@@ -22,6 +22,7 @@
 (require 'thingatpt)
 (require 'compile)
 (require 'imenu)
+(require 'url)
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -34,6 +35,7 @@
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
+(defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 
 ;;
 ;; Customizable variables
@@ -141,26 +143,39 @@ The slash is expected at the end."
 (defvar meghanada--server-pending nil)
 (defvar meghanada--server-jar nil)
 
-;;;###autoload
-(defun meghanada-install-server ()
-  "Install meghanada-server's jar file from bintray ."
-  (interactive)
+
+;; TODO pop-to-buffer
+
+(defun meghanada--download-jar ()
   (let ((dest meghanada-server-install-dir)
         (dest-jar (meghanada--locate-server-jar))
         (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
     (unless (file-exists-p dest)
       (make-directory dest t))
     (message (format "Download server module from %s. Please wait." url))
-    (call-process
-     "curl"
-     nil
-     nil
-     t
-     "-L"
-     url
-     "-o"
-     dest-jar)
-    (message (format "SUCCESS installed meghanada-server %s." dest-jar))))
+    (url-handler-mode t)
+    (if (file-exists-p url)
+        (progn
+          (url-copy-file url dest-jar)
+          (message (format "Downloaded server module from %s to %s." url dest-jar)))
+      (error "Not found %s" url))))
+
+;;;###autoload
+(defun meghanada-install-server ()
+  "Install meghanada-server's jar file from bintray ."
+  (interactive)
+  (let ((dest-jar (meghanada--locate-server-jar)))
+    (if (file-exists-p dest-jar)
+        nil
+      (condition-case err
+          (progn
+            (meghanada--download-jar)
+            t)
+        (error
+         (let ((error-buf meghanada--install-err-buf-name))
+           (with-current-buffer (get-buffer-create error-buf)
+             (insert (format "Error: %s" (error-message-string err)))
+             (compilation-mode))))))))
 
 ;;;###autoload
 (defun meghanada-update-server ()
@@ -170,8 +185,9 @@ The slash is expected at the end."
   (meghanada-restart))
 
 (defun meghanada--locate-server-jar ()
-  "TODO: FIX DOC ."
-  (expand-file-name "meghanada.jar" meghanada-server-install-dir))
+  (expand-file-name
+   (format "meghanada-%s.jar" meghanada-version)
+   meghanada-server-install-dir))
 
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
@@ -553,6 +569,7 @@ The slash is expected at the end."
 (defun meghanada-client-connect ()
   "TODO: FIX DOC ."
   (interactive)
+  ;; TODO check
   (meghanada--start-server-and-client))
 
 ;;;###autoload
@@ -938,13 +955,21 @@ The slash is expected at the end."
   nil
   meghanada-mode-map
   (progn
+    (meghanada-install-server)
     (when meghanada-use-company
       (meghanada-company-enable))
     (when meghanada-use-flycheck
       (meghanada-flycheck-enable))
     (when meghanada-auto-start
       (meghanada-client-connect))
-    (meghanada-change-project)))
+    (meghanada-change-project)
+    (run-at-time 2 nil
+                 #'(lambda ()
+                     (when (member meghanada--install-err-buf-name
+                                   (mapcar #'(lambda (b)
+                                               (format "%s" b))
+                                           (buffer-list)))
+                       (pop-to-buffer meghanada--install-err-buf-name))))))
 
 (remove-hook 'java-mode-hook 'wisent-java-default-setup)
 
