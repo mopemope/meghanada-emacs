@@ -10,7 +10,8 @@ package and [meghanada-server][].
 
 **Features:**
 
-* Easy Install
+* Easy install
+* Auto update server module
 * [Gradle][] and [Maven][] project support
 * No need build tool's plugin
 * Run build tool task
@@ -66,15 +67,13 @@ Install meghanada from melpa.
 
 ### Meghanada-Server
 
-To do so, type `M-x meghanada-install-server RET`. Server program is installed `~/.meghanada/meghanada.jar`.
+The server will be automatically install to `~/.meghanada/meghanada.jar`.
 
 If you open java file and set `meghanada-mode`, [meghanada-server][] process start automatically and connect to your emacs.
 
 ### Updating
 
-Meghanadauses does not support automatically updade.
-
-If you update `meghanada-mode`, you should update server by typing:
+The server will be automatically updated.
 
 ```
 M-x meghanada-update-server
@@ -178,7 +177,7 @@ Go back from declaration position.
 
 ## Troubleshooting
 
-See `*meghanada-server-log` buffer.
+See `*meghanada-server-log*` buffer.
 
 ## TODO
 
