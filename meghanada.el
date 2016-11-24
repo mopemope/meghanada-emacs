@@ -23,6 +23,7 @@
 (require 'compile)
 (require 'imenu)
 (require 'url)
+(require 'which-func)
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -825,7 +826,10 @@ The slash is expected at the end."
          (class-name (car (split-string
                            (car (last (split-string file-name "/")))
                            "\\.")))
-         (test-case (car (imenu-choose-buffer-index "Test case: ")))
+         (test-case (completing-read "Test case: "
+                                     (imenu--make-index-alist t)
+                                     nil t
+                                     (which-function)))
          (test-name (format "%s#%s" class-name test-case)))
     (meghanada--run-junit test-name)))
 
