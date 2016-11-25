@@ -103,9 +103,9 @@ The slash is expected at the end."
   "TODO: FIX DOC ."
   (number-to-string (current-column)))
 
-(defun meghanada--what-word ()
+(defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
-  (thing-at-point 'word))
+  (thing-at-point 'symbol))
 
 (defmacro meghanada--without-narrowing (&rest body)
   "TODO: FIX DOC BODY."
@@ -880,7 +880,7 @@ The slash is expected at the end."
                                (buffer-file-name)
                                (meghanada--what-line)
                                (meghanada--what-column)
-                               (meghanada--what-word))
+                               (meghanada--what-symbol))
     (message "client connection not established")))
 
 (defun meghanada-back-jump ()
