@@ -42,8 +42,8 @@ Meghanada has been developed Emacs 24.5.
 ### Meghanada-Server
 
 `meghanada-mode` require [meghanada-server][] and JDK .
-[meghanada-server][] provides interface to `meghanada-mode`. It uses a simple protocol
-based on S-expression. This server, written in java and requires the following
+[meghanada-server][] provides an interface to `meghanada-mode`. It uses a simple protocol
+based on S-expressions. This server, written in java, requires the following
 packages to be installed on your system:
 
 * JDK >= 1.8
@@ -67,9 +67,9 @@ Install meghanada from melpa.
 
 ### Meghanada-Server
 
-The server will be automatically install to `~/.meghanada/meghanada.jar`.
+The server will be automatically installed to `~/.meghanada/meghanada.jar`.
 
-If you open java file and set `meghanada-mode`, [meghanada-server][] process start automatically and connect to your emacs.
+If you open a java file and set `meghanada-mode`, a [meghanada-server][] process starts automatically and connects to your emacs.
 
 ### Updating
 
