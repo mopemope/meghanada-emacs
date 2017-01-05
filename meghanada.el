@@ -23,6 +23,7 @@
 (require 'compile)
 (require 'imenu)
 (require 'url)
+(require 'which-func)
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -102,9 +103,9 @@ The slash is expected at the end."
   "TODO: FIX DOC ."
   (number-to-string (current-column)))
 
-(defun meghanada--what-word ()
+(defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
-  (thing-at-point 'word))
+  (thing-at-point 'symbol))
 
 (defmacro meghanada--without-narrowing (&rest body)
   "TODO: FIX DOC BODY."
@@ -825,7 +826,10 @@ The slash is expected at the end."
          (class-name (car (split-string
                            (car (last (split-string file-name "/")))
                            "\\.")))
-         (test-case (car (imenu-choose-buffer-index "Test case: ")))
+         (test-case (completing-read "Test case: "
+                                     (imenu--make-index-alist t)
+                                     nil t
+                                     (which-function)))
          (test-name (format "%s#%s" class-name test-case)))
     (meghanada--run-junit test-name)))
 
@@ -876,7 +880,7 @@ The slash is expected at the end."
                                (buffer-file-name)
                                (meghanada--what-line)
                                (meghanada--what-column)
-                               (meghanada--what-word))
+                               (meghanada--what-symbol))
     (message "client connection not established")))
 
 (defun meghanada-back-jump ()
