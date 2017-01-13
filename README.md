@@ -197,3 +197,4 @@ GPL v3, See [LICENSE](LICENSE) file.
 [company-mode]: http://company-mode.github.io/
 [flycheck]: http://flycheck.org
 [Junit]: http://www.junit.org/
+[yasnippet]: http://joaotavora.github.io/yasnippet/
