@@ -32,7 +32,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "0.2.5-SNAPSHOT")
+(defconst meghanada-version "0.3.0")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
@@ -106,6 +106,10 @@ The slash is expected at the end."
 (defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
   (thing-at-point 'symbol))
+
+(defun meghanada--what-word ()
+  "TODO: FIX DOC ."
+  (thing-at-point 'word))
 
 (defmacro meghanada--without-narrowing (&rest body)
   "TODO: FIX DOC BODY."
