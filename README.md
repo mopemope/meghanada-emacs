@@ -28,7 +28,7 @@ package and [meghanada-server][].
 
 ## Dependencies
 
-Meghanada has been developed Emacs 24.5.
+Meghanada has been developed Emacs 25.1.1
 
 ### Elisp dependencies
 
@@ -41,7 +41,7 @@ Meghanada has been developed Emacs 24.5.
 
 ### Meghanada-Server
 
-`meghanada-mode` require [meghanada-server][] and JDK .
+`meghanada-mode` require [meghanada-server][] and JDK (not JRE).
 [meghanada-server][] provides an interface to `meghanada-mode`. It uses a simple protocol
 based on S-expressions. This server, written in java, requires the following
 packages to be installed on your system:
@@ -181,8 +181,6 @@ See `*meghanada-server-log*` buffer.
 
 ## TODO
 
-* Fully support `lambda expression`
-* Fully support `method reference`
 * Reformat source (IntelliJ Rule)
 * Refactoring
 
