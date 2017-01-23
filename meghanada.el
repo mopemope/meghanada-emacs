@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 0.3.1
+;; Package-Version: 0.4.0
 ;; Package-Requires: ((emacs "24.3") (cl-lib "0.5") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
@@ -32,7 +32,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "0.3.1")
+(defconst meghanada-version "0.4.0")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
