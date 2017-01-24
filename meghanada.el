@@ -298,7 +298,6 @@ The slash is expected at the end."
            :filter 'meghanada--client-process-filter))
     (buffer-disable-undo meghanada--client-buffer)
     (message "Meghanada Ready")
-    (setq meghanada--task-client-process (meghanada--start-task-client-process))
     process))
 
 (defun meghanada--start-task-client-process ()
@@ -805,6 +804,10 @@ The slash is expected at the end."
 
 (defun meghanada--run-junit (test)
   "TODO: FIX DOC TEST."
+
+  (unless (process-live-p meghanada--task-client-process)
+    (setq meghanada--task-client-process (meghanada--start-task-client-process)))
+
   (if meghanada--task-client-process
       (progn
         (kill-buf meghanada--task-buf-name)
@@ -846,7 +849,11 @@ The slash is expected at the end."
   "TODO: FIX DOC ARGS."
   (interactive "sArgs: ")
   (message args)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+
+  (unless (process-live-p meghanada--task-client-process)
+    (setq meghanada--task-client-process (meghanada--start-task-client-process)))
+
+  (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
       (progn
         (kill-buf meghanada--task-buf-name)
         (kill-buf meghanada--junit-buf-name)
