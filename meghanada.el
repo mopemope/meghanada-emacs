@@ -32,7 +32,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "0.4.0")
+(defconst meghanada-version "0.5.0")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
