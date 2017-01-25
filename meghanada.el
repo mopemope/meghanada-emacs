@@ -7,7 +7,7 @@
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
 ;; Package-Version: 0.4.0
-;; Package-Requires: ((emacs "24.3") (cl-lib "0.5") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
+;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
 ;;
