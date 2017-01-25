@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 0.4.0
+;; Package-Version: 0.5.0
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;;; Commentary:
@@ -463,14 +463,14 @@ The slash is expected at the end."
           (accept-process-output process))
         (cdr meghanada--sync-result)))))
 
-
 ;;
 ;; meghanada api
 ;;
 
 (defun meghanada-alive-p ()
   "TODO: FIX DOC ."
-  (and meghanada--client-process
+  (and meghanada-mode
+       meghanada--client-process
        (process-live-p meghanada--client-process)))
 
 ;;
@@ -903,6 +903,37 @@ The slash is expected at the end."
     (message "client connection not established")))
 
 ;;
+;; meghanada format api
+;;
+
+(defun meghanada--write-tmpfile ()
+  "Write tmpfile."
+  (let ((tmpfile (make-temp-file "meghanada" nil ".java"))
+        (coding-system-for-read 'utf-8)
+        (coding-system-for-write 'utf-8))
+    (unwind-protect
+        (write-region nil nil tmpfile nil 'nomsg))
+    tmpfile))
+
+(defun meghanada-code-beautify ()
+  "Beautify java code."
+  (interactive)
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (let* ((current-point (point))
+             (output (meghanada--send-request-sync "fc" (meghanada--write-tmpfile)))
+             (path (read output)))
+        (erase-buffer)
+        (insert-file-contents path)
+        (goto-char current-point)
+        (delete-file path))
+    (message "client connection not established")))
+
+(defun meghanada-code-beautify-before-save ()
+  "Beautify code before save."
+  (when (meghanada-alive-p)
+    (meghanada-code-beautify)))
+
+;;
 ;; meghanada-mode
 ;;
 
@@ -951,6 +982,7 @@ The slash is expected at the end."
      ["Compile project" meghanada-compile-project])
 
     ("Refactor"
+     ["Format code" meghanada-code-beautify]
      ["Optimize import" meghanada-optimize-import]
      ["Import all" meghanada-import-all]
      ["Introduce local variable" meghanada-local-variable])))
