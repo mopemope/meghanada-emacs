@@ -90,11 +90,29 @@
                  prefix
                  (list #'company-meghanada--autocomplete-callback callback)))))))
 
-(defun meghanada--search-return-type ()
+(defun meghanada--search-method-caller ()
   (save-excursion
     (backward-list)
     (forward-char -1)
     (get-text-property (point) 'return-type)))
+
+(defun meghanada--search-access-caller ()
+  (save-excursion
+    (backward-word)
+    (get-text-property (point) 'return-type)))
+
+;; (defun meghanada--search-return-type ()
+;;   (save-excursion
+;;     (backward-list)
+;;     (forward-char -1)
+;;     (get-text-property (point) 'return-type)))
+
+(defun meghanada--search-return-type ()
+  (let ((mc (meghanada--search-method-caller))
+        (ac (meghanada--search-access-caller)))
+    (if mc
+        mc
+      ac)))
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
@@ -116,6 +134,7 @@
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*method#" prefix))))
+
                      ((string-match "\\.\\(\\w*\\)$" match)
                       (let ((rt (ignore-errors
                                   (meghanada--search-return-type)))
@@ -127,6 +146,7 @@
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*" sym "#" prefix))))
+
                      ((string-match "\\(.*\\)\\.\\(\\w*\\)$" match)
                       (let* ((var (match-string 1 match))
                              (prefix (match-string 2 match)))
@@ -172,7 +192,8 @@
     (save-excursion
       (forward-char -1)
       (set-text-properties
-       (beginning-of-thing 'symbol) (end-of-thing 'symbol)
+       (beginning-of-thing 'symbol)
+       (end-of-thing 'symbol)
        (list 'class t 'return-type meta 'meta meta)))
 
     (if (and meghanada--sp-prefix
@@ -204,12 +225,24 @@
       (insert anno)
       (company-template-c-like-templatify anno))))
 
+(defun company-meghanada--post-field (arg)
+  (let ((meta (get-text-property 0 'meta arg))
+        (anno (company-meghanada--annotation arg))
+        (return-t (get-text-property 0 'return-type arg)))
+    (when return-t
+      (save-excursion
+        (forward-char -1)
+        (set-text-properties
+         (beginning-of-thing 'symbol) (end-of-thing 'symbol)
+         (list 'return-type return-t 'meta meta))))))
+
 (defun company-meghanada--post-completion (arg)
   (let ((type (intern (get-text-property 0 'type arg))))
-
     (pcase type
       ;; completion class
       (`CLASS (company-meghanada--post-class arg))
+      ;; completion field
+      (`FIELD (company-meghanada--post-field arg))
       ;; completion method
       (`METHOD (company-meghanada--post-method arg))
       ;; completion const
@@ -231,16 +264,6 @@
     (require-match 'never)
     (post-completion
      (company-meghanada--post-completion arg))))
-
-;; (defun meghanada-grab-symbol-test ()
-;;   (interactive)
-;;   (message (format "%s" (meghanad--grab-symbol-cons))))
-
-;; (defun meghanada-prop-test ()
-;;   (interactive)
-;;   (let ((pos (next-property-change (point))))
-;;     (goto-char pos)
-;;     (message (format "prop:%s" (get-text-property (point) 'return-type)))))
 
 (provide 'company-meghanada)
 
