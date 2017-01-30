@@ -134,6 +134,32 @@ The slash is expected at the end."
     (forward-char (1- column))
     (point)))
 
+(defun meghanada--delete-whole-line (&optional arg)
+  "Delete the current line without putting it in the `kill-ring'.
+Derived from function `kill-whole-line'.  ARG is defined as for that
+function."
+  (setq arg (or arg 1))
+  (if (and (> arg 0)
+           (eobp)
+           (save-excursion (forward-visible-line 0) (eobp)))
+      (signal 'end-of-buffer nil))
+  (if (and (< arg 0)
+           (bobp)
+           (save-excursion (end-of-visible-line) (bobp)))
+      (signal 'beginning-of-buffer nil))
+  (cond ((zerop arg)
+         (delete-region (progn (forward-visible-line 0) (point))
+                        (progn (end-of-visible-line) (point))))
+        ((< arg 0)
+         (delete-region (progn (end-of-visible-line) (point))
+                        (progn (forward-visible-line (1+ arg))
+                               (unless (bobp)
+                                 (backward-char))
+                               (point))))
+        (t
+         (delete-region (progn (forward-visible-line 0) (point))
+                        (progn (forward-visible-line arg) (point))))))
+
 (defun meghanada-version ()
   "Show meghanada-version ."
   (interactive)
@@ -915,17 +941,67 @@ The slash is expected at the end."
         (write-region nil nil tmpfile nil 'nomsg))
     tmpfile))
 
+(defun apply-rcs-patch (patch-buffer)
+  "Apply an RCS-formatted diff from PATCH-BUFFER to the current buffer."
+  (let ((target-buffer (current-buffer))
+        ;; Relative offset between buffer line numbers and line numbers
+        ;; in patch.
+        ;;
+        ;; Line numbers in the patch are based on the source file, so
+        ;; we have to keep an offset when making changes to the
+        ;; buffer.
+        ;;
+        ;; Appending lines decrements the offset (possibly making it
+        ;; negative), deleting lines increments it. This order
+        ;; simplifies the forward-line invocations.
+        (line-offset 0))
+    (save-excursion
+      (with-current-buffer patch-buffer
+        (goto-char (point-min))
+        (while (not (eobp))
+          (unless (looking-at "^\\([ad]\\)\\([0-9]+\\) \\([0-9]+\\)")
+            (error "invalid rcs patch or internal error in apply-rcs-patch"))
+          (forward-line)
+          (let ((action (match-string 1))
+                (from (string-to-number (match-string 2)))
+                (len  (string-to-number (match-string 3))))
+            (cond
+             ((equal action "a")
+              (let ((start (point)))
+                (forward-line len)
+                (let ((text (buffer-substring start (point))))
+                  (with-current-buffer target-buffer
+                    (cl-decf line-offset len)
+                    (goto-char (point-min))
+                    (forward-line (- from len line-offset))
+                    (insert text)))))
+             ((equal action "d")
+              (with-current-buffer target-buffer
+                (meghanada--goto-line (- from line-offset))
+                (cl-incf line-offset len)
+                (meghanada--delete-whole-line len)))
+             (t
+              (error "invalid rcs patch or internal error in apply-rcs-patch")))))))))
+
 (defun meghanada-code-beautify ()
   "Beautify java code."
   (interactive)
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (let* ((current-point (point))
              (output (meghanada--send-request-sync "fc" (meghanada--write-tmpfile)))
-             (path (read output)))
-        (erase-buffer)
-        (insert-file-contents path)
-        (goto-char current-point)
-        (delete-file path))
+             (patchbuf (get-buffer-create "*meghanada-fmt patch*"))
+             (tmpfile (read output)))
+        (save-excursion
+          (widen)
+          (with-current-buffer patchbuf
+            (erase-buffer))
+          (progn
+            (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
+                (message "Buffer is already formatted")
+              (apply-rcs-patch patchbuf)
+              (message "Applied format"))))
+        (kill-buffer patchbuf)
+        (delete-file tmpfile))
     (message "client connection not established")))
 
 (defun meghanada-code-beautify-before-save ()
