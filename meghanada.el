@@ -227,7 +227,6 @@ function."
       (let ((process-connection-type nil)
             (process-adaptive-read-buffering nil)
             process)
-        (message "Meghanada-Server Starting ...")
         (setq process
               (start-process-shell-command
                "meghanada-server"
@@ -242,7 +241,7 @@ function."
         (set-process-query-on-exit-flag process nil)
         (set-process-sentinel process 'meghanada--server-process-sentinel)
         (set-process-filter process 'meghanada--server-process-filter)
-        (message "Meghanada-Server Started")
+        (message "Meghanada-Server Starting ...")
         process)
     (message "%s"
              (substitute-command-keys
