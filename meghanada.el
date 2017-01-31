@@ -178,6 +178,7 @@ function."
 ;; TODO pop-to-buffer
 
 (defun meghanada--download-jar ()
+  "Download jar file."
   (let ((dest meghanada-server-install-dir)
         (dest-jar (meghanada--locate-server-jar))
         (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
@@ -216,6 +217,7 @@ function."
   (meghanada-restart))
 
 (defun meghanada--locate-server-jar ()
+  "TODO FIX DOC."
   (expand-file-name
    (format "meghanada-%s.jar" meghanada-version)
    meghanada-server-install-dir))
@@ -735,7 +737,7 @@ function."
 ;; meghanada compile-command (async)
 ;;
 
-(defun kill-buf (name)
+(defun meghanada--kill-buf (name)
   "TODO: FIX NAME ."
   (when (get-buffer name)
     (delete-windows-on (get-buffer name))
@@ -748,7 +750,7 @@ function."
     (pcase severity
       (`success
        (progn
-         (kill-buf "*compilation*")
+         (meghanada--kill-buf "*compilation*")
          (message "compile finished")))
       (`error
        (let ((messages (cdr result)))
@@ -768,7 +770,7 @@ function."
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
         (let ((buf (buffer-file-name)))
           (message "compiling ... ")
-          (kill-buf "*compilation*")
+          (meghanada--kill-buf "*compilation*")
           (pop-to-buffer "*compilation*")
           (meghanada--send-request "c" #'meghanada--compile-callback buf))
       (message "client connection not established"))))
@@ -780,7 +782,7 @@ function."
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
         (progn
           (message "compiling ... ")
-          (kill-buf "*compilation*")
+          (meghanada--kill-buf "*compilation*")
           (pop-to-buffer "*compilation*")
           (meghanada--send-request "cp" #'meghanada--compile-callback))
       (message "client connection not established"))))
@@ -802,7 +804,7 @@ function."
 (defun meghanada--switch-testcase-callback (out)
   "TODO: FIX DOC OUT."
   (let ((result (read out)))
-    (when result
+    (when (and result (file-exists-p result))
       (find-file result))))
 
 (defun meghanada-switch-testcase ()
@@ -836,8 +838,8 @@ function."
 
   (if meghanada--task-client-process
       (progn
-        (kill-buf meghanada--task-buf-name)
-        (kill-buf meghanada--junit-buf-name)
+        (meghanada--kill-buf meghanada--task-buf-name)
+        (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--junit-buf-name)
         (pop-to-buffer meghanada--junit-buf-name)
         (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback test))
@@ -881,8 +883,8 @@ function."
 
   (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
       (progn
-        (kill-buf meghanada--task-buf-name)
-        (kill-buf meghanada--junit-buf-name)
+        (meghanada--kill-buf meghanada--task-buf-name)
+        (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--task-buf-name)
         (pop-to-buffer meghanada--task-buf-name)
         (meghanada--send-request-process "rt" meghanada--task-client-process #'meghanada--junit-callback args))
@@ -940,7 +942,7 @@ function."
         (write-region nil nil tmpfile nil 'nomsg))
     tmpfile))
 
-(defun apply-rcs-patch (patch-buffer)
+(defun meghanada--apply-rcs-patch (patch-buffer)
   "Apply an RCS-formatted diff from PATCH-BUFFER to the current buffer."
   (let ((target-buffer (current-buffer))
         ;; Relative offset between buffer line numbers and line numbers
@@ -959,7 +961,7 @@ function."
         (goto-char (point-min))
         (while (not (eobp))
           (unless (looking-at "^\\([ad]\\)\\([0-9]+\\) \\([0-9]+\\)")
-            (error "invalid rcs patch or internal error in apply-rcs-patch"))
+            (error "Invalid rcs patch or internal error in apply-rcs-patch"))
           (forward-line)
           (let ((action (match-string 1))
                 (from (string-to-number (match-string 2)))
@@ -980,14 +982,13 @@ function."
                 (cl-incf line-offset len)
                 (meghanada--delete-whole-line len)))
              (t
-              (error "invalid rcs patch or internal error in apply-rcs-patch")))))))))
+              (error "Invalid rcs patch or internal error in apply-rcs-patch")))))))))
 
 (defun meghanada-code-beautify ()
   "Beautify java code."
   (interactive)
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (let* ((current-point (point))
-             (output (meghanada--send-request-sync "fc" (meghanada--write-tmpfile)))
+      (let* ((output (meghanada--send-request-sync "fc" (meghanada--write-tmpfile)))
              (patchbuf (get-buffer-create "*meghanada-fmt patch*"))
              (tmpfile (read output)))
         (save-excursion
@@ -997,7 +998,7 @@ function."
           (progn
             (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
                 (message "Buffer is already formatted")
-              (apply-rcs-patch patchbuf)
+              (meghanada--apply-rcs-patch patchbuf)
               (message "Applied format"))))
         (kill-buffer patchbuf)
         (delete-file tmpfile))
