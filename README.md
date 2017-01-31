@@ -62,7 +62,7 @@ Install meghanada from melpa.
           (lambda ()
             ;; meghanada-mode on
             (meghanada-mode t)
-            (add-hook 'before-save-hook 'delete-trailing-whitespace)))
+            (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
 ```
 
 ### Meghanada-Server
@@ -174,6 +174,9 @@ Goto declaration.
 
 Go back from declaration position.
 
+### meghanada-code-beautify
+
+Format buffer code.
 
 ## Troubleshooting
 
@@ -181,7 +184,6 @@ See `*meghanada-server-log*` buffer.
 
 ## TODO
 
-* Reformat source (IntelliJ Rule)
 * Refactoring
 
 ## License

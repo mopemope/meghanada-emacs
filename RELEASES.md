@@ -1,8 +1,21 @@
-# Version 0.5.0 (2017-01-XX)
+# Version 0.5.0 (2017-01-31)
 
 ## Highlights
 
 * Add code beautify (meghanada-code-beautify-before-save)
+* Improve incremental build.
+* Fix method reference bugs.
+
+### Code Fomatter
+
+Meghanada uses eclipse code formatter.
+
+Formatter rule file is `meghanadaFormatter.properties`.
+`meghanadaFormatter.properties` location should be project root.
+
+Rule detail see below url.
+
+http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fjdt%2Fcore%2Fformatter%2Fpackage-summary.html
 
 # Version 0.4.0 (2017-01-25)
 
