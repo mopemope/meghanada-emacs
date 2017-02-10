@@ -182,7 +182,8 @@
 
 (defun company-meghanada--post-class (arg)
   (let ((meta (get-text-property 0 'meta arg))
-        (anno (company-meghanada--typep-annotation arg)))
+        (anno (company-meghanada--typep-annotation arg))
+        (return-t (get-text-property 0 'return-type arg)))
     (unless (meghanada--import-exists-p meta)
       (if company-meghanada-auto-import
           (meghanada--add-import meta)
@@ -194,7 +195,7 @@
       (set-text-properties
        (beginning-of-thing 'symbol)
        (end-of-thing 'symbol)
-       (list 'class t 'return-type meta 'meta meta)))
+       (list 'class t 'return-type return-t 'meta meta)))
 
     (if (and meghanada--sp-prefix
              (or (string-prefix-p "*new" meghanada--sp-prefix)
