@@ -537,19 +537,29 @@ function."
         (goto-char (point-min))
         (re-search-forward (concat "^import\\s-+" imp "\\s-*;") nil t))))
 
+(defun meghanada--add-import-callback (out)
+  "TODO: FIX DOC OUT."
+  (let* ((result (read out))
+         (severity (car result)))
+    (pcase severity
+      (`success
+       (let ((fqcn (car (cdr result))))
+         (unless (or (string-prefix-p "java.lang." fqcn) (meghanada--import-exists-p fqcn))
+           (let ((imp  (meghanada--import-name fqcn))
+                 (start t))
+             (save-excursion
+               (meghanada--goto-imports-start)
+               (while (and start (re-search-forward "^import .+;" nil t))
+                 (forward-line)
+                 (setq start (/= (point-at-bol) (point-at-eol))))
+               (insert (format "import %s;\n" imp))))))))))
+
 (defun meghanada--add-import (imp)
   "TODO: FIX DOC IMP ."
   (unless (or (string-prefix-p "java.lang." imp) (meghanada--import-exists-p imp))
-    (let ((imp  (meghanada--import-name imp))
-          (start t))
-      (save-excursion
-        (meghanada--goto-imports-start)
-        (while (and start
-                    (re-search-forward "^import .+;" nil t))
-          (forward-line)
-          (setq start (/= (point-at-bol) (point-at-eol))))
-        (insert (format "import %s;\n" imp)))
-      (meghanada-add-import-async imp #'identity))))
+    (let ((imp  (meghanada--import-name imp)))
+      (meghanada-add-import-async imp #'meghanada--add-import-callback))))
+
 
 (defun meghanada-optimize-import--callback (out)
   "TODO: FIX DOC OUT ."
