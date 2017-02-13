@@ -1,3 +1,15 @@
+# Version 0.6.0 (2017-02-13)
+
+## Highlights
+
+* Support android plugin for gradle. (experimental. supported only 2.2.0+)
+* Add clear cache mode. (-c option)
+* Add class index auto reload.
+* Add project auto reload.
+* Change cache format.
+* Fix nested class completion.
+* Fix some bugs.
+
 # Version 0.5.0 (2017-01-31)
 
 ## Highlights
