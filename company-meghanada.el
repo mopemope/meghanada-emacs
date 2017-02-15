@@ -98,21 +98,9 @@
 
 (defun meghanada--search-access-caller ()
   (save-excursion
+    (search-backward ".")
     (backward-word)
     (get-text-property (point) 'return-type)))
-
-;; (defun meghanada--search-return-type ()
-;;   (save-excursion
-;;     (backward-list)
-;;     (forward-char -1)
-;;     (get-text-property (point) 'return-type)))
-
-(defun meghanada--search-return-type ()
-  (let ((mc (meghanada--search-method-caller))
-        (ac (meghanada--search-access-caller)))
-    (if mc
-        mc
-      ac)))
 
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
@@ -128,21 +116,32 @@
                      ((string-prefix-p "package" match) "*package")
                      ((string-prefix-p "new" match)
                       (concat "*" (replace-regexp-in-string " " ":" match)))
+
                      ((string-match "\)\\.\\(\\w*\\)$" match)
-                      (let ((rt (meghanada--search-return-type))
+                      (let ((rt (meghanada--search-method-caller))
                             (prefix (match-string 1 match)))
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*method#" prefix))))
 
                      ((string-match "\\.\\(\\w*\\)$" match)
-                      (let ((rt (ignore-errors
-                                  (meghanada--search-return-type)))
-                            (prefix (match-string 1 match))
-                            (sym (progn
-                                   (search-backward ".")
-                                   (backward-word)
-                                   (meghanada--what-word))))
+                      (let* ((paren (save-excursion
+                                      (search-backward ".")
+                                      (forward-char -1)
+                                      (string= (char-to-string (char-after)) ")")))
+                             (rt (if paren
+                                     (ignore-errors (meghanada--search-method-caller))
+                                   (ignore-errors (meghanada--search-access-caller))))
+                             (prefix (match-string 1 match))
+                             (sym (if paren
+                                      (save-excursion
+                                        (backward-list)
+                                        (forward-char -1)
+                                        (meghanada--what-word))
+                                    (save-excursion
+                                      (search-backward ".")
+                                      (backward-word)
+                                      (meghanada--what-word)))))
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*" sym "#" prefix))))
@@ -220,8 +219,10 @@
       (save-excursion
         (forward-char -1)
         (set-text-properties
-         (beginning-of-thing 'symbol) (end-of-thing 'symbol)
+         (beginning-of-thing 'symbol)
+         (end-of-thing 'symbol)
          (list 'return-type return-t 'meta meta))))
+
     (when anno
       (insert anno)
       (company-template-c-like-templatify anno))))
@@ -234,7 +235,20 @@
       (save-excursion
         (forward-char -1)
         (set-text-properties
-         (beginning-of-thing 'symbol) (end-of-thing 'symbol)
+         (beginning-of-thing 'symbol)
+         (end-of-thing 'symbol)
+         (list 'return-type return-t 'meta meta))))))
+
+(defun company-meghanada--post-var (arg)
+  (let ((meta (get-text-property 0 'meta arg))
+        (anno (company-meghanada--annotation arg))
+        (return-t (get-text-property 0 'return-type arg)))
+    (when return-t
+      (save-excursion
+        (forward-char -1)
+        (set-text-properties
+         (beginning-of-thing 'symbol)
+         (end-of-thing 'symbol)
          (list 'return-type return-t 'meta meta))))))
 
 (defun company-meghanada--post-completion (arg)
@@ -246,6 +260,8 @@
       (`FIELD (company-meghanada--post-field arg))
       ;; completion method
       (`METHOD (company-meghanada--post-method arg))
+      ;; completion var
+      (`VAR (company-meghanada--post-var arg))
       ;; completion const
       (`CONSTRUCTOR (progn (insert "()") (backward-char 1))))))
 
