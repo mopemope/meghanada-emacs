@@ -87,7 +87,7 @@
       (cons :async
             #'(lambda (callback)
                 (meghanada-autocomplete-prefix-async
-                 prefix
+                 (format "\"%s\"" prefix)
                  (list #'company-meghanada--autocomplete-callback callback)))))))
 
 (defun meghanada--search-method-caller ()
