@@ -1,3 +1,11 @@
+# Version 0.6.1 (2017-02-17)
+
+* Fix auto-import bugs.
+* Fix optimize-import bugs.
+* Fix var completion bugs.
+* Fix genecrics method completion bugs.
+* Fix some bugs.
+
 # Version 0.6.0 (2017-02-13)
 
 ## Highlights
