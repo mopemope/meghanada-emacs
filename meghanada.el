@@ -361,7 +361,10 @@ function."
   "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
     (setq meghanada--client-process nil)
-    (message "meghanada-client process stopped")))
+    (message "meghanada-client process stopped")
+    (sleep-for 1)
+    (when (and meghanada--server-process (process-live-p meghanada--server-process))
+      (meghanada-client-direct-connect))))
 
 (defun meghanada--task-client-process-sentinel (process ignored)
   "TODO: FIX DOC PROCESS IGNORED."
@@ -1044,6 +1047,7 @@ function."
 
     map)
   "Keymap for Meghanada-mode.")
+
 
 (easy-menu-define meghanada-mode-menu meghanada-mode-map
   "Menu for Meghanada mode"
