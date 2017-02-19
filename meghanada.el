@@ -925,11 +925,13 @@ function."
   "TODO: FIX DOC."
   (interactive)
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "jd" #'meghanada--jump-callback
-                               (buffer-file-name)
-                               (meghanada--what-line)
-                               (meghanada--what-column)
-                               (meghanada--what-symbol))
+      (let ((sym (meghanada--what-symbol)))
+        (when sym
+        (meghanada--send-request "jd" #'meghanada--jump-callback
+                                 (buffer-file-name)
+                                 (meghanada--what-line)
+                                 (meghanada--what-column)
+                                 (format "\"%s\"" sym))))
     (message "client connection not established")))
 
 (defun meghanada-back-jump ()
