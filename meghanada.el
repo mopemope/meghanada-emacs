@@ -101,7 +101,7 @@ The slash is expected at the end."
 
 (defun meghanada--what-column ()
   "TODO: FIX DOC ."
-  (number-to-string (current-column)))
+  (number-to-string (1+ (current-column))))
 
 (defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
