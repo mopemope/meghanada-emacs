@@ -1,3 +1,8 @@
+# Version 0.6.2 (2017-02-20)
+
+* Fix Send column number count from 1.
+* Fix Send nil symbol.
+
 # Version 0.6.1 (2017-02-17)
 
 * Fix auto-import bugs.
