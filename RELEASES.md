@@ -1,3 +1,9 @@
+# Version 0.6.3 (2017-02-22)
+
+* Fix jump to declarations for overload method.
+* Fix wildcard type completion.
+* Fix cache error log.
+
 # Version 0.6.2 (2017-02-20)
 
 * Fix Send column number count from 1.
