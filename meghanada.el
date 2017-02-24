@@ -275,6 +275,8 @@ function."
             (set-marker (process-mark process) (point)))
           (if moving
               (goto-char (process-mark process)))
+          (when (string-match "Done indexing" output)
+            (message "Meghanada Ready"))
           (when (string-match "Start server" output)
             (message "Server waiting client connection ...")
             (when meghanada--server-pending
@@ -324,7 +326,7 @@ function."
            :sentinel 'meghanada--client-process-sentinel
            :filter 'meghanada--client-process-filter))
     (buffer-disable-undo meghanada--client-buffer)
-    (message "Meghanada Ready")
+    (message "Meghanada indexing ...")
     process))
 
 (defun meghanada--start-task-client-process ()
