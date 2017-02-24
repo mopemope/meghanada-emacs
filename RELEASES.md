@@ -1,3 +1,8 @@
+# Version 0.6.4 (2017-02-24)
+
+* Fix jump from method refernce.
+* Supported jump to java standard lib source.
+
 # Version 0.6.3 (2017-02-22)
 
 * Fix jump to declarations for overload method.
