@@ -1,3 +1,9 @@
+# Version 0.6.5 (2017-02-28)
+
+* Fix jump to declarations for variadic method.
+* Fix parse try resources.
+* Supported jump to third party library source.(from sources.jar or decompiled file)
+
 # Version 0.6.4 (2017-02-24)
 
 * Fix jump from method refernce.
