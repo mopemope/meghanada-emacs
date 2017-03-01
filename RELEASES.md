@@ -1,3 +1,7 @@
+# Version 0.6.6 (2017-03-01)
+
+* Fix jump to declarations bugs.
+
 # Version 0.6.5 (2017-02-28)
 
 * Fix jump to declarations for variadic method.
