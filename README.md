@@ -20,7 +20,7 @@ package and [meghanada-server][].
 * Support `Generics`
 * Code completion with [company-mode][] (`company-meghanada`)
 * Optimize import
-* Jump declaration (only project source)
+* Jump declaration
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 
@@ -46,7 +46,7 @@ Meghanada has been developed Emacs 25.1.1
 based on S-expressions. This server, written in java, requires the following
 packages to be installed on your system:
 
-* JDK >= 1.8
+* JDK 1.8
 
 ## Installation
 
@@ -185,6 +185,12 @@ See `*meghanada-server-log*` buffer.
 ## TODO
 
 * Refactoring
+
+## Contributing
+
+Contributions are extremely welcome!
+
+Please push PR to `dev` branch.
 
 ## License
 
