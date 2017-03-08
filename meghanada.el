@@ -1,6 +1,6 @@
 ;;; meghanada.el --- A better java development mode -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright (C) 2016 - 2017 Yutaka Matsubara
+;; Copyright (C) 2017 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
 
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
@@ -8,6 +8,20 @@
 ;; Keywords: languages java
 ;; Package-Version: 0.7.0
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 ;;; Commentary:
 ;;
@@ -27,6 +41,7 @@
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
+(autoload 'meghanada-eldoc-enable "eldoc-meghanada")
 
 ;;
 ;; Const
@@ -68,6 +83,11 @@
 
 (defcustom meghanada-use-flycheck t
   "If true, diagnostics report with flyecheck is enabled."
+  :group 'meghanada
+  :type 'boolean)
+
+(defcustom meghanada-use-eldoc t
+  "If true, eldoc for meghanada enabled."
   :group 'meghanada
   :type 'boolean)
 
@@ -929,11 +949,11 @@ function."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (let ((sym (meghanada--what-symbol)))
         (when sym
-        (meghanada--send-request "jd" #'meghanada--jump-callback
-                                 (buffer-file-name)
-                                 (meghanada--what-line)
-                                 (meghanada--what-column)
-                                 (format "\"%s\"" sym))))
+          (meghanada--send-request "jd" #'meghanada--jump-callback
+                                   (buffer-file-name)
+                                   (meghanada--what-line)
+                                   (meghanada--what-column)
+                                   (format "\"%s\"" sym))))
     (message "client connection not established")))
 
 (defun meghanada-back-jump ()
@@ -1099,6 +1119,8 @@ function."
       (meghanada-company-enable))
     (when meghanada-use-flycheck
       (meghanada-flycheck-enable))
+    (when meghanada-use-eldoc
+      (meghanada-eldoc-enable))
     (when meghanada-auto-start
       (meghanada-client-connect))
     (meghanada-change-project)

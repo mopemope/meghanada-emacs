@@ -1,7 +1,21 @@
 ;;; company-meghanada.el --- Company support for meganada -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright (C) 2016 Yutaka Matsubara
+;; Copyright (C) 2017 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 ;;; Commentary:
 ;;
@@ -194,7 +208,7 @@
       (set-text-properties
        (beginning-of-thing 'symbol)
        (end-of-thing 'symbol)
-       (list 'class t 'return-type return-t 'meta meta)))
+       (list 'class t 'return-type return-t 'meta meta 'type 'class)))
 
     (if (and meghanada--sp-prefix
              (or (string-prefix-p "*new" meghanada--sp-prefix)
@@ -221,7 +235,7 @@
         (set-text-properties
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
-         (list 'return-type return-t 'meta meta))))
+         (list 'return-type return-t 'meta meta 'type 'method))))
 
     (when anno
       (insert anno)
@@ -237,7 +251,7 @@
         (set-text-properties
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
-         (list 'return-type return-t 'meta meta))))))
+         (list 'return-type return-t 'meta meta 'type 'field))))))
 
 (defun company-meghanada--post-var (arg)
   (let ((meta (get-text-property 0 'meta arg))
@@ -249,7 +263,7 @@
         (set-text-properties
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
-         (list 'return-type return-t 'meta meta))))))
+         (list 'return-type return-t 'meta meta 'type 'var))))))
 
 (defun company-meghanada--post-completion (arg)
   (let ((type (intern (get-text-property 0 'type arg))))
