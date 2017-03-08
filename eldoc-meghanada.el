@@ -39,7 +39,7 @@
                   buf
                   line
                   col
-                  sym))
+                  (format "\"%s\"" sym)))
          (decl (read output))
          (type (nth 0 decl))
          (name (nth 1 decl))
