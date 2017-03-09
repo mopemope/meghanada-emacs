@@ -1,3 +1,9 @@
+# Version 0.7.0 (2017-03-XX)
+
+## Highlights
+
+* Support eldoc.
+
 # Version 0.6.6 (2017-03-01)
 
 * Fix jump to declarations bugs.
