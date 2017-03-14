@@ -655,7 +655,7 @@ function."
   "TODO: FIX DOC ."
   (interactive)
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "ping" #'message)
+      (message (format "%s" (meghanada--send-request-sync "ping")))
     (message "client connection not established")))
 
 (defun meghanada-clear-cache ()
