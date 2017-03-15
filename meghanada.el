@@ -72,7 +72,7 @@
   :type 'integer)
 
 (defcustom meghanada-debug nil
-  "Meghanada server debug mode."
+  "If true, meghanada-server outputs debug log."
   :group 'meghanada
   :type 'boolean)
 
@@ -93,6 +93,11 @@
 
 (defcustom meghanada-auto-start t
   "If true, meghanada-server start automatically."
+  :group 'meghanada
+  :type 'boolean)
+
+(defcustom meghanada-server-remote-debug nil
+  "If true, meghanda-server enabled remote debug."
   :group 'meghanada
   :type 'boolean)
 
@@ -253,7 +258,10 @@ function."
               (start-process-shell-command
                "meghanada-server"
                meghanada--server-buffer
-               (format "java -ea -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx2G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+               (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms256m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+                       (if meghanada-server-remote-debug
+                           "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+                         "")
                        (shell-quote-argument jar)
                        meghanada-port
                        (if meghanada-debug
