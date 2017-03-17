@@ -3,6 +3,7 @@
 ## Highlights
 
 * Support eldoc.
+* Add server remote-debug flag.
 
 # Version 0.6.6 (2017-03-01)
 
