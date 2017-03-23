@@ -1,4 +1,8 @@
-# Version 0.7.0 (2017-03-XX)
+# Version 0.7.1 (2017-03-23)
+
+* Fix jump to declaration bugs
+
+# Version 0.7.0 (2017-03-18)
 
 ## Highlights
 
