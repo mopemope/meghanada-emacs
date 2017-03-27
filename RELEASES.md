@@ -1,3 +1,8 @@
+# Version 0.7.2 (2017-03-28)
+
+* Fix NPE
+* Improve code fomatter
+
 # Version 0.7.1 (2017-03-23)
 
 * Fix jump to declaration bugs
