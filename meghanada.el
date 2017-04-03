@@ -587,25 +587,6 @@ function."
   (unless (or (string-prefix-p "java.lang." imp) (meghanada--import-exists-p imp))
     (meghanada-add-import-async imp #'meghanada--add-import-callback)))
 
-
-(defun meghanada-optimize-import--callback (out)
-  "TODO: FIX DOC OUT ."
-  (let ((result (read out)))
-    (when result
-      (save-excursion
-        (meghanada--goto-imports-start)
-        (mapc
-         (lambda (imp)
-           ;; (when (and start-imp (string-prefix-p "java" imp))
-           ;;   (setf start-imp nil)
-           ;;   (beginning-of-line)
-           ;;   (insert "\n"))
-           (insert (format "import %s;\n" imp))) result)
-
-        (while (re-search-forward "^import" nil t)
-          (beginning-of-line)
-          (kill-line))))))
-
 (defun meghanada-import-all--callback (out optimize)
   "TODO: FIX DOC OUT OPTIMIZE ."
   (let ((result (read out)))
@@ -621,7 +602,7 @@ function."
                  (meghanada--add-import res))))) result)))
     (when optimize
       (save-buffer)
-      (meghanada-optimize-import-async #'meghanada-optimize-import--callback))))
+      (meghanada-optimize-import))))
 
 ;;
 ;; meghanada client api
@@ -683,12 +664,6 @@ function."
       (meghanada--send-request "ai" callback (buffer-file-name) imp)
     (message "client connection not established")))
 
-(defun meghanada-optimize-import-async (callback)
-  "TODO: FIX DOC CALLBACK."
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "oi" callback (buffer-file-name))
-    (message "client connection not established")))
-
 (defun meghanada-import-all-async (callback optimize)
   "TODO: FIX DOC CALLBACK OPTIMIZE."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
@@ -698,7 +673,22 @@ function."
 (defun meghanada-optimize-import ()
   "TODO: FIX DOC ."
   (interactive)
-  (meghanada-import-all-async #'meghanada-import-all--callback t))
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (let* ((output (meghanada--send-request-sync "oi" (meghanada--write-tmpfile)))
+             (patchbuf (get-buffer-create "*meghanada-fmt patch*"))
+             (tmpfile (read output)))
+        (save-excursion
+          (widen)
+          (with-current-buffer patchbuf
+            (erase-buffer))
+          (progn
+            (if (zerop (call-process-region (point-min) (point-max) "diff" nil patchbuf nil "-n" "-" tmpfile))
+                (message "Buffer is already formatted")
+              (meghanada--apply-rcs-patch patchbuf)
+              (message "Optimized"))))
+        (kill-buffer patchbuf)
+        (delete-file tmpfile))
+    (message "client connection not established")))
 
 (defun meghanada-import-all ()
   "TODO: FIX DOC ."
