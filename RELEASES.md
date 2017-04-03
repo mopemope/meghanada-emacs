@@ -1,3 +1,8 @@
+# Version 0.7.3 (2017-04-03)
+
+* Fix optimize import
+* Fix el-doc API bugs
+
 # Version 0.7.2 (2017-03-28)
 
 * Fix NPE
