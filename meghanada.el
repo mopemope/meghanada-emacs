@@ -258,7 +258,7 @@ function."
               (start-process-shell-command
                "meghanada-server"
                meghanada--server-buffer
-               (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+               (format "java %s -Djava.net.preferIPv4Stack=true -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
                        (if meghanada-server-remote-debug
                            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
                          "")
