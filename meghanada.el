@@ -566,40 +566,42 @@ function."
     (goto-char (point-min))
     (re-search-forward (concat "^import\\s-+" imp "\\s-*;") nil t)))
 
-(defun meghanada--add-import-callback (out)
-  "TODO: FIX DOC OUT."
-  (let* ((result (read out))
-         (severity (car result)))
-    (pcase severity
-      (`success
-       (let ((fqcn (car (cdr result))))
-         (unless (or (string-prefix-p "java.lang." fqcn) (meghanada--import-exists-p fqcn))
-           (let ((start t))
-             (save-excursion
-               (meghanada--goto-imports-start)
-               (while (and start (re-search-forward "^import .+;" nil t))
-                 (forward-line)
-                 (setq start (/= (point-at-bol) (point-at-eol))))
-               (insert (format "import %s;\n" fqcn))))))))))
+(defun meghanada--add-import-callback (out buf)
+  "TODO: FIX DOC OUT BUF."
+  (with-current-buffer buf
+    (let* ((result (read out))
+           (severity (car result)))
+      (pcase severity
+        (`success
+         (let ((fqcn (car (cdr result))))
+           (unless (or (string-prefix-p "java.lang." fqcn) (meghanada--import-exists-p fqcn))
+             (let ((start t))
+               (save-excursion
+                 (meghanada--goto-imports-start)
+                 (while (and start (re-search-forward "^import .+;" nil t))
+                   (forward-line)
+                   (setq start (/= (point-at-bol) (point-at-eol))))
+                 (insert (format "import %s;\n" fqcn)))))))))))
 
-(defun meghanada--add-import (imp)
-  "TODO: FIX DOC IMP ."
+(defun meghanada--add-import (imp buf)
+  "TODO: FIX DOC IMP BUF."
   (unless (or (string-prefix-p "java.lang." imp) (meghanada--import-exists-p imp))
-    (meghanada-add-import-async imp #'meghanada--add-import-callback)))
+    (meghanada-add-import-async imp #'meghanada--add-import-callback buf)))
 
-(defun meghanada-import-all--callback (out optimize)
-  "TODO: FIX DOC OUT OPTIMIZE ."
+(defun meghanada-import-all--callback (out buf optimize)
+  "TODO: FIX DOC OUT BUF OPTIMIZE."
   (let ((result (read out)))
-    (when result
-      (save-excursion
-        (meghanada--goto-imports-start)
-        (mapc
-         (lambda (imps)
-           (if (= (length imps) 1)
-               (meghanada--add-import (car imps))
-             (let ((res (completing-read "import:" imps nil t)))
-               (unless (string= res "")
-                 (meghanada--add-import res))))) result)))
+    (with-current-buffer buf
+      (when result
+        (save-excursion
+          (meghanada--goto-imports-start)
+          (mapc
+           (lambda (imps)
+             (if (= (length imps) 1)
+                 (meghanada--add-import (car imps) buf)
+               (let ((res (completing-read "import:" imps nil t)))
+                 (unless (string= res "")
+                   (meghanada--add-import res buf))))) result))))
     (when optimize
       (save-buffer)
       (meghanada-optimize-import))))
@@ -658,16 +660,16 @@ function."
 ;; meghanada auto-import api
 ;;
 
-(defun meghanada-add-import-async (imp callback)
-  "TODO: FIX DOC IMP CALLBACK."
+(defun meghanada-add-import-async (imp callback buf)
+  "TODO: FIX DOC IMP CALLBACK BUF."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "ai" callback (buffer-file-name) imp)
+      (meghanada--send-request "ai" (list callback buf) (buffer-file-name) imp)
     (message "client connection not established")))
 
-(defun meghanada-import-all-async (callback optimize)
-  "TODO: FIX DOC CALLBACK OPTIMIZE."
+(defun meghanada-import-all-async (callback buf optimize)
+  "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "ia" (list callback optimize) (buffer-file-name))
+      (meghanada--send-request "ia" (list callback buf optimize) (buffer-file-name))
     (message "client connection not established")))
 
 (defun meghanada-optimize-import ()
@@ -693,7 +695,7 @@ function."
 (defun meghanada-import-all ()
   "TODO: FIX DOC ."
   (interactive)
-  (meghanada-import-all-async #'meghanada-import-all--callback nil))
+  (meghanada-import-all-async #'meghanada-import-all--callback (current-buffer) nil))
 
 
 ;;
@@ -927,8 +929,6 @@ function."
          (filename (nth 0 res))
          (line (nth 1 res))
          (col (nth 2 res)))
-    ;; (message (format "%s :: %s" filename))
-
     (unless (string= filename (buffer-file-name))
       (funcall #'find-file filename))
 
