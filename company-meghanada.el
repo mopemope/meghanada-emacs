@@ -199,9 +199,9 @@
         (return-t (get-text-property 0 'return-type arg)))
     (unless (meghanada--import-exists-p meta)
       (if company-meghanada-auto-import
-          (meghanada--add-import meta)
+          (meghanada--add-import meta (current-buffer))
         (when (y-or-n-p (format "Add import %s ? " (meghanada--import-name meta)))
-          (meghanada--add-import meta))))
+          (meghanada--add-import meta (current-buffer)))))
 
     (save-excursion
       (forward-char -1)
