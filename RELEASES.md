@@ -1,3 +1,8 @@
+# Version 0.7.4 (2017-04-13)
+
+* Fix import all and optimize import bugs
+* Fix jump to enum declaration bugs
+
 # Version 0.7.3 (2017-04-03)
 
 * Fix optimize import
