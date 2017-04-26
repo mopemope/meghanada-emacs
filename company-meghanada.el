@@ -63,8 +63,9 @@
   (company-mode t)
   (set (make-local-variable 'company-backends) nil)
   (set (make-local-variable 'company-transformers) nil)
-  (when company-meghanada-prefix-length
-    (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length))
+  (if company-meghanada-prefix-length
+      (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
+    (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
   (setq company-meghanada-trigger-regex (format company-meghanada--trigger company-meghanada-prefix-length company-meghanada-prefix-length))
   (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
   (setq company-transformers '(company-sort-by-backend-importance))
