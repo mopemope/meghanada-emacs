@@ -48,7 +48,7 @@
   :group 'company-meghanada
   :type 'boolean)
 
-(defcustom company-meghanada-prefix-length 2
+(defcustom company-meghanada-prefix-length nil
   "Start completion prefix-length."
   :group 'company-meghanada
   :type 'integer)
@@ -63,8 +63,9 @@
   (company-mode t)
   (set (make-local-variable 'company-backends) nil)
   (set (make-local-variable 'company-transformers) nil)
-  (set (make-local-variable 'company-idle-delay) 0)
-  (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
+  (if company-meghanada-prefix-length
+      (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
+    (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
   (setq company-meghanada-trigger-regex (format company-meghanada--trigger company-meghanada-prefix-length company-meghanada-prefix-length))
   (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
   (setq company-transformers '(company-sort-by-backend-importance))
