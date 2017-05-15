@@ -67,8 +67,7 @@
       (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
     (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
   (setq company-meghanada-trigger-regex (format company-meghanada--trigger company-meghanada-prefix-length company-meghanada-prefix-length))
-  (add-to-list 'company-backends '(company-meghanada :with company-dabbrev-code))
-  (setq company-transformers '(company-sort-by-backend-importance))
+  (add-to-list 'company-backends '(company-meghanada :separate company-dabbrev-code))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
 
@@ -291,7 +290,7 @@
     (annotation (when company-meghanada-show-annotation
                   (concat " " (get-text-property 0 'desc arg))))
     (ignore-case t)
-    ;; (sorted t) ;; sort ranking??
+    (sorted t)
     (no-cache nil)
     (require-match 'never)
     (post-completion
