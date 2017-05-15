@@ -935,6 +935,7 @@ function."
     (meghanada--goto-line line)
     (beginning-of-line)
     (forward-char (1- col))
+    (recenter)
     (if (buffer-modified-p)
         (message "Buffer is modified, file position might not have been correct"))))
 
