@@ -35,14 +35,15 @@
 
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
   (let ((severity (intern (nth 2 diagnostic))))
-    (when (memq severity '(NOTE WARNING ERROR FATAL))
+    (when (memq severity '(NOTE MANDATORY_WARNING WARNING ERROR FATAL OTHER))
       (flycheck-error-new-at
        (nth 0 diagnostic)
        (nth 1 diagnostic)
        (pcase severity
          (`NOTE 'info)
          (`WARNING 'warning)
-         ((or `ERROR `FATAL) 'error))
+         (`MANDATORY_WARNING 'warning)
+         ((or `ERROR `FATAL `OTHER) 'error))
        (nth 3 diagnostic)
        :checker checker
        :buffer buffer))))
