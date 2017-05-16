@@ -109,6 +109,35 @@ The slash is expected at the end."
   :risky t
   :type 'directory)
 
+(defcustom meghanada-maven-path nil
+  "Path of the maven executable."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-maven-local-repository nil
+  "Overriding maven repository path."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-javac-xlint "-Xlint:all"
+  "Overriding javac's -Xlint."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-gradle-version nil
+  "Overriding gradle version."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-gradle-prepare-compile-task nil
+  "Set to gradle prepare compileJava task name."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-gradle-prepare-test-compile-task nil
+  "Set to gradle prepare compileTestJava task name."
+  :group 'meghanada
+  :type 'string)
 
 (defcustom meghanada-mode-key-prefix [?\C-c]
   "The prefix key for meghanada-mode commands."
@@ -247,6 +276,28 @@ function."
    (format "meghanada-%s.jar" meghanada-version)
    meghanada-server-install-dir))
 
+(defun meghanada--server-options ()
+  (let ((options '()))
+    (when meghanada-maven-path
+      (push (format "-Dmaven.path=%s" meghanada-maven-path)options))
+    (when meghanada-maven-local-repository
+      (push (format "-Dmaven.local.repository=%s" meghanada-maven-local-repository) options))
+    (when meghanada-javac-xlint
+      (push (format "-Djavac.arg=%s" meghanada-javac-xlint) options))
+    (when meghanada-gradle-version
+      (push (format "-Dgradle.version=%s" meghanada-gradle-version) options))
+    (when meghanada-gradle-prepare-compile-task
+      (push (format "-Dgradle.prepare.compile.task=%s" meghanada-gradle-prepare-compile-task) options))
+    (when meghanada-gradle-prepare-test-compile-task
+      (push (format "-Dgradle.prepare.test.compile.task=%s" meghanada-gradle-prepare-test-compile-task) options))
+    (when meghanada-server-remote-debug
+      (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
+    (push "-Dformat=sexp" options)
+    (push "-Djava.net.preferIPv4Stack=true" options)
+    (mapconcat 'identity
+               options
+               " ")))
+
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
   (let ((jar (meghanada--locate-server-jar)))
@@ -254,14 +305,13 @@ function."
       (let ((process-connection-type nil)
             (process-adaptive-read-buffering nil)
             process)
+        (message (format "%s" (meghanada--server-options)))
         (setq process
               (start-process-shell-command
                "meghanada-server"
                meghanada--server-buffer
-               (format "java %s -Djava.net.preferIPv4Stack=true -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
-                       (if meghanada-server-remote-debug
-                           "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
-                         "")
+               (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+                       (meghanada--server-options)
                        (shell-quote-argument jar)
                        meghanada-port
                        (if meghanada-debug
