@@ -1,3 +1,14 @@
+# Version 0.7.6 (2017-05-XX)
+
+* Change sort order of the candidates to more better
+* Support maven parent pom
+* Change default formatter to google-java-format
+* Support make import from eclipse code format settings (meghanadaFormatter.xml)
+
+# Version 0.7.5 (2017-04-27)
+
+* Exclude anonymous class from candidates
+
 # Version 0.7.4 (2017-04-13)
 
 * Fix import all and optimize import bugs
