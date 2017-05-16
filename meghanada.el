@@ -305,7 +305,6 @@ function."
       (let ((process-connection-type nil)
             (process-adaptive-read-buffering nil)
             process)
-        (message (format "%s" (meghanada--server-options)))
         (setq process
               (start-process-shell-command
                "meghanada-server"
