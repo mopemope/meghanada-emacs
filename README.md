@@ -23,8 +23,11 @@ package and [meghanada-server][].
 * Jump declaration
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
+* Show symbol's type info with `el-doc`
 
 `Meghanada` tested only `linux` (maybe macOS OK). windows not support.
+
+(Welcome contributions !)
 
 ## Dependencies
 
@@ -62,26 +65,36 @@ Install meghanada from melpa.
           (lambda ()
             ;; meghanada-mode on
             (meghanada-mode t)
+            (setq c-basic-offset 2)
+            ;; use code format
             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
 ```
 
 ### Meghanada-Server
 
-The server will be automatically installed to `~/.meghanada/meghanada.jar`.
+The server will be automatically installed to `~/.emacs/meghanada/meghanada-x.x.jar`.
 
 If you open a java file and set `meghanada-mode`, a [meghanada-server][] process starts automatically and connects to your emacs.
 
 ### Updating
 
-The server will be automatically updated.
+The server will be automatically updated.To manually update bellows, type
 
 ```
 M-x meghanada-update-server
 ```
 
+## Auto completion
+
+Auto completion is supported by `comapany-mode`.
+
+## Syntax/error checking
+
+Error checking is supported by `flycheck`.
+
 ## Customize
 
-type `M-x customize-group RET meghanada` .
+To customize other aspects of its behavior, type `M-x customize-group RET meghanada` .
 
 ## Usage
 
@@ -115,7 +128,7 @@ Connect to other [meghanada-server][] directly.
 
 ### meghanada-client-connect
 
-Connect to [meghanada-server][] .
+Connect to [meghanada-server][] . Call automatically at the start `meghanada-mode`.
 
 ### meghanada-client-disconnect
 
@@ -137,10 +150,11 @@ Add import all unqualified classes.
 
 Import all and remove unused import statement.
 
+The format of the import statement will be in `google-java-format`.
+
 ### meghanada-local-variable (C-c C-r r)
 
 Introduce local variable. (need expression is end `;`)
-
 
 ### meghanada-compile-file (C-c C-c C-c)
 
@@ -156,7 +170,7 @@ Switch testcase or source.
 
 ### meghanada-run-junit-class (C-c C-c C-t)
 
-Run Junit .
+Run Junit test class.
 
 ### meghanada-run-junit-test-case (C-c C-c t)
 
@@ -176,21 +190,28 @@ Go back from declaration position.
 
 ### meghanada-code-beautify
 
-Format buffer code.
+Format buffer code. The default formatter is `google-java-format`
+
+## Customize code formatter
+
+`meghanada-mode` uses `google-java-format` by default for formatter.
+
+It also supports eclipse formatter. 
+If you want to customize the formatter, you uses the exported eclipse format settings.
+To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the project root.
 
 ## Troubleshooting
 
-See `*meghanada-server-log*` buffer.
+See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server.log`
 
 ## TODO
 
+* Reference
 * Refactoring
 
 ## Contributing
 
-Contributions are extremely welcome!
-
-Please push PR to `dev` branch.
+Contributions are extremely welcome! Please push PR to `dev` branch.
 
 ## License
 
