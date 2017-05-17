@@ -338,7 +338,7 @@ function."
   "TODO: FIX DOC PROCESS IGNORED ."
   (unless (process-live-p process)
     (setq meghanada--server-process nil)
-    (message "meghanada-server process stopped")))
+    (message "meghanada-server process stopped. please quit C-g")))
 
 (defun meghanada--server-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT ."
@@ -440,13 +440,13 @@ function."
   "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
     (setq meghanada--client-process nil)
-    (message "meghanada-client process stopped")))
+    (message "meghanada-client process stopped. please quit C-g")))
 
 (defun meghanada--task-client-process-sentinel (process ignored)
   "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
     (setq meghanada--task-client-process nil)
-    (message "meghanada-task-client process stopped")))
+    (message "meghanada-task-client process stopped. please quit C-g")))
 
 (defun meghanada--process-client-response (process response)
   "TODO: FIX DOC PROCESS RESPONSE ."
