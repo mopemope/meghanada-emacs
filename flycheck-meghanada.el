@@ -27,6 +27,7 @@
 
 (require 'flycheck)
 (require 'meghanada)
+(require 'cl-lib)
 
 (defgroup flycheck-meghanada nil
   "Meghanada mode's flycheck checker."
@@ -34,8 +35,7 @@
 
 
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
-  (let ((severity (intern (nth 2 diagnostic)))
-        (buf (get-file-buffer (nth 4 diagnostic))))
+  (let* ((severity (intern (nth 2 diagnostic))))
     (when (memq severity '(NOTE MANDATORY_WARNING WARNING ERROR FATAL OTHER))
       (flycheck-error-new-at
        (nth 0 diagnostic)
@@ -47,24 +47,32 @@
          ((or `ERROR `FATAL `OTHER) 'error))
        (nth 3 diagnostic)
        :checker checker
-       :buffer buf
-       :filename (nth 4 diagnostic)))))
+       :buffer buffer
+       :filename (buffer-file-name buffer)))))
 
-(defun flycheck-meghanada--build-errors (result checker buffer)
-  (mapcar (lambda (r)
-            (flycheck-meghanada--build-error r checker buffer)) result))
+(defun flycheck-meghanada--build-errors (buffer result callback checker)
+  (mapc (lambda (r)
+          (let ((file (nth 0 r))
+                (diagnostics (nth 1 r)))
+
+            (with-current-buffer (find-file-noselect file)
+              (let* ((file-buf (current-buffer))
+                     (errors (mapcar (lambda (d)
+                                       (flycheck-meghanada--build-error d checker file-buf))
+                                     diagnostics)))
+                (when (eq file-buf buffer)
+                  (funcall callback 'finished (delq nil errors))))))) result))
 
 (defun flycheck-meghanada--callback (result &rest args)
   (let* ((callback (nth 0 args))
          (checker (nth 1 args))
          (buffer (nth 2 args))
          (type (car result))
-         (diagnostics (cdr result)))
+         (diagnostics (car (cdr result))))
     (pcase type
       (`fatal  (funcall callback 'errored '("Meghanada diagnostics fatal error")))
       (`success (funcall callback 'finished nil))
-      (`error (let* ((errors (flycheck-meghanada--build-errors diagnostics checker buffer)))
-                (funcall callback 'finished (delq nil errors))))
+      (`error (flycheck-meghanada--build-errors buffer diagnostics callback checker))
       (_ (progn
            (message "WARN not match type")
            (funcall callback 'finished nil))))))
@@ -73,6 +81,16 @@
   (let ((buffer (current-buffer)))
     (meghanada-diagnostics-async
      (list #'flycheck-meghanada--callback callback checker buffer))))
+
+(defun flycheck-meghanada-after-hook ()
+  (let* ((errors flycheck-current-errors)
+         (current (current-buffer))
+         (new-error
+          (cl-remove-if-not
+           (lambda(e)
+             (let ((err-buf (flycheck-error-buffer e)))
+               (eq err-buf current))) errors)))
+    (setq flycheck-current-errors new-error)))
 
 (flycheck-define-generic-checker 'meghanada
   "A syntax checker for java, using meghanada-mode."
