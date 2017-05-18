@@ -85,7 +85,7 @@
 
 (defun company-meghanada--to-candidates (output)
   (when (> (length output) 0)
-    (company-meghanada--to-candidate (read output))))
+    (company-meghanada--to-candidate output)))
 
 (defun company-meghanada--autocomplete-callback (output &rest args)
   (let ((callback (car args)))

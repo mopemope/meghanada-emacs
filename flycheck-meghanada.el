@@ -34,7 +34,8 @@
 
 
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
-  (let ((severity (intern (nth 2 diagnostic))))
+  (let ((severity (intern (nth 2 diagnostic)))
+        (buf (get-file-buffer (nth 4 diagnostic))))
     (when (memq severity '(NOTE MANDATORY_WARNING WARNING ERROR FATAL OTHER))
       (flycheck-error-new-at
        (nth 0 diagnostic)
@@ -46,22 +47,23 @@
          ((or `ERROR `FATAL `OTHER) 'error))
        (nth 3 diagnostic)
        :checker checker
-       :buffer buffer))))
+       :buffer buf
+       :filename (nth 4 diagnostic)))))
 
 (defun flycheck-meghanada--build-errors (result checker buffer)
   (mapcar (lambda (r)
             (flycheck-meghanada--build-error r checker buffer)) result))
 
-(defun flycheck-meghanada--callback (output &rest args)
+(defun flycheck-meghanada--callback (result &rest args)
   (let* ((callback (nth 0 args))
          (checker (nth 1 args))
          (buffer (nth 2 args))
-         (result (read output))
-         (type (car result)))
+         (type (car result))
+         (diagnostics (cdr result)))
     (pcase type
       (`fatal  (funcall callback 'errored '("Meghanada diagnostics fatal error")))
       (`success (funcall callback 'finished nil))
-      (`error (let* ((errors (flycheck-meghanada--build-errors (cdr result) checker buffer)))
+      (`error (let* ((errors (flycheck-meghanada--build-errors diagnostics checker buffer)))
                 (funcall callback 'finished (delq nil errors))))
       (_ (progn
            (message "WARN not match type")
