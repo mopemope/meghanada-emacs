@@ -376,9 +376,13 @@ function."
   "TODO: FIX DOC ."
   (interactive)
   (when (and meghanada--server-process (process-live-p meghanada--server-process))
-    (kill-process meghanada--server-process)
-    (setq meghanada--server-process nil)
-    (kill-buffer meghanada--server-buffer)))
+    (set-process-sentinel meghanada--server-process 'ignore)
+    (set-process-filter meghanada--server-process 'ignore)
+    (kill-buffer (process-buffer meghanada--server-process))
+    ;; (kill-process meghanada--server-process)
+    (delete-process meghanada--server-process)
+    (setq meghanada--server-process nil)))
+
 
 ;;
 ;; meghanada-client process management.
@@ -543,9 +547,15 @@ function."
 (defun meghanada--client-kill ()
   "Disconnect and kill meghanada-client."
   (when (and meghanada--client-process (process-live-p meghanada--client-process))
+    (set-process-sentinel meghanada--client-process 'ignore)
+    (set-process-filter meghanada--client-process 'ignore)
+    (kill-buffer (process-buffer meghanada--client-process))
     (delete-process meghanada--client-process)
     (setq meghanada--client-process nil))
   (when (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
+    (set-process-sentinel meghanada--task-client-process 'ignore)
+    (set-process-filter meghanada--task-client-process 'ignore)
+    (kill-buffer (process-buffer meghanada--task-client-process))
     (delete-process meghanada--task-client-process)
     (setq meghanada--task-client-process nil)))
 
@@ -704,7 +714,6 @@ function."
   (interactive)
   (meghanada--client-kill)
   (meghanada-server-kill)
-  (sleep-for 3)
   (meghanada--start-server-and-client))
 
 ;;
