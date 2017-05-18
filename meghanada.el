@@ -337,8 +337,12 @@ function."
 (defun meghanada--server-process-sentinel (process ignored)
   "TODO: FIX DOC PROCESS IGNORED ."
   (unless (process-live-p process)
+    (set-process-sentinel process 'ignore)
+    (set-process-filter process 'ignore)
+    (kill-buffer (process-buffer process))
+    (delete-process process)
     (setq meghanada--server-process nil)
-    (message "meghanada-server process stopped. please quit C-g")))
+    (error "Error:meghanada-server process stopped")))
 
 (defun meghanada--server-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT ."
@@ -403,7 +407,6 @@ function."
            :sentinel 'meghanada--client-process-sentinel
            :filter 'meghanada--client-process-filter))
     (buffer-disable-undo meghanada--client-buffer)
-    (message "Meghanada indexing ...")
     process))
 
 (defun meghanada--start-task-client-process ()
@@ -427,7 +430,8 @@ function."
         (meghanada--client-kill)
         (setq meghanada--server-pending
               #'(lambda ()
-                  (setq meghanada--client-process (meghanada--start-client-process))))
+                  (setq meghanada--client-process (meghanada--start-client-process))
+                  (message "Please wait. Meghanada indexing ... ")))
         (meghanada--get-server-process-create)))))
 
 (defun meghanada--get-client-process-create ()
@@ -439,14 +443,22 @@ function."
 (defun meghanada--client-process-sentinel (process ignored)
   "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
+    (set-process-sentinel process 'ignore)
+    (set-process-filter process 'ignore)
+    (kill-buffer (process-buffer process))
+    (delete-process process)
     (setq meghanada--client-process nil)
-    (message "meghanada-client process stopped. please quit C-g")))
+    (error "Disconnected:meghanada-client process stopped")))
 
 (defun meghanada--task-client-process-sentinel (process ignored)
   "TODO: FIX DOC PROCESS IGNORED."
   (unless (process-live-p process)
+    (set-process-sentinel process 'ignore)
+    (set-process-filter process 'ignore)
+    (kill-buffer (process-buffer process))
+    (delete-process process)
     (setq meghanada--task-client-process nil)
-    (message "meghanada-task-client process stopped. please quit C-g")))
+    (error "Disconnected:meghanada-task-client process stopped")))
 
 (defun meghanada--process-client-response (process response)
   "TODO: FIX DOC PROCESS RESPONSE ."
@@ -694,14 +706,14 @@ function."
 (defun meghanada-ping ()
   "TODO: FIX DOC ."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (message (format "%s" (meghanada--send-request-sync "ping")))
     (message "client connection not established")))
 
 (defun meghanada-clear-cache ()
   "TODO: FIX DOC ."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "cc" #'message)
     (message "client connection not established")))
 
@@ -724,7 +736,7 @@ function."
 (defun meghanada-optimize-import ()
   "TODO: FIX DOC ."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let* ((output (meghanada--send-request-sync "oi" (meghanada--write-tmpfile)))
              (patchbuf (get-buffer-create "*meghanada-fmt patch*"))
              (tmpfile (read output)))
@@ -781,7 +793,7 @@ function."
 (defun meghanada-local-variable ()
   "TODO: FIX DOC CALLBACK."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "lv"
                                #'meghanada--local-val-callback
                                (buffer-file-name)
@@ -845,7 +857,7 @@ function."
   "TODO: FIX DOC ."
   (interactive)
   (when (meghanada-alive-p)
-    (if (and meghanada--client-process (process-live-p meghanada--client-process))
+    (if (and meghanada--server-process (process-live-p meghanada--server-process))
         (let ((buf (buffer-file-name)))
           (message "compiling ... ")
           (meghanada--kill-buf "*compilation*")
@@ -857,7 +869,7 @@ function."
   "TODO: FIX DOC ."
   (interactive)
   (when (meghanada-alive-p)
-    (if (and meghanada--client-process (process-live-p meghanada--client-process))
+    (if (and meghanada--server-process (process-live-p meghanada--server-process))
         (progn
           (message "compiling ... ")
           (meghanada--kill-buf "*compilation*")
@@ -888,7 +900,7 @@ function."
 (defun meghanada-switch-testcase ()
   "TODO: FIX DOC CALLBACK."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "st" #'meghanada--switch-testcase-callback (buffer-file-name))
     (message "client connection not established")))
 
@@ -991,7 +1003,7 @@ function."
 (defun meghanada-jump-declaration ()
   "TODO: FIX DOC."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((sym (meghanada--what-symbol)))
         (when sym
           (meghanada--send-request "jd" #'meghanada--jump-callback
@@ -1004,7 +1016,7 @@ function."
 (defun meghanada-back-jump ()
   "TODO: FIX DOC."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "bj" #'meghanada--jump-callback)
     (message "client connection not established")))
 
@@ -1066,7 +1078,7 @@ function."
 (defun meghanada-code-beautify ()
   "Beautify java code."
   (interactive)
-  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let* ((output (meghanada--send-request-sync "fc" (meghanada--write-tmpfile)))
              (patchbuf (get-buffer-create "*meghanada-fmt patch*"))
              (tmpfile (read output)))
