@@ -1,4 +1,8 @@
-# Version 0.7.6 (2017-05-XX)
+# Version 0.7.7 (2017-05-18)
+
+* Fix many bugs and improve stability.
+
+# Version 0.7.6 (2017-05-16)
 
 * Change sort order of the candidates to more better
 * Support maven parent pom
