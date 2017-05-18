@@ -34,13 +34,12 @@
   :group 'meghanada)
 
 (defun eldoc-meghanada--call-server (buf line col sym)
-  (let* ((output (meghanada--send-request-sync
+  (let* ((decl (meghanada--send-request-sync
                   "sd"
                   buf
                   line
                   col
                   (format "\"%s\"" sym)))
-         (decl (read output))
          (type (nth 0 decl))
          (name (nth 1 decl))
          (signature (nth 2 decl))
