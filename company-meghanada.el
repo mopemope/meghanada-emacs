@@ -53,7 +53,7 @@
   :group 'company-meghanada
   :type 'integer)
 
-(defconst company-meghanada--trigger "^package \\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
+(defconst company-meghanada--trigger "^package \\|^import \\w\\{%d,\\}\\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
 
 (defvar company-meghanada-trigger-regex nil)
 
@@ -66,7 +66,11 @@
   (if company-meghanada-prefix-length
       (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
     (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
-  (setq company-meghanada-trigger-regex (format company-meghanada--trigger company-meghanada-prefix-length company-meghanada-prefix-length))
+  (setq company-meghanada-trigger-regex (format company-meghanada--trigger
+                                                company-meghanada-prefix-length
+                                                company-meghanada-prefix-length
+                                                company-meghanada-prefix-length
+                                                company-meghanada-prefix-length))
   (add-to-list 'company-backends '(company-meghanada :separate company-dabbrev-code))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
@@ -128,6 +132,10 @@
                    (keyword
                     (cond
                      ((string-prefix-p "package" match) "*package")
+
+                     ((string-prefix-p "import" match)
+                      (concat "*" (replace-regexp-in-string " " ":" match)))
+
                      ((string-prefix-p "new" match)
                       (concat "*" (replace-regexp-in-string " " ":" match)))
 
@@ -266,7 +274,9 @@
          (list 'return-type return-t 'meta meta 'type 'var))))))
 
 (defun company-meghanada--post-completion (arg)
-  (let ((type (intern (get-text-property 0 'type arg))))
+  (let ((type (intern (get-text-property 0 'type arg)))
+        (meta (get-text-property 0 'meta arg)))
+
     (pcase type
       ;; completion class
       (`CLASS (company-meghanada--post-class arg))
@@ -277,7 +287,14 @@
       ;; completion var
       (`VAR (company-meghanada--post-var arg))
       ;; completion const
-      (`CONSTRUCTOR (progn (insert "()") (backward-char 1))))))
+      (`CONSTRUCTOR (progn (insert "()") (backward-char 1)))
+      ;; completion const
+      (`IMPORT (progn
+                 (backward-word)
+                 (insert meta)
+                 (insert ";")
+                 (delete-region (point) (+ (point) (length arg)))
+                 )))))
 
 (defun company-meghanada (command &optional arg &rest ignored)
   (cl-case command
