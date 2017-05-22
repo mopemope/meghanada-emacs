@@ -1,3 +1,7 @@
+# Version 0.7.8 (2017-05-22)
+
+* Fix many bugs and improve stability.
+
 # Version 0.7.7 (2017-05-18)
 
 * Fix many bugs and improve stability.
