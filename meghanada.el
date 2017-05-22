@@ -672,18 +672,16 @@ function."
   "TODO: FIX DOC OUT BUF OPTIMIZE."
   (with-current-buffer buf
     (when result
-      (save-excursion
-        (meghanada--goto-imports-start)
-        (mapc
-         (lambda (imps)
-           (if (= (length imps) 1)
-               (meghanada--add-import (car imps) buf)
-             (let ((res (completing-read "import:" imps nil t)))
-               (unless (string= res "")
-                 (meghanada--add-import res buf))))) result))))
-  (when optimize
-    (save-buffer)
-    (meghanada-optimize-import)))
+      (mapc
+       (lambda (imps)
+         (if (= (length imps) 1)
+             (meghanada--add-import (car imps) buf)
+           (let ((res (completing-read "import:" imps nil t)))
+             (unless (string= res "")
+               (meghanada--add-import res buf))))) result))
+    (when optimize
+      (save-buffer)
+      (meghanada-optimize-import))))
 
 ;;
 ;; meghanada client api
