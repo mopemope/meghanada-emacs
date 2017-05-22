@@ -35,11 +35,11 @@
 
 (defun eldoc-meghanada--call-server (buf line col sym)
   (let* ((decl (meghanada--send-request-sync
-                  "sd"
-                  buf
-                  line
-                  col
-                  (format "\"%s\"" sym)))
+                "sd"
+                buf
+                line
+                col
+                (format "\"%s\"" sym)))
          (type (nth 0 decl))
          (name (nth 1 decl))
          (signature (nth 2 decl))
@@ -65,13 +65,16 @@
 
 (defun eldoc-meghanada--documentation-function ()
   (when (and meghanada--client-process (process-live-p meghanada--client-process))
-    (let ((buf (buffer-file-name))
-          (line (meghanada--what-line))
-          (col (meghanada--what-column))
-          (sym (meghanada--what-symbol))
-          (meta (get-text-property (point) 'meta))
-          (type (get-text-property (point) 'type)))
-      (when sym
+    (let* ((buf (buffer-file-name))
+           (line (meghanada--what-line))
+           (col (meghanada--what-column))
+           (raw-sym (meghanada--what-symbol))
+           (sym (if raw-sym
+                    (string-trim raw-sym)
+                  raw-sym))
+           (meta (get-text-property (point) 'meta))
+           (type (get-text-property (point) 'type)))
+      (when (and sym (> (length sym) 0))
         (eldoc-meghanada--call-server buf line col sym)))))
 
 ;; (if meta
