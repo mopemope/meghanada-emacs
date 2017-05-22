@@ -51,6 +51,13 @@ packages to be installed on your system:
 
 * JDK 1.8
 
+The Meghanada architecture is almost the same as `ensime`. It is client server model.
+
+Meghanada updates any information when saving and compile the java file.
+
+If the completion candidate and others are incorrect, please fix the compile error.
+
+
 ## Installation
 
 ### Elisp
@@ -59,7 +66,7 @@ Install meghanada from melpa.
 
 #### Configuration
 
-```
+```elisp
 (require 'meghanada)
 (add-hook 'java-mode-hook
           (lambda ()
@@ -75,12 +82,6 @@ Install meghanada from melpa.
 The server will be automatically installed to `~/.emacs/meghanada/meghanada-x.x.jar`.
 
 If you open a java file and set `meghanada-mode`, a [meghanada-server][] process starts automatically and connects to your emacs.
-
-The Meghanada architecture is almost the same as `ensime`. It is client server model.
-
-Meghanada updates any information when saving and compile the java file.
-
-If the completion candidate others are incorrect, please fix the compile error.
 
 ### Updating
 
@@ -209,6 +210,84 @@ To import the settings, change the name of the exported file to `meghanadaFormat
 ## Troubleshooting
 
 See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server.log`
+
+## Setting example
+
+```elisp
+(use-package autodisass-java-bytecode
+  :ensure t
+  :defer t)
+
+(use-package google-c-style
+  :defer t
+  :ensure t
+  :commands
+  (google-set-c-style))
+
+(use-package meghanada
+  :defer t
+  :init
+  (add-hook 'java-mode-hook
+            (lambda ()
+              (google-set-c-style)
+              (google-make-newline-indent)
+              (meghanada-mode t)
+              (smartparens-mode t)
+              (rainbow-delimiters-mode t)
+              (highlight-symbol-mode t)
+              (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+
+  :config
+  (use-package realgud
+    :ensure t)
+  (setq indent-tabs-mode nil)
+  (setq tab-width 2)
+  (setq c-basic-offset 2)
+  (setq meghanada-server-remote-debug t)
+  (setq meghanada-javac-xlint "-Xlint:all,-processing")
+
+  :bind
+  (:map meghanada-mode-map
+        ("C-S-t" . meghanada-switch-testcase)
+        ("M-RET" . meghanada-local-variable)
+        ("C-M-." . helm-imenu)
+        ("C-z" . hydra-meghanada/body))
+
+  :commands
+  (meghanada-mode))
+
+(defhydra hydra-meghanada (:hint nil :exit t)
+"
+^Edit^                           ^Tast or Task^
+^^^^^^-------------------------------------------------------
+_f_: meghanada-compile-file      _m_: meghanada-restart
+_c_: meghanada-compile-project   _t_: meghanada-run-task
+_o_: meghanada-optimize-import   _j_: meghanada-run-junit-test-case
+_s_: meghanada-switch-test-case  _J_: meghanada-run-junit-class
+_v_: meghanada-local-variable    _r_: meghanada-run-junit-recent
+_g_: magit-status
+_l_: helm-ls-git-ls
+_q_: exit
+"
+  ("f" meghanada-compile-file)
+  ("m" meghanada-restart)
+
+  ("c" meghanada-compile-project)
+  ("o" meghanada-optimize-import)
+  ("s" meghanada-switch-test-case)
+  ("v" meghanada-local-variable)
+
+  ("g" magit-status)
+  ("l" helm-ls-git-ls)
+
+  ("t" meghanada-run-task)
+  ("j" meghanada-run-junit-test-case)
+  ("J" meghanada-run-junit-class)
+  ("r" meghanada-run-junit-recent)
+
+  ("q" exit)
+  ("z" nil "leave"))
+```
 
 ## TODO
 
