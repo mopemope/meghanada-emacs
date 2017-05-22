@@ -76,6 +76,12 @@ The server will be automatically installed to `~/.emacs/meghanada/meghanada-x.x.
 
 If you open a java file and set `meghanada-mode`, a [meghanada-server][] process starts automatically and connects to your emacs.
 
+The Meghanada architecture is almost the same as `ensime`. It is client server model.
+
+Meghanada updates any information when saving and compile the java file.
+
+If the completion candidate others are incorrect, please fix the compile error.
+
 ### Updating
 
 The server will be automatically updated.To manually update bellows, type
@@ -196,7 +202,7 @@ Format buffer code. The default formatter is `google-java-format`
 
 `meghanada-mode` uses `google-java-format` by default for formatter.
 
-It also supports eclipse formatter. 
+It also supports eclipse formatter.
 If you want to customize the formatter, you uses the exported eclipse format settings.
 To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the project root.
 
