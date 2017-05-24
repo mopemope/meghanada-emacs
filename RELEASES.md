@@ -1,3 +1,11 @@
+# Version 0.7.9 (2017-05-24)
+
+* Change completion sort to a better sort.
+* Fix Sexp parse error.
+* Fix crash when displaying eldoc.
+* Fix an empty line on optimize import.
+* Fix many bugs and improve stability.
+
 # Version 0.7.8 (2017-05-22)
 
 * Fix many bugs and improve stability.
