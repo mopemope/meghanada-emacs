@@ -133,7 +133,7 @@
                     (cond
                      ((string-prefix-p "package" match) "*package")
 
-                     ((string-prefix-p "import" match)
+                     ((string-prefix-p "import " match)
                       (concat "*" (replace-regexp-in-string " " ":" match)))
 
                      ((string-prefix-p "new" match)
