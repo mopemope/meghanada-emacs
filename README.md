@@ -165,11 +165,11 @@ Introduce local variable. (need expression is end `;`)
 
 ### meghanada-compile-file (C-c C-c C-c)
 
-Compile file.
+Compile file (and related files).
 
 ### meghanada-project-compile (C-c C-c c)
 
-Compile project.
+Compile project (full build).
 
 ### meghanada-switch-testcase (C-M-,)
 

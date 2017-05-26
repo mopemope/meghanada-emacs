@@ -1,3 +1,12 @@
+# Version 0.7.10 (2017-05-26)
+
+* Change meghanada-project-compile to fully build.
+* Change diagnostic use meghanada-compile-file.
+* Fix incorrect compile target file.
+* Fix import completion.
+* Fix compilation sort.
+* Fix bugs and improve stability.
+
 # Version 0.7.9 (2017-05-24)
 
 * Change completion sort to a better sort.
