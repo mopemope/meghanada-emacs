@@ -864,7 +864,7 @@ function."
            (setq buffer-read-only nil)
            (save-excursion
              (dolist (msg messages)
-               (insert msg)
+               (insert (format "%s" msg))
                (open-line 1))
              (goto-char (point-min)))
            (compilation-mode)))))))
