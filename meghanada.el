@@ -799,7 +799,7 @@ function."
          (len (length vals)))
     (when (and (not (string= "void" return-type)) (> len 0))
       (back-to-indentation)
-      (insert (format "final %s  = " return-type))
+      (insert (format "%s  = " return-type))
       (forward-char -3)
       (if (= len 1)
           (insert (car vals))
