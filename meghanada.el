@@ -280,20 +280,20 @@ function."
 (defun meghanada--server-options ()
   (let ((options '()))
     (when meghanada-maven-path
-      (push (format "-Dmaven.path=%s" meghanada-maven-path)options))
+      (push (format "-Dmeghanada.maven.path=%s" meghanada-maven-path)options))
     (when meghanada-maven-local-repository
-      (push (format "-Dmaven.local.repository=%s" meghanada-maven-local-repository) options))
+      (push (format "-Dmeghanada.maven.local.repository=%s" meghanada-maven-local-repository) options))
     (when meghanada-javac-xlint
-      (push (format "-Djavac.arg=%s" meghanada-javac-xlint) options))
+      (push (format "-Dmeghanada.javac.arg=%s" meghanada-javac-xlint) options))
     (when meghanada-gradle-version
-      (push (format "-Dgradle.version=%s" meghanada-gradle-version) options))
+      (push (format "-Dmeghanada.gradle.version=%s" meghanada-gradle-version) options))
     (when meghanada-gradle-prepare-compile-task
-      (push (format "-Dgradle.prepare.compile.task=%s" meghanada-gradle-prepare-compile-task) options))
+      (push (format "-Dmeghanada.gradle.prepare.compile.task=%s" meghanada-gradle-prepare-compile-task) options))
     (when meghanada-gradle-prepare-test-compile-task
-      (push (format "-Dgradle.prepare.test.compile.task=%s" meghanada-gradle-prepare-test-compile-task) options))
+      (push (format "-Dmeghanada.gradle.prepare.test.compile.task=%s" meghanada-gradle-prepare-test-compile-task) options))
     (when meghanada-server-remote-debug
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
-    (push "-Dformat=sexp" options)
+    (push "-Dmeghanada.format=sexp" options)
     (push "-Djava.net.preferIPv4Stack=true" options)
     (mapconcat 'identity
                options
