@@ -367,7 +367,7 @@ function."
             (set-marker (process-mark process) (point)))
           (if moving
               (goto-char (process-mark process)))
-          (when (string-match "Done indexing" output)
+          (when (string-match "Ready" output)
             (message "Meghanada Ready"))
           (when (string-match "Start server" output)
             (message "Server waiting client connection ...")
