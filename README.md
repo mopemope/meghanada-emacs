@@ -209,7 +209,9 @@ To import the settings, change the name of the exported file to `meghanadaFormat
 
 ## Troubleshooting
 
-See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server.log`
+See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server.log`.
+
+Please press `C-g` when emacs seems to hang.
 
 ## Setting example
 
