@@ -896,11 +896,11 @@ function."
   (interactive)
   (when (meghanada-alive-p)
     (if (and meghanada--server-process (process-live-p meghanada--server-process))
-        (progn
+        (let ((buf (buffer-file-name)))
           (message "compiling ... ")
           (meghanada--kill-buf "*compilation*")
           (pop-to-buffer "*compilation*")
-          (meghanada--send-request "cp" #'meghanada--compile-callback))
+          (meghanada--send-request "cp" #'meghanada--compile-callback buf))
       (message "client connection not established"))))
 
 (setq compilation-error-regexp-alist
@@ -945,8 +945,8 @@ function."
   "A junit callback dummy function.  IGNORED is not used."
   )
 
-(defun meghanada--run-junit (test)
-  "TODO: FIX DOC TEST."
+(defun meghanada--run-junit (file test)
+  "TODO: FIX DOC FILE TEST."
 
   (unless (process-live-p meghanada--task-client-process)
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
@@ -957,7 +957,7 @@ function."
         (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--junit-buf-name)
         (pop-to-buffer meghanada--junit-buf-name)
-        (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback test))
+        (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback file test))
     (message "client connection not established")))
 
 (defun meghanada-run-junit-class ()
@@ -967,7 +967,7 @@ function."
          (test-name (car (split-string
                            (car (last (split-string file-name "/")))
                            "\\."))))
-    (meghanada--run-junit test-name)))
+    (meghanada--run-junit file-name test-name)))
 
 (defun meghanada-run-junit-test-case ()
   "TODO: FIX DOC."
@@ -981,12 +981,12 @@ function."
                                      nil t
                                      (which-function)))
          (test-name (format "%s#%s" class-name test-case)))
-    (meghanada--run-junit test-name)))
+    (meghanada--run-junit file-name test-name)))
 
 (defun meghanada-run-junit-recent ()
   "TODO: FIX DOC."
   (interactive)
-  (meghanada--run-junit ""))
+  (meghanada--run-junit (buffer-file-name) ""))
 
 (defun meghanada-run-task (args)
   "TODO: FIX DOC ARGS."
