@@ -1,3 +1,13 @@
+# Version 0.7.11 (2017-06-09)
+
+* Change to use fast-serialization.
+* Change to use xodous for cache backend.
+* Change not to build gradle subproject by default
+* Fix auto change project.
+* Fix jump to references to super class's field.
+* Fix optimize import is broken.
+* Fix bugs and improve stability.
+
 # Version 0.7.10 (2017-05-26)
 
 * Change meghanada-project-compile to fully build.
