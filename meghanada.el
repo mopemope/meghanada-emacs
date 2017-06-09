@@ -140,6 +140,11 @@ The slash is expected at the end."
   :group 'meghanada
   :type 'string)
 
+(defcustom meghanada-skip-build-subprojects t
+  "If true, skip gradle dependency subprojects build."
+  :group 'meghanada
+  :type 'boolean)
+
 (defcustom meghanada-mode-key-prefix [?\C-c]
   "The prefix key for meghanada-mode commands."
   :group 'meghanada
@@ -291,6 +296,9 @@ function."
       (push (format "-Dmeghanada.gradle.prepare.compile.task=%s" meghanada-gradle-prepare-compile-task) options))
     (when meghanada-gradle-prepare-test-compile-task
       (push (format "-Dmeghanada.gradle.prepare.test.compile.task=%s" meghanada-gradle-prepare-test-compile-task) options))
+    (if meghanada-skip-build-subprojects
+        (push "-Dmeghanada.skip.build.subprojects=true" options)
+      (push "-Dmeghanada.skip.build.subprojects=true"  options))
     (when meghanada-server-remote-debug
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
     (push "-Dmeghanada.format=sexp" options)
@@ -305,18 +313,20 @@ function."
   (if (file-exists-p jar)
       (let ((process-connection-type nil)
             (process-adaptive-read-buffering nil)
+            (cmd (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+                         (meghanada--server-options)
+                         (shell-quote-argument jar)
+                         meghanada-port
+                         (if meghanada-debug
+                             "-v"
+                           "")))
             process)
+        (message (format "launch server cmd:%s" cmd))
         (setq process
               (start-process-shell-command
                "meghanada-server"
                meghanada--server-buffer
-               (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
-                       (meghanada--server-options)
-                       (shell-quote-argument jar)
-                       meghanada-port
-                       (if meghanada-debug
-                           "-v"
-                         ""))))
+               cmd))
         (buffer-disable-undo meghanada--server-buffer)
         (set-process-query-on-exit-flag process nil)
         (set-process-sentinel process 'meghanada--server-process-sentinel)
