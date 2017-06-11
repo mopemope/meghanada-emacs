@@ -145,6 +145,11 @@ The slash is expected at the end."
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-server-jvm-option "-Xms128m -Xmx750m -XX:ReservedCodeCacheSize=240m -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
+  "Set to meghanada server process jvm option."
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-mode-key-prefix [?\C-c]
   "The prefix key for meghanada-mode commands."
   :group 'meghanada
@@ -313,8 +318,9 @@ function."
   (if (file-exists-p jar)
       (let ((process-connection-type nil)
             (process-adaptive-read-buffering nil)
-            (cmd (format "java %s -ea -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -Xverify:none -Xms128m -Xmx4G -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+            (cmd (format "java %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s"
                          (meghanada--server-options)
+                         meghanada-server-jvm-option
                          (shell-quote-argument jar)
                          meghanada-port
                          (if meghanada-debug
