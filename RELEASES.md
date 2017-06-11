@@ -1,3 +1,7 @@
+# Version 0.7.12 (2017-06-11)
+
+* Add customize variable `meghanada-server-jvm-option`
+
 # Version 0.7.11 (2017-06-09)
 
 * Change to use fast-serialization.
