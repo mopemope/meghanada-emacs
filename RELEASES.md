@@ -1,3 +1,7 @@
+# Version 0.7.13 (2017-06-12)
+
+* Fix cache update bugs
+
 # Version 0.7.12 (2017-06-11)
 
 * Add customize variable `meghanada-server-jvm-option`
