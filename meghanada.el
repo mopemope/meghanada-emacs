@@ -1011,6 +1011,21 @@ function."
         (meghanada--send-request-process "rt" meghanada--task-client-process #'meghanada--junit-callback args))
     (message "client connection not established")))
 
+(defun meghanada-exec-main ()
+  "TODO: FIX."
+  (interactive)
+  (unless (process-live-p meghanada--task-client-process)
+    (setq meghanada--task-client-process (meghanada--start-task-client-process)))
+
+  (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
+      (let ((file (buffer-file-name)))
+        (meghanada--kill-buf meghanada--task-buf-name)
+        (meghanada--kill-buf meghanada--junit-buf-name)
+        (setq meghanada--task-buffer meghanada--task-buf-name)
+        (pop-to-buffer meghanada--task-buf-name)
+        (meghanada--send-request-process "em" meghanada--task-client-process #'meghanada--junit-callback file))
+    (message "client connection not established")))
+
 ;;
 ;; meghanada jump api
 ;;
