@@ -351,15 +351,14 @@ function."
         meghanada--server-process)
     (setq meghanada--server-process (meghanada--start-server-process))))
 
-(defun meghanada--server-process-sentinel (process ignored)
-  "TODO: FIX DOC PROCESS IGNORED ."
+(defun meghanada--server-process-sentinel (process msg)
+  "TODO: FIX DOC PROCESS MSG ."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
-    (kill-buffer (process-buffer process))
     (delete-process process)
     (setq meghanada--server-process nil)
-    (error "Error:meghanada-server process stopped")))
+    (error (format "Error:meghanada-server process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
 (defun meghanada--server-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT ."
@@ -461,25 +460,25 @@ function."
       meghanada--client-process
     (setq meghanada--client-process (meghanada--start-client-process))))
 
-(defun meghanada--client-process-sentinel (process ignored)
-  "TODO: FIX DOC PROCESS IGNORED."
+(defun meghanada--client-process-sentinel (process msg)
+  "TODO: FIX DOC PROCESS MSG."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
     (kill-buffer (process-buffer process))
     (delete-process process)
     (setq meghanada--client-process nil)
-    (error "Disconnected:meghanada-client process stopped")))
+    (error (format "Disconnected:meghanada-client process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
-(defun meghanada--task-client-process-sentinel (process ignored)
-  "TODO: FIX DOC PROCESS IGNORED."
+(defun meghanada--task-client-process-sentinel (process msg)
+  "TODO: FIX DOC PROCESS MSG."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
     (kill-buffer (process-buffer process))
     (delete-process process)
     (setq meghanada--task-client-process nil)
-    (error "Disconnected:meghanada-task-client process stopped")))
+    (error (format "Disconnected:meghanada-task-client process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
 (defun meghanada--process-client-response (process response)
   "TODO: FIX DOC PROCESS RESPONSE ."
