@@ -33,6 +33,10 @@
   "Meghanada mode's flycheck checker."
   :group 'meghanada)
 
+(defcustom flycheck-meghanada-enable-live-check t
+  "If true, check the buffer immediately after a new line or a short time."
+  :group 'flycheck-meghanada
+  :type 'boolean)
 
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
   (let* ((severity (intern (nth 2 diagnostic))))
@@ -82,6 +86,11 @@
     (meghanada-diagnostics-async
      (list #'flycheck-meghanada--callback callback checker buffer))))
 
+(defun flycheck-meghanada-live--start (checker callback)
+  (let ((buffer (current-buffer)))
+    (meghanada-diagnostic-string-async
+     (list #'flycheck-meghanada--callback callback checker buffer))))
+
 (defun flycheck-meghanada-after-hook ()
   (let* ((errors flycheck-current-errors)
          (current (current-buffer))
@@ -100,10 +109,20 @@
                (and (meghanada-alive-p)
                     (flycheck-buffer-saved-p))))
 
+(flycheck-define-generic-checker 'meghanada-live
+  "A syntax checker for java, using meghanada-mode."
+  :start #'flycheck-meghanada-live--start
+  :modes '(java-mode meghanada-mode)
+  :predicate (lambda ()
+               (and (meghanada-alive-p)
+                    (not (flycheck-buffer-empty-p)))))
+
 ;;;###autoload
 (defun meghanada-flycheck-enable ()
   "Enable flycheck for meghanada-mode."
-  (add-to-list 'flycheck-checkers 'meghanada))
+  (if flycheck-meghanada-enable-live-check
+      (add-to-list 'flycheck-checkers 'meghanada-live)
+    (add-to-list 'flycheck-checkers 'meghanada)))
 
 (provide 'flycheck-meghanada)
 

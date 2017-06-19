@@ -844,6 +844,17 @@ function."
                                (buffer-file-name))
     (message "client connection not established")))
 
+(defun meghanada-diagnostic-string-async (callback)
+  "TODO: FIX DOC CALLBACK."
+  (let ((buf (buffer-file-name))
+        (tmp (meghanada--write-tmpfile)))
+    (if (and meghanada--client-process (process-live-p meghanada--client-process))
+        (meghanada--send-request "dl"
+                                 callback
+                                 buf
+                                 tmp)
+      (message "client connection not established"))))
+
 ;;
 ;; meghanada interactive-command (async)
 ;;
