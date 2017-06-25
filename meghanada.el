@@ -52,6 +52,7 @@
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
+(defconst meghanada--ref-buf-name "*meghanada-reference*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 
 ;;
@@ -1155,6 +1156,45 @@ function."
   "Beautify code before save."
   (when (meghanada-alive-p)
     (meghanada-code-beautify)))
+
+;;
+;; meghanada reference api
+;;
+
+(defun meghanada--reference-callback (messages)
+  "Show reference result."
+  (if messages
+      (with-current-buffer (get-buffer-create meghanada--ref-buf-name)
+        (setq buffer-read-only nil)
+        (save-excursion
+          (dolist (msg messages)
+            (insert (format "%s\n" msg))
+            (open-line 1))
+          (goto-char (point-min)))
+        (compilation-mode))
+    (progn
+      (meghanada--kill-buf meghanada--ref-buf-name)
+      (message "no reference found"))))
+
+(defun meghanada-reference ()
+  "Search for reference."
+  (interactive)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((sym (meghanada--what-symbol))
+            (buf (buffer-file-name))
+            (line (meghanada--what-line))
+            (col (meghanada--what-column)))
+        (when sym
+          (progn
+            (meghanada--kill-buf meghanada--ref-buf-name)
+            (pop-to-buffer meghanada--ref-buf-name)
+            (message "searching ...")
+            (meghanada--send-request "re" #'meghanada--reference-callback
+                                     buf
+                                     line
+                                     col
+                                     (format "\"%s\"" sym)))))
+    (message "client connection not established")))
 
 ;;
 ;; meghanada-mode
