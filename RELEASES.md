@@ -1,3 +1,8 @@
+# Version 0.8.1 (2017-06-26)
+
+* Fix non-escaped code string used for reference.
+* Fix implicit type conversion bugs
+
 # Version 0.8.0 (2017-06-26)
 
 ## Highlights
