@@ -1,3 +1,12 @@
+# Version 0.8.0 (2017-06-26)
+
+## Highlights
+
+* Support main class execution (meghanada-exec-main).
+* Support on the fly syntax checking (and analyze, compile) .
+* Support search reference.
+* Fix bugs and improve stability.
+
 # Version 0.7.13 (2017-06-12)
 
 * Fix cache update bugs
