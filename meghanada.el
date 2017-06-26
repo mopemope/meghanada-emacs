@@ -1168,9 +1168,7 @@ function."
         (setq buffer-read-only nil)
         (save-excursion
           (dolist (msg messages)
-            (insert (format "%s\n" msg))
-            (open-line 1))
-          (goto-char (point-min)))
+            (insert (format "%s\n" msg))))
         (compilation-mode))
     (progn
       (meghanada--kill-buf meghanada--ref-buf-name)
