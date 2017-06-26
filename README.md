@@ -175,6 +175,14 @@ Compile project (full build).
 
 Switch testcase or source.
 
+### meghanada-exec-main
+
+Run main class.
+
+### meghanada-reference
+
+Find usage (method call, field access, class).
+
 ### meghanada-run-junit-class (C-c C-c C-t)
 
 Run Junit test class.
@@ -293,7 +301,6 @@ _q_: exit
 
 ## TODO
 
-* Reference
 * Refactoring
 
 ## Contributing
