@@ -1,3 +1,9 @@
+# Version 0.8.2 (2017-06-29)
+
+## Highlights
+
+* Add type information command (meghanada-typeinfo)
+
 # Version 0.8.1 (2017-06-26)
 
 * Fix non-escaped code string used for reference.
