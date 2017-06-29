@@ -1240,8 +1240,8 @@ function."
           (when (> (length interfaces) 0)
             (insert "\n")
             (insert "Implements:\n")
-            (dolist (if interfaces)
-              (insert (format "%s " if))))
+            (dolist (it interfaces)
+              (insert (format "  %s\n" it))))
           (setq buffer-read-only t)))
       (progn
         (meghanada--kill-buf meghanada--typeinfo-buf-name)
@@ -1260,14 +1260,14 @@ function."
             (buf (buffer-file-name))
             (line (meghanada--what-line))
             (col (meghanada--what-column)))
-        (when sym
-          (progn
-            (funcall meghanada-typeinfo-prepare)
-            (meghanada--send-request "ti" meghanada-typeinfo-callback
-                                     buf
-                                     line
-                                     col
-                                     (format "\"%s\"" sym)))))
+
+        (progn
+          (funcall meghanada-typeinfo-prepare)
+          (meghanada--send-request "ti" meghanada-typeinfo-callback
+                                   buf
+                                   line
+                                   col
+                                   (format "\"%s\"" sym))))
     (message "client connection not established")))
 
 ;;
