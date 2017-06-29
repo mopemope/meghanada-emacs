@@ -53,6 +53,7 @@
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
 (defconst meghanada--ref-buf-name "*meghanada-reference*")
+(defconst meghanada--typeinfo-buf-name "*meghanada-typeinfo*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 
 ;;
@@ -155,6 +156,26 @@ The slash is expected at the end."
   "The prefix key for meghanada-mode commands."
   :group 'meghanada
   :type 'sexp)
+
+(defcustom meghanada-reference-prepare #'meghanada--reference-prepare
+  "It is called before meghanada-reference."
+  :group 'meghanada
+  :type 'function)
+
+(defcustom meghanada-reference-callback #'meghanada--reference-callback
+  "It will be called after receiving meghanada-reference result."
+  :group 'meghanada
+  :type 'function)
+
+(defcustom meghanada-typeinfo-prepare #'meghanada--typeinfo-prepare
+  "It is called before meghanada-typeinfo."
+  :group 'meghanada
+  :type 'function)
+
+(defcustom meghanada-typeinfo-callback #'meghanada--typeinfo-callback
+  "It will be called after receiving meghanada-typeinfo result."
+  :group 'meghanada
+  :type 'function)
 
 
 ;;
@@ -1174,6 +1195,11 @@ function."
       (meghanada--kill-buf meghanada--ref-buf-name)
       (message "no reference found"))))
 
+(defun meghanada--reference-prepare ()
+  (meghanada--kill-buf meghanada--ref-buf-name)
+  (pop-to-buffer meghanada--ref-buf-name)
+  (message "searching ..."))
+
 (defun meghanada-reference ()
   "Search for reference."
   (interactive)
@@ -1184,10 +1210,60 @@ function."
             (col (meghanada--what-column)))
         (when sym
           (progn
-            (meghanada--kill-buf meghanada--ref-buf-name)
-            (pop-to-buffer meghanada--ref-buf-name)
-            (message "searching ...")
-            (meghanada--send-request "re" #'meghanada--reference-callback
+            (funcall meghanada-reference-prepare)
+            (meghanada--send-request "re" meghanada-reference-callback
+                                     buf
+                                     line
+                                     col
+                                     (format "\"%s\"" sym)))))
+    (message "client connection not established")))
+
+;;
+;; meghanada type-info api
+;;
+
+(defun meghanada--typeinfo-callback (messages)
+  "Show typeinfo result."
+  (let ((fqcn (nth 0 messages))
+        (classes (nth 1 messages))
+        (interfaces (nth 2 messages))
+        (indent 0))
+    (if (and fqcn (not (string-empty-p fqcn)))
+      (with-current-buffer (get-buffer-create meghanada--typeinfo-buf-name)
+        (save-excursion
+          (insert (format "Class: %s\n\n" fqcn))
+          (dolist (c classes)
+            (dotimes (number indent 0)
+              (insert " "))
+            (insert (format "%s\n" c))
+            (setq indent (+ indent 2)))
+          (when (> (length interfaces) 0)
+            (insert "\n")
+            (insert "Implements:\n")
+            (dolist (if interfaces)
+              (insert (format "%s " if))))
+          (setq buffer-read-only t)))
+      (progn
+        (meghanada--kill-buf meghanada--typeinfo-buf-name)
+        (message "no type found")))))
+
+(defun meghanada--typeinfo-prepare ()
+  (meghanada--kill-buf meghanada--typeinfo-buf-name)
+  (pop-to-buffer meghanada--typeinfo-buf-name)
+  (message "searching ..."))
+
+(defun meghanada-typeinfo ()
+  "Search for type information."
+  (interactive)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((sym (meghanada--what-symbol))
+            (buf (buffer-file-name))
+            (line (meghanada--what-line))
+            (col (meghanada--what-column)))
+        (when sym
+          (progn
+            (funcall meghanada-typeinfo-prepare)
+            (meghanada--send-request "ti" meghanada-typeinfo-callback
                                      buf
                                      line
                                      col
