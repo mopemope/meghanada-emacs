@@ -764,6 +764,17 @@ function."
           (message (format "%s" res))))
     (message "client connection not established")))
 
+(defun meghanada-kill-running-process ()
+  "TODO: FIX DOC ."
+  (interactive)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((res (meghanada--send-request-sync "kp")))
+        (when res
+          (meghanada--kill-buf meghanada--task-buf-name)
+          (meghanada--kill-buf meghanada--junit-buf-name)
+          (message (format "%s" res))))
+    (message "client connection not established")))
+
 (defun meghanada-clear-cache ()
   "TODO: FIX DOC ."
   (interactive)
@@ -983,8 +994,8 @@ function."
   "A junit callback dummy function.  IGNORED is not used."
   )
 
-(defun meghanada--run-junit (file test)
-  "TODO: FIX DOC FILE TEST."
+(defun meghanada--run-junit (file debug test)
+  "TODO: FIX DOC FILE DEBUG TEST."
 
   (unless (process-live-p meghanada--task-client-process)
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
@@ -995,7 +1006,9 @@ function."
         (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--junit-buf-name)
         (pop-to-buffer meghanada--junit-buf-name)
-        (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback file test))
+        (if debug
+            (meghanada--send-request-process "dj" meghanada--task-client-process #'meghanada--junit-callback file test)
+          (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback file test)))
     (message "client connection not established")))
 
 (defun meghanada-run-junit-class ()
@@ -1005,7 +1018,7 @@ function."
          (test-name (car (split-string
                            (car (last (split-string file-name "/")))
                            "\\."))))
-    (meghanada--run-junit file-name test-name)))
+    (meghanada--run-junit file-name nil test-name)))
 
 (defun meghanada-run-junit-test-case ()
   "TODO: FIX DOC."
@@ -1019,12 +1032,35 @@ function."
                                      nil t
                                      (which-function)))
          (test-name (format "%s#%s" class-name test-case)))
-    (meghanada--run-junit file-name test-name)))
+    (meghanada--run-junit file-name nil test-name)))
+
+(defun meghanada-debug-junit-class ()
+  "TODO: FIX DOC."
+  (interactive)
+  (let* ((file-name (buffer-file-name))
+         (test-name (car (split-string
+                           (car (last (split-string file-name "/")))
+                           "\\."))))
+    (meghanada--run-junit file-name t test-name)))
+
+(defun meghanada-debug-junit-test-case ()
+  "TODO: FIX DOC."
+  (interactive)
+  (let* ((file-name (buffer-file-name))
+         (class-name (car (split-string
+                           (car (last (split-string file-name "/")))
+                           "\\.")))
+         (test-case (completing-read "Test case: "
+                                     (imenu--make-index-alist t)
+                                     nil t
+                                     (which-function)))
+         (test-name (format "%s#%s" class-name test-case)))
+    (meghanada--run-junit file-name t test-name)))
 
 (defun meghanada-run-junit-recent ()
   "TODO: FIX DOC."
   (interactive)
-  (meghanada--run-junit (buffer-file-name) ""))
+  (meghanada--run-junit (buffer-file-name) nil ""))
 
 (defun meghanada-run-task (args)
   "TODO: FIX DOC ARGS."
@@ -1056,6 +1092,21 @@ function."
         (setq meghanada--task-buffer meghanada--task-buf-name)
         (pop-to-buffer meghanada--task-buf-name)
         (meghanada--send-request-process "em" meghanada--task-client-process #'meghanada--junit-callback file))
+    (message "client connection not established")))
+
+(defun meghanada-debug-main ()
+  "TODO: FIX."
+  (interactive)
+  (unless (process-live-p meghanada--task-client-process)
+    (setq meghanada--task-client-process (meghanada--start-task-client-process)))
+
+  (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
+      (let ((file (buffer-file-name)))
+        (meghanada--kill-buf meghanada--task-buf-name)
+        (meghanada--kill-buf meghanada--junit-buf-name)
+        (setq meghanada--task-buffer meghanada--task-buf-name)
+        (pop-to-buffer meghanada--task-buf-name)
+        (meghanada--send-request-process "dm" meghanada--task-client-process #'meghanada--junit-callback file))
     (message "client connection not established")))
 
 ;;
