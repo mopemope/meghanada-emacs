@@ -1,3 +1,9 @@
+# Version 0.8.3 (2017-07-xx)
+
+* Fix android build problems
+* Support external debugger
+* Fix bugs and improve stability.
+
 # Version 0.8.2 (2017-06-29)
 
 ## Highlights

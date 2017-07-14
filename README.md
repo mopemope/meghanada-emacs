@@ -180,6 +180,10 @@ Switch testcase or source.
 
 Run main class.
 
+### meghanada-debug-main
+
+Debug main class.
+
 ### meghanada-reference
 
 Find usage (method call, field access, class).
@@ -195,6 +199,14 @@ Run Junit test class.
 ### meghanada-run-junit-test-case (C-c C-c t)
 
 Run Junit testcase (select from imenu).
+
+### meghanada-debug-junit-class (C-c C-c C-t)
+
+Debug Junit test class.
+
+### meghanada-debug-junit-test-case (C-c C-c t)
+
+Debug Junit testcase (select from imenu).
 
 ### meghanada-run-task (C-v t)
 
@@ -219,6 +231,28 @@ Format buffer code. The default formatter is `google-java-format`
 It also supports eclipse formatter.
 If you want to customize the formatter, you uses the exported eclipse format settings.
 To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the project root.
+
+## Debug
+
+`meghanada-mode` has no debugger yet. However, external debugger is supported.
+
+if you want to debug your code, execute `meghanada-debug-xxxx` function and then use [realgud][] etc.
+
+```
+# in Emacs now:
+ M-x meghanada-debug-junit-class
+ Please wait ...
+ M-x realgud:jdb
+ Run jdb (like this): jdb -attach 6006
+ Set uncaught java.lang.Throwable
+   Set deferred uncaught java.lang.Throwable
+   Initializing jdb ...
+   >
+   VM Started: No frames on the current call stack
+
+   main[1] stop at example.MyClass:100 // set breakpoint
+   main[1] run
+```
 
 ## Troubleshooting
 
@@ -328,3 +362,4 @@ GPL v3, See [LICENSE](LICENSE) file.
 [flycheck]: http://flycheck.org
 [Junit]: http://www.junit.org/
 [yasnippet]: http://joaotavora.github.io/yasnippet/
+[realgud]: https://github.com/realgud/realgud
