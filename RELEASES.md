@@ -1,7 +1,7 @@
-# Version 0.8.3 (2017-07-xx)
+# Version 0.8.3 (2017-07-25)
 
-* Fix android build problems
 * Support external debugger
+* Fix autocompletion when use multiline statement
 * Fix bugs and improve stability.
 
 # Version 0.8.2 (2017-06-29)
