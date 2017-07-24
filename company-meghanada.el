@@ -120,6 +120,16 @@
     (backward-word)
     (get-text-property (point) 'return-type)))
 
+(defun meghanada--last-is-paren ()
+  (save-excursion
+    (search-backward ".")
+    (forward-char -1)
+    (while (or
+            (string= (char-to-string (char-after)) " ")
+            (string= (char-to-string (char-after)) "\n"))
+      (forward-char -1))
+    (string= (char-to-string (char-after)) ")")))
+
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
         (re company-meghanada-trigger-regex))
@@ -147,10 +157,7 @@
                           (concat "*method#" prefix))))
 
                      ((string-match "\\.\\(\\w*\\)$" match)
-                      (let* ((paren (save-excursion
-                                      (search-backward ".")
-                                      (forward-char -1)
-                                      (string= (char-to-string (char-after)) ")")))
+                      (let* ((paren (meghanada--last-is-paren))
                              (rt (if paren
                                      (ignore-errors (meghanada--search-method-caller))
                                    (ignore-errors (meghanada--search-access-caller))))
