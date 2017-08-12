@@ -75,7 +75,10 @@ Install meghanada from melpa.
             (meghanada-mode t)
             (setq c-basic-offset 2)
             ;; use code format
-            (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+            (add-hook 'before-save-hook
+                      (lambda ()
+                        (when (string-suffix-p ".java" (buffer-name))
+                          (meghanada-code-beautify-before-save))))))
 ```
 
 ### Meghanada-Server
@@ -284,7 +287,10 @@ Please press `C-g` when emacs seems to hang.
               (smartparens-mode t)
               (rainbow-delimiters-mode t)
               (highlight-symbol-mode t)
-              (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+              (add-hook 'before-save-hook
+                        (lambda ()
+                          (when (string-suffix-p ".java" (buffer-name))
+                            (meghanada-code-beautify-before-save))))))
 
   :config
   (use-package realgud
