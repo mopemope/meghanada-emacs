@@ -678,6 +678,11 @@ function."
         (when cs
           (setq case-fold-search t))))))
 
+(defun meghanada--is-java-lang-package-p (fqcn)
+  "Check if FQCN belongs to java.lang package (exclude subpackages,
+e.g. java.lang.annotation)."
+  (<= (length (split-string fqcn "\\.")) 3))
+
 (defun meghanada--import-exists-p (imp)
   "TODO: FIX DOC IMP ."
   (save-excursion
@@ -691,7 +696,7 @@ function."
       (pcase severity
         (`success
          (let ((fqcn (car (cdr result))))
-           (unless (or (string-prefix-p "java.lang." fqcn) (meghanada--import-exists-p fqcn))
+           (unless (or (meghanada--is-java-lang-package-p fqcn) (meghanada--import-exists-p fqcn))
              (let ((start t))
                (save-excursion
                  (meghanada--goto-imports-start)
@@ -702,7 +707,7 @@ function."
 
 (defun meghanada--add-import (imp buf)
   "TODO: FIX DOC IMP BUF."
-  (unless (or (string-prefix-p "java.lang." imp) (meghanada--import-exists-p imp))
+  (unless (or (meghanada--is-java-lang-package-p imp) (meghanada--import-exists-p imp))
     (meghanada-add-import-async imp #'meghanada--add-import-callback buf)))
 
 (defun meghanada-import-all--callback (result buf optimize)
