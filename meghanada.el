@@ -681,7 +681,7 @@ function."
 (defun meghanada--is-java-lang-package-p (fqcn)
   "Check if FQCN belongs to java.lang package (exclude subpackages,
 e.g. java.lang.annotation)."
-  (<= (length (split-string fqcn "\\.")) 3))
+  (and (string-prefix-p "java.lang." fqcn) (<= (length (split-string fqcn "\\.")) 3)))
 
 (defun meghanada--import-exists-p (imp)
   "TODO: FIX DOC IMP ."
