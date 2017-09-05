@@ -104,7 +104,7 @@
 (flycheck-define-generic-checker 'meghanada
   "A syntax checker for java, using meghanada-mode."
   :start #'flycheck-meghanada--start
-  :modes '(java-mode meghanada-mode)
+  :modes '(java-mode)
   :predicate (lambda ()
                (and (meghanada-alive-p)
                     (flycheck-buffer-saved-p))))
@@ -112,7 +112,7 @@
 (flycheck-define-generic-checker 'meghanada-live
   "A syntax checker for java, using meghanada-mode."
   :start #'flycheck-meghanada-live--start
-  :modes '(java-mode meghanada-mode)
+  :modes '(java-mode)
   :predicate (lambda ()
                (and (meghanada-alive-p)
                     (not (flycheck-buffer-empty-p)))))
