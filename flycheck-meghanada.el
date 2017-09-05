@@ -115,7 +115,13 @@
   :modes '(java-mode)
   :predicate (lambda ()
                (and (meghanada-alive-p)
-                    (not (flycheck-buffer-empty-p)))))
+                    (not (flycheck-buffer-empty-p))))
+  :verify (lambda (_)
+	    (list
+	     (flycheck-verification-result-new
+	      :label "Meghanada server"
+	      :message (if (meghanada-alive-p) "Running" "Not Running")
+	      :face (if (meghanada-alive-p) 'success '(bold error))))))
 
 ;;;###autoload
 (defun meghanada-flycheck-enable ()
