@@ -80,7 +80,7 @@ Install meghanada from melpa.
 
 ### Meghanada-Server
 
-The server will be automatically installed to `~/.emacs/meghanada/meghanada-x.x.jar`.
+The server will be automatically installed to `~/.emacs.d/meghanada/meghanada-x.x.jar`.
 
 If you open a java file and set `meghanada-mode`, a [meghanada-server][] process starts automatically and connects to your emacs.
 
