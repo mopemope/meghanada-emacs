@@ -547,12 +547,17 @@ function."
 (defun meghanada--task-client-process-filter (ignored output)
   "TODO: FIX DOC IGNORED OUTPUT."
   (let* ((buf meghanada--task-buffer)
-         (eot nil))
+         (eot nil)
+         (current-position (point))
+         (is-at-buffer-end (eq (point-max) current-position)))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
       (setq buffer-read-only nil)
-      (insert output)
       (goto-char (point-max))
+      (insert output)
+      (if is-at-buffer-end
+          (goto-char (point-max))
+        (goto-char current-position))
       (if (and (string= buf meghanada--junit-buf-name)
                (search-backward meghanada--eot nil t))
           (progn
@@ -566,7 +571,8 @@ function."
             (replace-match "")
             (setq eot t))
           (when eot
-            (compilation-mode)))))))
+            (compilation-mode)))))
+    (setq buffer-read-only t)))
 
 (defun meghanada--process-push-callback (process cb)
   "TODO: FIX DOC PROCESS CB."
