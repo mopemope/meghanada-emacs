@@ -547,39 +547,38 @@ function."
 (defun meghanada--task-client-process-filter (ignored output)
   "TODO: FIX DOC IGNORED OUTPUT."
   (let* ((buf meghanada--task-buffer)
+         (return-to-position)
          (eot nil))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
-      (let* (return-to-position)
-        ;; Make buffer editable
-        (setq buffer-read-only nil)
-        ;; Save current position if it's not the end of the buffer.
-        (unless (eq (point) (point-max))
-          (setq return-to-position (point)))
-        ;; Insert the new output
-        (goto-char (point-max))
-        (insert output)
-        (if (and (string= buf meghanada--junit-buf-name)
-                 (search-backward meghanada--eot nil t))
-            (progn
-              (while (re-search-forward meghanada--eot nil t)
-                (replace-match "")
-                (setq eot t))
-              (when eot
-                (compilation-mode)))
+      ;; Make buffer editable
+      (setq buffer-read-only nil)
+      ;; Save current position if it's not the end of the buffer.
+      (unless (eq (point) (point-max))
+        (setq return-to-position (point)))
+      ;; Insert the new output
+      (goto-char (point-max))
+      (insert output)
+      (if (and (string= buf meghanada--junit-buf-name)
+               (search-backward meghanada--eot nil t))
           (progn
-            (while (re-search-backward meghanada--eot nil t)
+            (while (re-search-forward meghanada--eot nil t)
               (replace-match "")
               (setq eot t))
             (when eot
-              (compilation-mode))))
-        ;; Return to last position or stay at the end of the buffer
-        (if return-to-position
-            (goto-char return-to-position)
-          (set-window-point (get-buffer-window buf) (point-max)))
-        ;; Make buffer read-only again
-        (setq buffer-read-only t)))))
-
+              (compilation-mode)))
+        (progn
+          (while (re-search-backward meghanada--eot nil t)
+            (replace-match "")
+            (setq eot t))
+          (when eot
+            (compilation-mode))))
+      ;; Return to last position or stay at the end of the buffer
+      (if return-to-position
+          (goto-char return-to-position)
+        (set-window-point (get-buffer-window buf) (point-max)))
+      ;; Make buffer read-only again
+      (setq buffer-read-only t))))
 
 (defun meghanada--process-push-callback (process cb)
   "TODO: FIX DOC PROCESS CB."
