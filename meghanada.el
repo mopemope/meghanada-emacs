@@ -851,7 +851,7 @@ function."
       (forward-char -3)
       (if (= len 1)
           (insert (car vals))
-        (let ((res (completing-read "local variable:" vals nil t)))
+        (let ((res (completing-read "local variable:" vals nil nil)))
           (unless (string= res "")
             (insert res)))))))
 
