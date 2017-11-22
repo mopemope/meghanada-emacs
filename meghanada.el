@@ -1283,6 +1283,7 @@ e.g. java.lang.annotation)."
   (let ((fqcn (nth 0 messages))
         (classes (nth 1 messages))
         (interfaces (nth 2 messages))
+        (members (nth 3 messages))
         (indent 0))
     (if (and fqcn (not (string-empty-p fqcn)))
       (with-current-buffer (get-buffer-create meghanada--typeinfo-buf-name)
@@ -1298,6 +1299,12 @@ e.g. java.lang.annotation)."
             (insert "Implements:\n")
             (dolist (it interfaces)
               (insert (format "  %s\n" it))))
+          (when (> (length members) 0)
+            (insert "\n")
+            (insert "Members:\n")
+            (dolist (m members)
+              (insert (format "  %s\n" m))))
+
           (setq buffer-read-only t)))
       (progn
         (meghanada--kill-buf meghanada--typeinfo-buf-name)
