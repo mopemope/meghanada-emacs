@@ -147,6 +147,11 @@ The slash is expected at the end."
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-server-log4j nil
+  "The log4j file to use when starting the server."
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-server-jvm-option "-Xms128m -Xmx750m -XX:ReservedCodeCacheSize=240m -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
   "Set to meghanada server process jvm option."
   :group 'meghanada
@@ -330,6 +335,8 @@ function."
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
     (push "-Dmeghanada.format=sexp" options)
     (push "-Djava.net.preferIPv4Stack=true" options)
+    (when meghanada-server-log4j
+      (push (format "-Dlog4j.configurationFile=%s" meghanada-server-log4j) options))
     (mapconcat 'identity
                options
                " ")))
