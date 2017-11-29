@@ -1,4 +1,7 @@
-# Version 0.8.4
+# Version 0.8.4 (2017-11-29)
+
+* Update some libraries
+* Fix bugs and improve stability
 
 # Version 0.8.3 (2017-07-25)
 
