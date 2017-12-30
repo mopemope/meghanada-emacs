@@ -1,3 +1,10 @@
+# Version 0.9.0 (2017-12-31)
+
+* Initial support for Java 9
+* Changeable meghanada cache directory
+* Update some libraries
+* Fix bugs and improve stability.
+
 # Version 0.8.4 (2017-11-29)
 
 * Update some libraries
