@@ -177,6 +177,15 @@ The slash is expected at the end."
   :group 'meghanada
   :type 'function)
 
+(defcustom meghanada-cache-in-project t
+  "If true, create a cache in the project.otherwise, create in cache root directory (~/.cache/meghanada)."
+  :group 'meghanada
+  :type 'boolean)
+
+(defcustom meghanada-cache-root nil
+  "Set to meghanada cache root.default value is '~/.cache/meghanada'."
+  :group 'meghanada
+  :type 'string)
 
 ;;
 ;; utility
@@ -326,6 +335,11 @@ function."
     (if meghanada-skip-build-subprojects
         (push "-Dmeghanada.skip.build.subprojects=true" options)
       (push "-Dmeghanada.skip.build.subprojects=true"  options))
+    (if meghanada-cache-in-project
+        (push "-Dmeghanada.cache.in.project=true" options)
+      (push "-Dmeghanada.cache.in.project=false"  options))
+    (when meghanada-cache-root
+      (push (format "-Dmeghanada.cache.root=%s" meghanada-cache-root) options))
     (when meghanada-server-remote-debug
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
     (push "-Dmeghanada.format=sexp" options)
