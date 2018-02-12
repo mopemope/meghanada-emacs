@@ -38,6 +38,11 @@
   :group 'flycheck-meghanada
   :type 'boolean)
 
+(defcustom flycheck-meghanada-java-encoding 'utf-8
+  "The default java compilation encoding."
+  :group 'flycheck-meghanada
+  :type 'symbol)
+
 (defun flycheck-meghanada--build-error (diagnostic checker buffer)
   (let* ((severity (intern (nth 2 diagnostic))))
     (when (memq severity '(NOTE MANDATORY_WARNING WARNING ERROR FATAL OTHER))
@@ -65,7 +70,23 @@
                                        (flycheck-meghanada--build-error d checker file-buf))
                                      diagnostics)))
                 (when (eq file-buf buffer)
-                  (funcall callback 'finished (delq nil errors))))))) result))
+                  (funcall callback 'finished (delq nil errors)))))))
+        result))
+
+(defun flycheck-meghanada--decode-diagnostics (diagnostics)
+  (let (result result-errors file errors err msg)
+    (setq result '())
+    (dolist (buffer-errors diagnostics)
+      (setq file (car buffer-errors))
+      (setq errors (car (cdr buffer-errors)))
+      (setq result-errors '())
+      (dolist (err errors)
+        (setq msg (decode-coding-string
+                   (encode-coding-string (car (last err)) flycheck-meghanada-java-encoding)
+                   'utf-8))
+        (add-to-list 'result-errors (append (subseq err 0 -1) (list msg)) t))
+      (add-to-list 'result (list file result-errors) t))
+    result))
 
 (defun flycheck-meghanada--callback (result &rest args)
   (let* ((callback (nth 0 args))
@@ -76,7 +97,7 @@
     (pcase type
       (`fatal  (funcall callback 'errored '("Meghanada diagnostics fatal error")))
       (`success (funcall callback 'finished nil))
-      (`error (flycheck-meghanada--build-errors buffer diagnostics callback checker))
+      (`error (flycheck-meghanada--build-errors buffer (if (eq flycheck-meghanada-java-encoding 'utf-8) diagnostics (flycheck-meghanada--decode-diagnostics diagnostics)) callback checker))
       (_ (progn
            (message "WARN not match type")
            (funcall callback 'finished nil))))))

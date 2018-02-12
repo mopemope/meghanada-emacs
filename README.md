@@ -26,7 +26,7 @@ package and [meghanada-server][].
 * Show symbol's type info with `el-doc`
 * Search references
 
-`Meghanada` tested only `linux` (maybe macOS OK). windows not support.
+`Meghanada` is tested under `linux` and `Windows` (maybe macOS OK).
 
 (Welcome contributions !)
 
@@ -73,9 +73,17 @@ Install meghanada from melpa.
           (lambda ()
             ;; meghanada-mode on
             (meghanada-mode t)
+            (flycheck-mode +1)
             (setq c-basic-offset 2)
             ;; use code format
             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+(cond
+   ((eq system-type 'windows-nt)
+    (setq meghanada-java-path (expand-file-name "bin/java.exe" (getenv "JAVA_HOME")))
+    (setq meghanada-maven-path "mvn.cmd"))
+   (t
+    (setq meghanada-java-path "java")
+    (setq meghanada-maven-path "mvn")))
 ```
 
 ### Meghanada-Server

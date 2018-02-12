@@ -112,8 +112,23 @@ The slash is expected at the end."
   :risky t
   :type 'directory)
 
-(defcustom meghanada-maven-path nil
-  "Path of the maven executable."
+(defcustom meghanada-java-path "java"
+  "Path of the java executable.
+
+If the path of maven is in the environment, we can use the short path.
+Otherwise, we can always use the full path, in Windows, we can use this to get it:
+`(expand-file-name \"bin/java.exe\" (getenv \"JAVA_HOME\"))'
+In linux or macOS, it can be \"java\". In Windows, it can be \"java.exe\"."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-maven-path "mvn"
+  "Path of the maven executable.
+
+If the path of maven is in the environment, we can use the short path.
+Otherwise, we can always use the full path.
+For the short paht:
+In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'string)
 
@@ -321,7 +336,7 @@ function."
 (defun meghanada--server-options ()
   (let ((options '()))
     (when meghanada-maven-path
-      (push (format "-Dmeghanada.maven.path=%s" meghanada-maven-path)options))
+      (push (format "-Dmeghanada.maven.path=%s" meghanada-maven-path) options))
     (when meghanada-maven-local-repository
       (push (format "-Dmeghanada.maven.local.repository=%s" meghanada-maven-local-repository) options))
     (when meghanada-javac-xlint
@@ -351,33 +366,32 @@ function."
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
   (let ((jar (meghanada--locate-server-jar)))
-  (if (file-exists-p jar)
-      (let ((process-connection-type nil)
-            (process-adaptive-read-buffering nil)
-            (cmd (format "java %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s"
-                         (meghanada--server-options)
-                         meghanada-server-jvm-option
-                         (shell-quote-argument jar)
-                         meghanada-port
-                         (if meghanada-debug
-                             "-v"
-                           "")))
-            process)
-        (message (format "launch server cmd:%s" cmd))
-        (setq process
-              (start-process-shell-command
-               "meghanada-server"
-               meghanada--server-buffer
-               cmd))
-        (buffer-disable-undo meghanada--server-buffer)
-        (set-process-query-on-exit-flag process nil)
-        (set-process-sentinel process 'meghanada--server-process-sentinel)
-        (set-process-filter process 'meghanada--server-process-filter)
-        (message "Meghanada-Server Starting ...")
-        process)
-    (message "%s"
-             (substitute-command-keys
-              "Missing server module. Type `\\[meghanada-install-server]' to install meghanada-server")))))
+    (if (file-exists-p jar)
+        (let ((process-connection-type nil)
+              (process-adaptive-read-buffering nil)
+              (cmd (format "%s %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+                           (shell-quote-argument meghanada-java-path)
+                           (meghanada--server-options)
+                           meghanada-server-jvm-option
+                           (shell-quote-argument jar)
+                           meghanada-port
+                           (if meghanada-debug "-v" "")))
+              process)
+          (message (format "launch server cmd:%s" cmd))
+          (setq process
+                (start-process-shell-command
+                 "meghanada-server"
+                 meghanada--server-buffer
+                 cmd))
+          (buffer-disable-undo meghanada--server-buffer)
+          (set-process-query-on-exit-flag process nil)
+          (set-process-sentinel process 'meghanada--server-process-sentinel)
+          (set-process-filter process 'meghanada--server-process-filter)
+          (message "Meghanada-Server Starting ...")
+          process)
+      (message "%s"
+               (substitute-command-keys
+                "Missing server module. Type `\\[meghanada-install-server]' to install meghanada-server")))))
 
 (defun meghanada--get-server-process-create ()
   "TODO: FIX DOC ."
@@ -518,7 +532,7 @@ function."
 
 (defun meghanada--process-client-response (process response)
   "TODO: FIX DOC PROCESS RESPONSE ."
-  (let* ((output (read (meghanada--remove-eot response)))
+  (let* ((output (read (meghanada--normalize-repsonse-file-path (meghanada--remove-eot response))))
          (callback (meghanada--process-pop-callback process))
          (status (car output))
          (res (car (cdr output))))
@@ -532,6 +546,24 @@ function."
          (progn
            (message (format "Error:%s . Please check *meghanada-server-log*" res))
            (apply (car callback) nil (cdr callback))))))))
+
+(defun meghanada--normalize-repsonse-file-path (response)
+  (let (diver-char downcase-char)
+    (setq response (replace-regexp-in-string "\\\\" "/" response))
+    (when (string-match "\\([A-Z]\\):/" response)
+      (setq diver-char (match-string 1 response))
+      (setq downcase-char (downcase diver-char))
+      (setq response (replace-regexp-in-string (concat diver-char ":/") (concat downcase-char ":/") response)))
+    response))
+
+(defun meghanada--normalize-request-file-path (request)
+  (let (diver-char upcase-char)
+    (when (string-match "\\([a-z]\\):/" request)
+      (setq diver-char (match-string 1 request))
+      (setq upcase-char (upcase diver-char))
+      (setq request (replace-regexp-in-string (concat diver-char ":/") (concat upcase-char ":/") request)))
+    (setq request (replace-regexp-in-string "/" "\\\\" request))
+    request))
 
 (defun meghanada--client-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT."
@@ -615,12 +647,12 @@ function."
   (let* ((process (meghanada--get-client-process-create))
          (argv (cons request args))
          (callback (if (listp callback) callback (list callback)))
-         (send-str (format "%s" argv)))
+         (send-str (meghanada--normalize-request-file-path (format "%s" argv))))
     (when (and process (process-live-p process))
       (meghanada--process-push-callback process callback)
       (meghanada--without-narrowing
-       (process-send-string process
-                            (format "%s\n" send-str))))))
+        (process-send-string process
+                             (format "%s\n" send-str))))))
 
 (defun meghanada--send-request-process (request process callback &rest args)
   "TODO: FIX DOC REQUEST PROCESS CALLBACK ARGS."
