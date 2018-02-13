@@ -27,7 +27,7 @@
 ;;
 ;;  Meghanada has a server component which can read the AST of your
 ;;  project and its dependencies, providing features.
-;;  Meghanada does not yet support Windows.
+;;
 ;;
 
 ;;; Code:
@@ -548,22 +548,28 @@ function."
            (apply (car callback) nil (cdr callback))))))))
 
 (defun meghanada--normalize-repsonse-file-path (response)
-  (let (diver-char downcase-char)
-    (setq response (replace-regexp-in-string "\\\\" "/" response))
-    (when (string-match "\\([A-Z]\\):/" response)
-      (setq diver-char (match-string 1 response))
-      (setq downcase-char (downcase diver-char))
-      (setq response (replace-regexp-in-string (concat diver-char ":/") (concat downcase-char ":/") response)))
-    response))
+  "TODO: FIX RESPONSE ."
+  (if (eq system-type 'windows-nt)
+      (let (diver-char downcase-char)
+        (setq response (replace-regexp-in-string "\\\\" "/" response))
+        (when (string-match "\\([A-Z]\\):/" response)
+          (setq diver-char (match-string 1 response))
+          (setq downcase-char (downcase diver-char))
+          (setq response (replace-regexp-in-string (concat diver-char ":/") (concat downcase-char ":/") response)))
+        response))
+  response)
 
 (defun meghanada--normalize-request-file-path (request)
-  (let (diver-char upcase-char)
-    (when (string-match "\\([a-z]\\):/" request)
-      (setq diver-char (match-string 1 request))
-      (setq upcase-char (upcase diver-char))
-      (setq request (replace-regexp-in-string (concat diver-char ":/") (concat upcase-char ":/") request)))
-    (setq request (replace-regexp-in-string "/" "\\\\" request))
-    request))
+  "TODO: FIX REQUEST ."
+  (if (eq system-type 'windows-nt)
+      (let (diver-char upcase-char)
+        (when (string-match "\\([a-z]\\):/" request)
+          (setq diver-char (match-string 1 request))
+          (setq upcase-char (upcase diver-char))
+          (setq request (replace-regexp-in-string (concat diver-char ":/") (concat upcase-char ":/") request)))
+        (setq request (replace-regexp-in-string "/" "\\\\" request))
+        request))
+  request)
 
 (defun meghanada--client-process-filter (process output)
   "TODO: FIX DOC PROCESS OUTPUT."
