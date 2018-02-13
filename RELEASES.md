@@ -1,3 +1,10 @@
+# Version 0.9.1 (2018-02-14)
+
+* Initial support for Windows
+* Experimental support Android plugin for gradle. (supported only 3.0.0+)
+* Update some libraries
+* Fix bugs and improve stability.
+
 # Version 0.9.0 (2017-12-31)
 
 * Initial support for Java 9
