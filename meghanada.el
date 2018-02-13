@@ -202,6 +202,11 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'string)
 
+(defcustom meghanada-task-buffer-auto-scroll t
+  "If true, automatically move to the end of the task buffer after inserting new output."
+  :group 'meghanada
+  :type 'boolean)
+
 ;;
 ;; utility
 ;;
@@ -598,27 +603,39 @@ function."
 
 (defun meghanada--task-client-process-filter (ignored output)
   "TODO: FIX DOC IGNORED OUTPUT."
-  (let* ((buf meghanada--task-buffer)
-         (eot nil))
+  (let ((buf meghanada--task-buffer))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
-      (setq buffer-read-only nil)
-      (insert output)
-      (goto-char (point-max))
-      (if (and (string= buf meghanada--junit-buf-name)
-               (search-backward meghanada--eot nil t))
-          (progn
-            (while (re-search-forward meghanada--eot nil t)
-              (replace-match "")
-              (setq eot t))
-            (when eot
-              (compilation-mode)))
-        (progn
-          (while (re-search-backward meghanada--eot nil t)
-            (replace-match "")
-            (setq eot t))
-          (when eot
-            (compilation-mode)))))))
+      (let ((win (get-buffer-window buf))
+            (eob (eq (point) (point-max)))
+            (eot nil))
+        ;; Insert the new output at the end of the buffer
+        ;; and restore the buffer point afterward
+        (save-excursion
+          (goto-char (point-max))
+          (setq buffer-read-only nil)
+          (insert output)
+          (if (and (string= buf meghanada--junit-buf-name)
+                   (search-backward meghanada--eot nil t))
+              (progn
+                (while (re-search-forward meghanada--eot nil t)
+                  (replace-match "")
+                  (setq eot t))
+                (when eot
+                  (compilation-mode)))
+            (progn
+              (while (re-search-backward meghanada--eot nil t)
+                (replace-match "")
+                (setq eot t))
+              (when eot
+                (compilation-mode))))
+          (setq buffer-read-only t))
+        ;; If the cursor is already at the end of the buffer or if
+        ;; auto-scrolling is activated, move the cursor to the end of the buffer
+        ;; (moves both buffer point and window point)
+        (when (or meghanada-task-buffer-auto-scroll eob)
+          (goto-char (point-max))
+          (when win (set-window-point win (point))))))))
 
 (defun meghanada--process-push-callback (process cb)
   "TODO: FIX DOC PROCESS CB."
