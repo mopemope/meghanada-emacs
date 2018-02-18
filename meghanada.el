@@ -1188,19 +1188,20 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--jump-callback (res)
-  "TODO FIX DOC OUTPUT."
+  "TODO FIX DOC RES."
   (let* ((filename (nth 0 res))
          (line (nth 1 res))
          (col (nth 2 res)))
-    (unless (string= filename (buffer-file-name))
-      (funcall #'find-file filename))
+    (unless (string= filename "")
+      (unless (string= filename (buffer-file-name))
+        (funcall #'find-file filename))
 
-    (meghanada--goto-line line)
-    (beginning-of-line)
-    (forward-char (1- col))
-    (recenter)
-    (if (buffer-modified-p)
-        (message "Buffer is modified, file position might not have been correct"))))
+      (meghanada--goto-line line)
+      (beginning-of-line)
+      (forward-char (1- col))
+      (recenter)
+      (if (buffer-modified-p)
+          (message "Buffer is modified, file position might not have been correct")))))
 
 (defun meghanada-jump-declaration ()
   "TODO: FIX DOC."
