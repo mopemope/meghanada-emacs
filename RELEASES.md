@@ -1,3 +1,8 @@
+# Version 0.9.2 (2018-02-22)
+
+* Fix bugs and improve stability.
+* Update some libraries
+
 # Version 0.9.1 (2018-02-14)
 
 * Initial support for Windows
