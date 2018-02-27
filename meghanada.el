@@ -1356,7 +1356,7 @@ e.g. java.lang.annotation)."
         (members (nth 3 messages))
         (indent 0))
     (if (and fqcn (not (string-empty-p fqcn)))
-      (with-current-buffer (get-buffer-create meghanada--typeinfo-buf-name)
+      (with-help-window (get-buffer-create meghanada--typeinfo-buf-name)
         (save-excursion
           (insert (format "Class: %s\n\n" fqcn))
           (dolist (c classes)
