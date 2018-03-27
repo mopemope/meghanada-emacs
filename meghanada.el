@@ -69,8 +69,12 @@
   :group 'meghanada
   :type 'string)
 
-(defcustom meghanada-port 55555
-  "Meghanada server port."
+(defcustom meghanada-port 0
+  "Meghanada server port.
+
+A port number of 0 means that the port number is automatically allocated, typically from an ephemeral port range.
+default 0.
+"
   :group 'meghanada
   :type 'integer)
 
@@ -290,6 +294,18 @@ function."
 (defvar meghanada--server-pending nil)
 (defvar meghanada--server-jar nil)
 
+;;
+;; meghanada-client process management.
+;;
+
+(defvar meghanada--client-process nil)
+(defvar meghanada--client-buffer "*meghanada-client*")
+(defvar meghanada--connect-host meghanada-host)
+(defvar meghanada--connect-port meghanada-port)
+(defvar meghanada--client-pending nil)
+
+(defvar meghanada--task-client-process nil)
+(defvar meghanada--task-buffer nil)
 
 ;; TODO pop-to-buffer
 
@@ -430,6 +446,9 @@ function."
           (when (string-match "Ready" output)
             (message "Meghanada Ready"))
           (when (string-match "Start server" output)
+            (string-match "port:\\([0-9]+\\)+" output)
+            (let* ((p (substring output (match-beginning 1) (match-end 1))))
+              (setq meghanada--connect-port (string-to-number p)))
             (message "Server waiting client connection ...")
             (when meghanada--server-pending
               (funcall meghanada--server-pending)
@@ -453,19 +472,6 @@ function."
     (delete-process meghanada--server-process)
     (setq meghanada--server-process nil)))
 
-
-;;
-;; meghanada-client process management.
-;;
-
-(defvar meghanada--client-process nil)
-(defvar meghanada--client-buffer "*meghanada-client*")
-(defvar meghanada--connect-host meghanada-host)
-(defvar meghanada--connect-port meghanada-port)
-(defvar meghanada--client-pending nil)
-
-(defvar meghanada--task-client-process nil)
-(defvar meghanada--task-buffer nil)
 
 (defun meghanada--start-client-process ()
   "TODO: FIX DOC ."
