@@ -53,6 +53,7 @@
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
 (defconst meghanada--ref-buf-name "*meghanada-reference*")
+(defconst meghanada--search-buf-name "*meghanada-search-everywhere*")
 (defconst meghanada--typeinfo-buf-name "*meghanada-typeinfo*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 
@@ -193,6 +194,16 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
 
 (defcustom meghanada-typeinfo-callback #'meghanada--typeinfo-callback
   "It will be called after receiving meghanada-typeinfo result."
+  :group 'meghanada
+  :type 'function)
+
+(defcustom meghanada-search-prepare #'meghanada--search-prepare
+  "It is called before meghanada-search-everywhere."
+  :group 'meghanada
+  :type 'function)
+
+(defcustom meghanada-search-callback #'meghanada--search-callback
+  "It will be called after receiving meghanada-search-everywhere result."
   :group 'meghanada
   :type 'function)
 
@@ -1412,6 +1423,110 @@ e.g. java.lang.annotation)."
                                    col
                                    (format "\"%s\"" sym))))
     (message "client connection not established")))
+
+;;
+;; meghanada search everywhere api
+;;
+
+(defun meghanada--search-callback (messages)
+  "Show search everywhere result."
+  (if messages
+      (progn
+        (with-current-buffer (get-buffer-create meghanada--search-buf-name)
+          (setq buffer-read-only nil)
+          (let* ((classes (nth 0 messages))
+                 (methods (nth 1 messages))
+                 (symbols (nth 2 messages))
+                 (contents (nth 3 messages))
+                 (indent 2))
+            (save-excursion
+
+              (when (> (length classes) 0)
+                (insert (propertize (format "Classes: ")
+                                    'face '(:weight bold)))
+                (insert "\n")
+                (dolist (c classes)
+                  (dotimes (number indent 0)
+                    (insert " "))
+                  (insert (format "%s\n" c)))
+                (insert "\n"))
+
+              (when (> (length methods) 0)
+                (insert (propertize (format "Methods: ")
+                                    'face '(:weight bold)))
+                (insert "\n")
+                (dolist (c methods)
+                  (dotimes (number indent 0)
+                    (insert " "))
+                  (insert (format "%s\n" c)))
+                (insert "\n"))
+
+              (when (> (length symbols) 0)
+                (insert (propertize (format "Symbols: ")
+                                    'face '(:weight bold)))
+                (insert "\n")
+                (dolist (c symbols)
+                  (dotimes (number indent 0)
+                    (insert " "))
+                  (insert (format "%s\n" c)))
+                (insert "\n"))
+
+              (when (> (length contents) 0)
+                (insert (propertize (format "Code:\n")
+                                    'face '(:weight bold)))
+                (dolist (it contents)
+                  (insert (format "  %s\n" it)))))
+
+            (compilation-mode)))
+        (when (active-minibuffer-window)
+          (select-window (active-minibuffer-window))))
+    (progn
+      (meghanada--kill-buf meghanada--search-buf-name))))
+
+(defun meghanada--search-prepare ()
+  (meghanada--kill-buf meghanada--search-buf-name)
+  (pop-to-buffer meghanada--search-buf-name))
+
+(defun meghanada--call-search-everywhere (word)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((len (length word)))
+        (progn
+          (funcall meghanada-search-prepare)
+          (meghanada--send-request
+           "se"
+           meghanada-search-callback
+           word)))
+    (message "client connection not established")))
+
+(defvar meghanada--search-everywhere-last nil)
+
+(defun meghanada--check-searcheverywhere-input ()
+  (when (string-prefix-p "*Minibuf" (string-trim (buffer-name)))
+    (let* ((content (minibuffer-contents))
+           (len (length content)))
+      (when (and
+             (> len 1)
+             (not (string= content meghanada--search-everywhere-last)))
+        (setq meghanada--search-everywhere-last content)
+        (meghanada--call-search-everywhere content)))))
+
+(defun meghanada-search-everywhere ()
+  "Search everywhere."
+  (interactive)
+  (let* (timer is-input)
+    (unwind-protect
+        (minibuffer-with-setup-hook
+            #'(lambda ()
+                (setq timer (run-with-idle-timer
+                             0.5
+                             'repeat
+                             (lambda ()
+                               (meghanada--check-searcheverywhere-input)))))
+          (prog1 (read-from-minibuffer "Search: ")
+            (setq is-input t)))
+      (when timer
+        (cancel-timer timer)
+        (setq timer nil)))))
 
 ;;
 ;; meghanada-mode
