@@ -222,6 +222,11 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-make-search-query #'meghanada--make-search-query
+  "Sets the function that returns the search query."
+  :group 'meghanada
+  :type 'function)
+
 ;;
 ;; utility
 ;;
@@ -1431,71 +1436,56 @@ e.g. java.lang.annotation)."
 (defun meghanada--search-callback (messages)
   "Show search everywhere result."
   (if messages
-      (progn
-        (with-current-buffer (get-buffer-create meghanada--search-buf-name)
-          (setq buffer-read-only nil)
-          (let* ((classes (nth 0 messages))
-                 (methods (nth 1 messages))
-                 (symbols (nth 2 messages))
-                 (contents (nth 3 messages))
-                 (indent 2))
-            (save-excursion
-
-              (when (> (length classes) 0)
-                (insert (propertize (format "Classes: ")
-                                    'face '(:weight bold)))
-                (insert "\n")
-                (dolist (c classes)
-                  (dotimes (number indent 0)
-                    (insert " "))
-                  (insert (format "%s\n" c)))
-                (insert "\n"))
-
-              (when (> (length methods) 0)
-                (insert (propertize (format "Methods: ")
-                                    'face '(:weight bold)))
-                (insert "\n")
-                (dolist (c methods)
-                  (dotimes (number indent 0)
-                    (insert " "))
-                  (insert (format "%s\n" c)))
-                (insert "\n"))
-
-              (when (> (length symbols) 0)
-                (insert (propertize (format "Symbols: ")
-                                    'face '(:weight bold)))
-                (insert "\n")
-                (dolist (c symbols)
-                  (dotimes (number indent 0)
-                    (insert " "))
-                  (insert (format "%s\n" c)))
-                (insert "\n"))
-
-              (when (> (length contents) 0)
-                (insert (propertize (format "Code:\n")
-                                    'face '(:weight bold)))
-                (dolist (it contents)
-                  (insert (format "  %s\n" it)))))
-
-            (compilation-mode)))
-        (when (active-minibuffer-window)
-          (select-window (active-minibuffer-window))))
+      (with-current-buffer (get-buffer-create meghanada--search-buf-name)
+        (setq buffer-read-only nil)
+        (let* ((classes (nth 0 messages))
+               (methods (nth 1 messages))
+               (symbols (nth 2 messages))
+               (contents (nth 3 messages)))
+          (save-excursion
+            (when (> (length classes) 0)
+              (insert (propertize (format "Classes: ")
+                                  'face '(:weight bold)))
+              (insert "\n")
+              (dolist (c classes)
+                (insert (format "  %s\n" c)))
+              (insert "\n"))
+            (when (> (length methods) 0)
+              (insert (propertize (format "Methods: ")
+                                  'face '(:weight bold)))
+              (insert "\n")
+              (dolist (c methods)
+                (insert (format "  %s\n" c)))
+              (insert "\n"))
+            (when (> (length symbols) 0)
+              (insert (propertize (format "Symbols: ")
+                                  'face '(:weight bold)))
+              (insert "\n")
+              (dolist (c symbols)
+                (insert (format "  %s\n" c)))
+              (insert "\n"))
+            (when (> (length contents) 0)
+              (insert (propertize (format "Code:\n")
+                                  'face '(:weight bold)))
+              (dolist (c contents)
+                (insert (format "  %s\n" c))))
+            (compilation-mode))))
     (progn
-      (meghanada--kill-buf meghanada--search-buf-name))))
+      (meghanada--kill-buf meghanada--search-buf-name)
+      (message "no reference found"))))
 
 (defun meghanada--search-prepare ()
   (meghanada--kill-buf meghanada--search-buf-name)
   (pop-to-buffer meghanada--search-buf-name))
 
-(defun meghanada--call-search-everywhere (word)
+(defun meghanada--call-search-everywhere (query)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (let ((len (length word)))
-        (progn
-          (funcall meghanada-search-prepare)
-          (meghanada--send-request
-           "se"
-           meghanada-search-callback
-           word)))
+      (progn
+        (funcall meghanada-search-prepare)
+        (meghanada--send-request
+         "se"
+         meghanada-search-callback
+         query))
     (message "client connection not established")))
 
 (defvar meghanada--search-everywhere-last nil)
@@ -1510,9 +1500,7 @@ e.g. java.lang.annotation)."
         (setq meghanada--search-everywhere-last content)
         (meghanada--call-search-everywhere content)))))
 
-(defun meghanada-search-everywhere ()
-  "Search everywhere."
-  (interactive)
+(defun meghanada--read-search ()
   (let* (timer is-input)
     (unwind-protect
         (minibuffer-with-setup-hook
@@ -1527,6 +1515,23 @@ e.g. java.lang.annotation)."
       (when timer
         (cancel-timer timer)
         (setq timer nil)))))
+
+(defun meghanada--make-search-query (q)
+  (format "\"class:*%s* OR method:*%s* OR symbol:%s\"" q q q))
+
+(defun meghanada-search-everywhere ()
+  "Search everywhere."
+  (interactive)
+  (let* ((input (read-from-minibuffer "Search: "))
+         (query (funcall meghanada-make-search-query input)))
+    (meghanada--call-search-everywhere query)))
+
+(defun meghanada-search-everywhere-ex ()
+  "Search everywhere expert mode."
+  (interactive)
+  (let* ((input (read-from-minibuffer "Lucene query: "))
+         (query (format "\"%s\"" input)))
+    (meghanada--call-search-everywhere query)))
 
 ;;
 ;; meghanada-mode
