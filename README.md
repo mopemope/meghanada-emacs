@@ -25,6 +25,7 @@ package and [meghanada-server][].
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 * Show symbol's type info with `el-doc`
 * Search references
+* Full-featured text search
 
 `Meghanada` is tested under `linux` and `Windows` (maybe macOS OK).
 
@@ -50,14 +51,13 @@ Meghanada has been developed Emacs 25.1.1
 based on S-expressions. This server, written in java, requires the following
 packages to be installed on your system:
 
-* JDK 1.8
+* JDK 1.8 or later
 
 The Meghanada architecture is almost the same as `ensime`. It is client server model.
 
 Meghanada updates any information when saving and compile the java file.
 
 If the completion candidate and others are incorrect, please fix the compile error.
-
 
 ## Installation
 
@@ -196,6 +196,14 @@ Debug main class.
 
 Find usage (method call, field access, class).
 
+### meghanada-search-everywhere
+
+It does a full text search based search (class, method, symbol (field)).
+
+### meghanada-search-everywhere-ex
+
+It does a full text search expart-mode (Enter a query for Lucene).
+
 ### meghanada-typeinfo
 
 Show type hierarchies and implements interfaces.
@@ -238,7 +246,7 @@ Format buffer code. The default formatter is `google-java-format`
 
 It also supports eclipse formatter.
 If you want to customize the formatter, you uses the exported eclipse format settings.
-To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the project root.
+To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the `project root` or `subproject root`.
 
 ## Debug
 
