@@ -49,6 +49,7 @@
 ;;
 
 (defconst meghanada-version "0.9.3")
+(defconst meghanada-setup-version "0.0.1")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
@@ -325,8 +326,53 @@ function."
 
 ;; TODO pop-to-buffer
 
-(defun meghanada--download-jar ()
-  "Download jar file."
+(defun meghanada--download-from-url (url dest-jar)
+  "Download a jar file from URL to DEST-JAR Path."
+  (let ((dest meghanada-server-install-dir))
+    (unless (file-exists-p dest)
+      (make-directory dest t))
+    (message (format "Download module from %s. Please wait ..." url))
+    (url-handler-mode t)
+    (if (file-exists-p url)
+        (progn
+          (url-copy-file url dest-jar)
+          (message (format "Downloaded module from %s to %s." url dest-jar)))
+      (error "Not found %s" url))))
+
+
+(defun meghanada--setup ()
+  "Setup meghanada-server-module."
+  (meghanada--download-setup-jar)
+  (meghanada--run-setup))
+
+(defun meghanada--run-setup ()
+  "Setup meghanada server module."
+  (let ((jar (meghanada--locate-setup-jar))
+        (dest meghanada-server-install-dir))
+    (if (file-exists-p jar)
+        (let ((cmd (format "%s -jar %s --dest %s --server-version %s"
+                           (shell-quote-argument meghanada-java-path)
+                           (shell-quote-argument jar)
+                           dest
+                           meghanada-version)))
+          (message "Download meghanada server module. Please wait ...")
+          (shell-command cmd)
+          (message (format "Success. It downloaded to %s." dest))))))
+
+(defun meghanada--download-setup-jar ()
+  "Download setup-jar file from bintray."
+  (let ((url (format
+              "https://dl.bintray.com/mopemope/meghanada/meghanada-setup-%s.jar"
+              meghanada-setup-version))
+        (setup-jar (meghanada--locate-setup-jar)))
+
+    (unless (file-exists-p setup-jar)
+      (meghanada--download-from-url
+       url
+       setup-jar))))
+
+(defun meghanada--download-server-jar ()
+  "Direct download server jar file."
   (let ((dest meghanada-server-install-dir)
         (dest-jar (meghanada--locate-server-jar))
         (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
@@ -349,7 +395,7 @@ function."
         nil
       (condition-case err
           (progn
-            (meghanada--download-jar)
+            (meghanada--setup)
             t)
         (error
          (let ((error-buf meghanada--install-err-buf-name))
@@ -368,6 +414,12 @@ function."
   "TODO FIX DOC."
   (expand-file-name
    (format "meghanada-%s.jar" meghanada-version)
+   meghanada-server-install-dir))
+
+(defun meghanada--locate-setup-jar ()
+  "Return the path of the meghanada-setup.jar file."
+  (expand-file-name
+   (format "meghanada-setup-%s.jar" meghanada-setup-version)
    meghanada-server-install-dir))
 
 (defun meghanada--server-options ()
