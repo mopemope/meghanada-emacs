@@ -6,6 +6,7 @@
 * Add full-featured text search as search-everywhere (meghanada-searcheverywhere)
 * Supported to automatically assign port number
 * Decrease jar file size
+* Add show project information (meghanada-show-project).
 * Fix bugs and improve stability.
 
 # Version 0.9.2 (2018-02-22)

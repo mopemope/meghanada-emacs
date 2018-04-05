@@ -55,6 +55,7 @@
 (defconst meghanada--task-buf-name "*meghanada-task*")
 (defconst meghanada--ref-buf-name "*meghanada-reference*")
 (defconst meghanada--search-buf-name "*meghanada-search-everywhere*")
+(defconst meghanada--show-project-buf-name "*meghanada-project*")
 (defconst meghanada--typeinfo-buf-name "*meghanada-typeinfo*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 
@@ -1584,6 +1585,36 @@ e.g. java.lang.annotation)."
   (let* ((input (read-from-minibuffer "Lucene query: "))
          (query (format "\"%s\"" input)))
     (meghanada--call-search-everywhere query)))
+
+;;
+;; meghanada show project api
+;;
+
+(defun meghanada--show-project-callback (msg)
+  "TODO MSG."
+  (with-help-window (get-buffer-create meghanada--show-project-buf-name)
+    (save-excursion
+      (setq buffer-read-only nil)
+      (insert (format "%s\n" msg))
+      (compilation-mode)
+      (setq buffer-read-only t))))
+
+(defun meghanada--show-project-prepare ()
+  "TODO ."
+  (meghanada--kill-buf meghanada--show-project-buf-name)
+  (pop-to-buffer meghanada--show-project-buf-name))
+
+(defun meghanada-show-project ()
+  "Show project details."
+  (interactive)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (progn
+        (meghanada--show-project-prepare)
+        (meghanada--send-request
+         "sp"
+         #'meghanada--show-project-callback))
+    (message "client connection not established")))
+
 
 ;;
 ;; meghanada-mode

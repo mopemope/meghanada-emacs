@@ -176,6 +176,10 @@ Introduce local variable. (need expression is end `;`)
 
 Compile file (and related files).
 
+### meghanada-project-show
+
+Show project details.
+
 ### meghanada-project-compile (C-c C-c c)
 
 Compile project (full build and reindex).
