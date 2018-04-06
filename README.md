@@ -206,7 +206,29 @@ It does a full text search based search (class, method, symbol (field)).
 
 ### meghanada-search-everywhere-ex
 
-It does a full text search expart-mode (Enter a query for Lucene).
+It does a full text search expert-mode (Enter a query for Lucene).
+
+Here is a list of fields that can be used in the search.
+
+* package
+* class
+* method
+* symbol
+* usage
+* dc (method's or field's declaringClass)
+
+ex. Seach class name contains `Search` .
+
+```
+class:*Search*
+```
+
+It can also use `AND operator`.
+
+```
+dc:*Optional* AND usage:get
+```
+
 
 ### meghanada-typeinfo
 
