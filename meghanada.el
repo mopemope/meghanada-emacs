@@ -839,20 +839,34 @@ e.g. java.lang.annotation)."
     (let ((severity (car result)))
       (pcase severity
         (`success
-         (let ((fqcn (car (cdr result))))
-           (unless (or (meghanada--is-java-lang-package-p fqcn) (meghanada--import-exists-p fqcn))
+         (let* ((fqcn (car (cdr result)))
+                (is-static (string-match-p (regexp-quote "#") fqcn))
+                (imp (if is-static
+                         (replace-regexp-in-string "#" "." fqcn)
+                       fqcn)))
+
+           (unless (or (meghanada--is-java-lang-package-p imp)
+                       (meghanada--import-exists-p imp))
              (let ((start t))
                (save-excursion
                  (meghanada--goto-imports-start)
                  (while (and start (re-search-forward "^import .+;" nil t))
                    (forward-line)
                    (setq start (/= (point-at-bol) (point-at-eol))))
-                 (insert (format "import %s;\n" fqcn)))))))))))
+                 (if is-static
+                     (insert (format "import static %s;\n" imp))
+                   (insert (format "import %s;\n" imp))))))))))))
 
 (defun meghanada--add-import (imp buf)
   "TODO: FIX DOC IMP BUF."
-  (unless (or (meghanada--is-java-lang-package-p imp) (meghanada--import-exists-p imp))
-    (meghanada-add-import-async imp #'meghanada--add-import-callback buf)))
+  (unless
+      (or
+       (meghanada--is-java-lang-package-p imp)
+       (meghanada--import-exists-p imp))
+    (meghanada-add-import-async
+     imp
+     #'meghanada--add-import-callback
+     buf)))
 
 (defun meghanada-import-all--callback (result buf optimize)
   "TODO: FIX DOC OUT BUF OPTIMIZE."
