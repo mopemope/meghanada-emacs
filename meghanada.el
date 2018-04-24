@@ -229,6 +229,11 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'function)
 
+(defcustom meghanada-import-static-enable "java.util.Objects,org.junit.Assert"
+  "Sets import static comletion class."
+  :group 'meghanada
+  :type 'string)
+
 ;;
 ;; utility
 ;;
@@ -431,6 +436,8 @@ function."
       (push (format "-Dmeghanada.maven.local.repository=%s" meghanada-maven-local-repository) options))
     (when meghanada-javac-xlint
       (push (format "-Dmeghanada.javac.arg=%s" meghanada-javac-xlint) options))
+    (when meghanada-import-static-enable
+      (push (format "-Dmeghanada.search.static.method.classes=%s" meghanada-import-static-enable) options))
     (when meghanada-gradle-version
       (push (format "-Dmeghanada.gradle.version=%s" meghanada-gradle-version) options))
     (when meghanada-gradle-prepare-compile-task
