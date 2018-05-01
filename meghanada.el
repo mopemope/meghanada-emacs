@@ -49,7 +49,7 @@
 ;;
 
 (defconst meghanada-version "1.0.2")
-(defconst meghanada-setup-version "0.0.1")
+(defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
