@@ -1645,6 +1645,7 @@ e.g. java.lang.annotation)."
 (defun meghanada--show-project-callback (msg)
   "TODO MSG."
   (with-help-window (get-buffer-create meghanada--show-project-buf-name)
+    (pop-to-buffer meghanada--show-project-buf-name)
     (save-excursion
       (setq buffer-read-only nil)
       (insert (format "%s\n" msg))
@@ -1653,8 +1654,7 @@ e.g. java.lang.annotation)."
 
 (defun meghanada--show-project-prepare ()
   "TODO ."
-  (meghanada--kill-buf meghanada--show-project-buf-name)
-  (pop-to-buffer meghanada--show-project-buf-name))
+  (meghanada--kill-buf meghanada--show-project-buf-name))
 
 (defun meghanada-show-project ()
   "Show project details."
