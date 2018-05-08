@@ -297,8 +297,15 @@
 
 (defun company-meghanada--post-completion (arg)
   (let ((type (intern (get-text-property 0 'type arg)))
-        (meta (get-text-property 0 'meta arg)))
-
+        (meta (get-text-property 0 'meta arg))
+        (desc (get-text-property 0 'desc arg))
+        (anno (company-meghanada--annotation arg)))
+    ;;(message (format "@ arg:%s meta:%s desc:%s anno:%s" arg meta desc anno))
+    (meghanada-autocomplete-resolve-async
+     type
+     arg
+     desc
+     #'identity)
     (pcase type
       ;; completion class
       (`CLASS (company-meghanada--post-class arg))

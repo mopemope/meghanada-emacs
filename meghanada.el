@@ -1,3 +1,4 @@
+
 ;;; meghanada.el --- A better java development mode -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright (C) 2017 Yutaka Matsubara
@@ -1032,6 +1033,20 @@ e.g. java.lang.annotation)."
                                (meghanada--what-column)
                                prefix)
     (message "client connection not established")))
+
+(defun meghanada-autocomplete-resolve-async (type item desc callback)
+  "TODO: FIX DOC TYPE ITEM DESC CALLBACK."
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (meghanada--send-request "cr"
+                               callback
+                               (buffer-file-name)
+                               (meghanada--what-line)
+                               (meghanada--what-column)
+                               (format "\"%s\"" type)
+                               (format "\"%s\"" item)
+                               (format "\"%s\"" desc))
+    (message "client connection not established")))
+
 
 (defun meghanada--local-val-callback (result)
   "TODO: FIX DOC OUTPUT ."
