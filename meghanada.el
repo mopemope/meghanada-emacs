@@ -1,4 +1,3 @@
-
 ;;; meghanada.el --- A better java development mode -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright (C) 2017 Yutaka Matsubara
@@ -992,6 +991,17 @@ e.g. java.lang.annotation)."
       (meghanada--send-request "ia" (list callback buf optimize) (buffer-file-name))
     (message "client connection not established")))
 
+(defun meghanada-import-at-point-async (callback buf optimize)
+  "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (meghanada--send-request "ip"
+                               (list callback buf optimize)
+                               (buffer-file-name)
+                               (meghanada--what-line)
+                               (meghanada--what-column)
+                               (format "\"%s\"" (meghanada--what-symbol)))
+    (message "client connection not established")))
+
 (defun meghanada-optimize-import ()
   "TODO: FIX DOC ."
   (interactive)
@@ -1017,6 +1027,11 @@ e.g. java.lang.annotation)."
   "TODO: FIX DOC ."
   (interactive)
   (meghanada-import-all-async #'meghanada-import-all--callback (current-buffer) nil))
+
+(defun meghanada-import-at-point ()
+  "TODO: FIX DOC ."
+  (interactive)
+  (meghanada-import-at-point-async #'meghanada-import-all--callback (current-buffer) nil))
 
 
 ;;
