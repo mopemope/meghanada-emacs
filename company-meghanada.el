@@ -85,7 +85,9 @@
                         'type
                         (nth 0 candidate)
                         'return-type
-                        (nth 4 candidate))) result))
+                        (nth 4 candidate)
+                        'extra
+                        (nth 5 candidate))) result))
 
 (defun company-meghanada--to-candidates (output)
   (when (> (length output) 0)
@@ -241,9 +243,11 @@
         (company-template-c-like-templatify anno)))))
 
 (defun company-meghanada--post-method (arg)
-  (let ((meta (get-text-property 0 'meta arg))
-        (anno (company-meghanada--annotation arg))
-        (return-t (get-text-property 0 'return-type arg)))
+  (let* ((meta (get-text-property 0 'meta arg))
+         (desc (get-text-property 0 'desc arg))
+         (anno (company-meghanada--annotation arg))
+         (return-t (get-text-property 0 'return-type arg))
+         (extra (split-string (get-text-property 0 'extra arg))))
     (when return-t
       (save-excursion
         (forward-char -1)
@@ -254,12 +258,23 @@
 
     (when anno
       (insert anno)
-      (company-template-c-like-templatify anno))))
+      (company-template-c-like-templatify anno)
+      (when (and
+             (> (length extra) 1)
+             (string= "static-import" (car extra)))
+        (let* ((class (nth 1 extra))
+               (imp (format "%s#%s" class arg)))
+          (if company-meghanada-auto-import
+              (meghanada--add-import imp (current-buffer))
+            (when (y-or-n-p
+                   (format "Add import %s ? " (meghanada--import-name class)))
+              (meghanada--add-import imp (current-buffer)))))))))
 
 (defun company-meghanada--post-field (arg)
   (let ((meta (get-text-property 0 'meta arg))
         (anno (company-meghanada--annotation arg))
-        (return-t (get-text-property 0 'return-type arg)))
+        (return-t (get-text-property 0 'return-type arg))
+        (extra (split-string (get-text-property 0 'extra arg))))
     (when return-t
       (save-excursion
         (forward-char -1)
@@ -282,8 +297,15 @@
 
 (defun company-meghanada--post-completion (arg)
   (let ((type (intern (get-text-property 0 'type arg)))
-        (meta (get-text-property 0 'meta arg)))
-
+        (meta (get-text-property 0 'meta arg))
+        (desc (get-text-property 0 'desc arg))
+        (anno (company-meghanada--annotation arg)))
+    ;;(message (format "@ arg:%s meta:%s desc:%s anno:%s" arg meta desc anno))
+    (meghanada-autocomplete-resolve-async
+     type
+     arg
+     desc
+     #'identity)
     (pcase type
       ;; completion class
       (`CLASS (company-meghanada--post-class arg))

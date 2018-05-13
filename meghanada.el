@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.0.0
+;; Package-Version: 1.0.2
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,8 +48,8 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.0.0")
-(defconst meghanada-setup-version "0.0.1")
+(defconst meghanada-version "1.0.3")
+(defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
 (defconst meghanada--task-buf-name "*meghanada-task*")
@@ -229,6 +229,16 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'function)
 
+(defcustom meghanada-import-static-enable "java.util.Objects,org.junit.Assert"
+  "Sets import static completion classes."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-full-text-search-enable nil
+  "If true, enable full text search and meghanada-search-everywhere."
+  :group 'meghanada
+  :type 'boolean)
+
 ;;
 ;; utility
 ;;
@@ -351,14 +361,31 @@ function."
   (let ((jar (meghanada--locate-setup-jar))
         (dest meghanada-server-install-dir))
     (if (file-exists-p jar)
-        (let ((cmd (format "%s -jar %s --dest %s --server-version %s"
+        (let ((cmd (format "%s -jar %s --dest %s --server-version %s --simple"
                            (shell-quote-argument meghanada-java-path)
                            (shell-quote-argument jar)
-                           dest
+                           (expand-file-name dest)
                            meghanada-version)))
           (message "Download meghanada server module. Please wait ...")
-          (shell-command cmd)
-          (message (format "Success. It downloaded to %s." dest))))))
+          (let ((proc (start-process-shell-command "*meghanada-install*" "*meghanada-install*" cmd))
+                (buf (current-buffer)))
+            (pop-to-buffer "*meghanada-install*")
+            (set-process-filter
+             proc
+             #'(lambda (process msg)
+                 (when (process-live-p process)
+                   (with-current-buffer (process-buffer process)
+                     (insert msg)
+                     (message "Download server module ...")))))
+             (set-process-sentinel
+              proc
+              #'(lambda (process msg)
+                  (unless (process-live-p process)
+                    (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
+                    (pop-to-buffer buf)
+                    (with-current-buffer buf
+                      (meghanada-mode t)
+                      (meghanada-restart))))))))))
 
 (defun meghanada--download-setup-jar ()
   "Download setup-jar file from bintray."
@@ -408,8 +435,7 @@ function."
 (defun meghanada-update-server ()
   "Update meghanada-server's jar file from bintray ."
   (interactive)
-  (meghanada-install-server)
-  (meghanada-restart))
+  (meghanada-install-server))
 
 (defun meghanada--locate-server-jar ()
   "TODO FIX DOC."
@@ -431,6 +457,10 @@ function."
       (push (format "-Dmeghanada.maven.local.repository=%s" meghanada-maven-local-repository) options))
     (when meghanada-javac-xlint
       (push (format "-Dmeghanada.javac.arg=%s" meghanada-javac-xlint) options))
+    (when meghanada-import-static-enable
+      (push (format "-Dmeghanada.search.static.method.classes=%s" meghanada-import-static-enable) options))
+    (when meghanada-full-text-search-enable
+      (push "-Dmeghanada.full.text.searchs=true" options))
     (when meghanada-gradle-version
       (push (format "-Dmeghanada.gradle.version=%s" meghanada-gradle-version) options))
     (when meghanada-gradle-prepare-compile-task
@@ -839,20 +869,34 @@ e.g. java.lang.annotation)."
     (let ((severity (car result)))
       (pcase severity
         (`success
-         (let ((fqcn (car (cdr result))))
-           (unless (or (meghanada--is-java-lang-package-p fqcn) (meghanada--import-exists-p fqcn))
+         (let* ((fqcn (car (cdr result)))
+                (is-static (string-match-p (regexp-quote "#") fqcn))
+                (imp (if is-static
+                         (replace-regexp-in-string "#" "." fqcn)
+                       fqcn)))
+
+           (unless (or (meghanada--is-java-lang-package-p imp)
+                       (meghanada--import-exists-p imp))
              (let ((start t))
                (save-excursion
                  (meghanada--goto-imports-start)
                  (while (and start (re-search-forward "^import .+;" nil t))
                    (forward-line)
                    (setq start (/= (point-at-bol) (point-at-eol))))
-                 (insert (format "import %s;\n" fqcn)))))))))))
+                 (if is-static
+                     (insert (format "import static %s;\n" imp))
+                   (insert (format "import %s;\n" imp))))))))))))
 
 (defun meghanada--add-import (imp buf)
   "TODO: FIX DOC IMP BUF."
-  (unless (or (meghanada--is-java-lang-package-p imp) (meghanada--import-exists-p imp))
-    (meghanada-add-import-async imp #'meghanada--add-import-callback buf)))
+  (unless
+      (or
+       (meghanada--is-java-lang-package-p imp)
+       (meghanada--import-exists-p imp))
+    (meghanada-add-import-async
+     imp
+     #'meghanada--add-import-callback
+     buf)))
 
 (defun meghanada-import-all--callback (result buf optimize)
   "TODO: FIX DOC OUT BUF OPTIMIZE."
@@ -947,6 +991,17 @@ e.g. java.lang.annotation)."
       (meghanada--send-request "ia" (list callback buf optimize) (buffer-file-name))
     (message "client connection not established")))
 
+(defun meghanada-import-at-point-async (callback buf optimize)
+  "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (meghanada--send-request "ip"
+                               (list callback buf optimize)
+                               (buffer-file-name)
+                               (meghanada--what-line)
+                               (meghanada--what-column)
+                               (format "\"%s\"" (meghanada--what-symbol)))
+    (message "client connection not established")))
+
 (defun meghanada-optimize-import ()
   "TODO: FIX DOC ."
   (interactive)
@@ -973,6 +1028,11 @@ e.g. java.lang.annotation)."
   (interactive)
   (meghanada-import-all-async #'meghanada-import-all--callback (current-buffer) nil))
 
+(defun meghanada-import-at-point ()
+  "TODO: FIX DOC ."
+  (interactive)
+  (meghanada-import-at-point-async #'meghanada-import-all--callback (current-buffer) nil))
+
 
 ;;
 ;; meghanada complete api
@@ -988,6 +1048,20 @@ e.g. java.lang.annotation)."
                                (meghanada--what-column)
                                prefix)
     (message "client connection not established")))
+
+(defun meghanada-autocomplete-resolve-async (type item desc callback)
+  "TODO: FIX DOC TYPE ITEM DESC CALLBACK."
+  (if (and meghanada--client-process (process-live-p meghanada--client-process))
+      (meghanada--send-request "cr"
+                               callback
+                               (buffer-file-name)
+                               (meghanada--what-line)
+                               (meghanada--what-column)
+                               (format "\"%s\"" type)
+                               (format "\"%s\"" item)
+                               (format "\"%s\"" desc))
+    (message "client connection not established")))
+
 
 (defun meghanada--local-val-callback (result)
   "TODO: FIX DOC OUTPUT ."
@@ -1601,6 +1675,7 @@ e.g. java.lang.annotation)."
 (defun meghanada--show-project-callback (msg)
   "TODO MSG."
   (with-help-window (get-buffer-create meghanada--show-project-buf-name)
+    (pop-to-buffer meghanada--show-project-buf-name)
     (save-excursion
       (setq buffer-read-only nil)
       (insert (format "%s\n" msg))
@@ -1609,8 +1684,7 @@ e.g. java.lang.annotation)."
 
 (defun meghanada--show-project-prepare ()
   "TODO ."
-  (meghanada--kill-buf meghanada--show-project-buf-name)
-  (pop-to-buffer meghanada--show-project-buf-name))
+  (meghanada--kill-buf meghanada--show-project-buf-name))
 
 (defun meghanada-show-project ()
   "Show project details."

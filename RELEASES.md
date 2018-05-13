@@ -1,4 +1,16 @@
-# Version 1.0.0 (2018-04-XX)
+# Version 1.0.2 (2018-05-08)
+
+* Show progress when meghanada downloading server module
+* Fix some bugs and improve stability.
+
+# Version 1.0.1 (2018-04-26)
+
+* Disable full-text-search by default
+* Supported import static method completion (experimental)
+* Fix package completion
+* Fix some bugs and improve stability.
+
+# Version 1.0.0 (2018-04-07)
 
 ## Highlights
 
