@@ -159,11 +159,11 @@
                           (concat "*method#" prefix))))
 
                      ((string-match "\\.\\(\\w*\\)$" match)
-                      (let* ((paren (meghanada--last-is-paren))
+                      (let* ((prefix (match-string 1 match))
+                             (paren (meghanada--last-is-paren))
                              (rt (if paren
                                      (ignore-errors (meghanada--search-method-caller))
                                    (ignore-errors (meghanada--search-access-caller))))
-                             (prefix (match-string 1 match))
                              (sym (if paren
                                       (save-excursion
                                         (backward-list)
