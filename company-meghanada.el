@@ -281,7 +281,17 @@
         (set-text-properties
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
-         (list 'return-type return-t 'meta meta 'type 'field))))))
+         (list 'return-type return-t 'meta meta 'type 'field)))
+      (when (and
+             (> (length extra) 1)
+             (string= "static-import" (car extra)))
+        (let* ((class (nth 1 extra))
+               (imp (format "%s#%s" class arg)))
+          (if company-meghanada-auto-import
+              (meghanada--add-import imp (current-buffer))
+            (when (y-or-n-p
+                   (format "Add import %s ? " (meghanada--import-name class)))
+              (meghanada--add-import imp (current-buffer)))))))))
 
 (defun company-meghanada--post-var (arg)
   (let ((meta (get-text-property 0 'meta arg))
