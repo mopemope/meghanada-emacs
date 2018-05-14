@@ -152,8 +152,8 @@
                       (concat "*" (replace-regexp-in-string " " ":" match)))
 
                      ((string-match "\)\\.\\(\\w*\\)$" match)
-                      (let ((rt (meghanada--search-method-caller))
-                            (prefix (match-string 1 match)))
+                      (let ((prefix (match-string 1 match))
+                            (rt (meghanada--search-method-caller)))
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*method#" prefix))))
