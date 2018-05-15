@@ -53,6 +53,11 @@
   :group 'company-meghanada
   :type 'integer)
 
+(defcustom company-meghanada-no-cache nil
+  "Set company backend 'no-cache' option."
+  :group 'company-meghanada
+  :type 'boolean)
+
 (defconst company-meghanada--trigger "^package \\|^import \\w\\{%d,\\}\\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
 
 (defvar company-meghanada-trigger-regex nil)
@@ -347,7 +352,7 @@
                   (concat " " (get-text-property 0 'desc arg))))
     (ignore-case t)
     (sorted t)
-    (no-cache nil)
+    (no-cache company-meghanada-no-cache)
     (require-match 'never)
     (post-completion
      (company-meghanada--post-completion arg))))
