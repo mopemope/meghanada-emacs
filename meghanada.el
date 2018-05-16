@@ -855,7 +855,10 @@ function."
 (defun meghanada--is-java-lang-package-p (fqcn)
   "Check if FQCN belongs to java.lang package (exclude subpackages,
 e.g. java.lang.annotation)."
-  (and (string-prefix-p "java.lang." fqcn) (<= (length (split-string fqcn "\\.")) 3)))
+  (and
+   (string-prefix-p "java.lang." fqcn)
+   (not (string-match-p (regexp-quote "#") fqcn))
+   (<= (length (split-string fqcn "\\.")) 3)))
 
 (defun meghanada--import-exists-p (imp)
   "TODO: FIX DOC IMP ."
@@ -909,6 +912,31 @@ e.g. java.lang.annotation)."
            (let ((res (completing-read "import:" imps nil t)))
              (unless (string= res "")
                (meghanada--add-import res buf))))) result))
+    (when optimize
+      (save-buffer)
+      (meghanada-optimize-import))))
+
+(defun meghanada-import-at--callback (result buf optimize)
+  "TODO: FIX DOC RESULT BUF OPTIMIZE."
+  (with-current-buffer buf
+    (when result
+      (mapc
+       (lambda (imports)
+         (let ((type (car imports))
+               (imps (cdr imports)))
+           (pcase type
+             (`class
+              (if (= (length imps) 1)
+                  (meghanada--add-import (car imps) buf)
+                (let ((res (completing-read "import:" imps nil t)))
+                  (unless (string= res "")
+                    (meghanada--add-import res buf)))))
+             (`method
+              (if (= (length imps) 1)
+                  (meghanada--add-import (car imps) buf)
+                (let ((res (completing-read "import:" imps nil t)))
+                  (unless (string= res "")
+                    (meghanada--add-import res buf)))))))) result))
     (when optimize
       (save-buffer)
       (meghanada-optimize-import))))
@@ -1031,7 +1059,7 @@ e.g. java.lang.annotation)."
 (defun meghanada-import-at-point ()
   "TODO: FIX DOC ."
   (interactive)
-  (meghanada-import-at-point-async #'meghanada-import-all--callback (current-buffer) nil))
+  (meghanada-import-at-point-async #'meghanada-import-at--callback (current-buffer) nil))
 
 
 ;;
@@ -1133,8 +1161,8 @@ e.g. java.lang.annotation)."
     (kill-buffer name)))
 
 (defun meghanada--compile-callback (result)
-  "TODO: FIX DOC OUTPUT ."
-  (let* ((severity (car result)))
+  "TODO: FIX DOC RESULT ."
+  (let ((severity (car result)))
     (pcase severity
       (`success
        (progn

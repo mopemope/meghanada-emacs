@@ -53,6 +53,11 @@
   :group 'company-meghanada
   :type 'integer)
 
+(defcustom company-meghanada-no-cache nil
+  "Set company backend 'no-cache' option."
+  :group 'company-meghanada
+  :type 'boolean)
+
 (defconst company-meghanada--trigger "^package \\|^import \\w\\{%d,\\}\\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
 
 (defvar company-meghanada-trigger-regex nil)
@@ -152,8 +157,8 @@
                       (concat "*" (replace-regexp-in-string " " ":" match)))
 
                      ((string-match "\)\\.\\(\\w*\\)$" match)
-                      (let ((rt (meghanada--search-method-caller))
-                            (prefix (match-string 1 match)))
+                      (let ((prefix (match-string 1 match))
+                            (rt (meghanada--search-method-caller)))
                         (if rt
                             (concat "*method:" rt "#" prefix)
                           (concat "*method#" prefix))))
@@ -281,7 +286,17 @@
         (set-text-properties
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
-         (list 'return-type return-t 'meta meta 'type 'field))))))
+         (list 'return-type return-t 'meta meta 'type 'field)))
+      (when (and
+             (> (length extra) 1)
+             (string= "static-import" (car extra)))
+        (let* ((class (nth 1 extra))
+               (imp (format "%s#%s" class arg)))
+          (if company-meghanada-auto-import
+              (meghanada--add-import imp (current-buffer))
+            (when (y-or-n-p
+                   (format "Add import %s ? " (meghanada--import-name class)))
+              (meghanada--add-import imp (current-buffer)))))))))
 
 (defun company-meghanada--post-var (arg)
   (let ((meta (get-text-property 0 'meta arg))
@@ -337,7 +352,7 @@
                   (concat " " (get-text-property 0 'desc arg))))
     (ignore-case t)
     (sorted t)
-    (no-cache nil)
+    (no-cache company-meghanada-no-cache)
     (require-match 'never)
     (post-completion
      (company-meghanada--post-completion arg))))
