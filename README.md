@@ -27,7 +27,7 @@ package and [meghanada-server][].
 * Search references
 * Full-featured text search
 
-`Meghanada` is tested under `linux` and `Windows` (maybe macOS OK).
+`Meghanada` is tested under `linux`, `Windows` and `macOS`.
 
 (Welcome contributions !)
 
