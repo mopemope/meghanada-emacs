@@ -239,6 +239,16 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-completion-matcher "prefix"
+  "Select completion matcher.  You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-class-completion-matcher "prefix"
+  "Select class completion matcher.  You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
+  :group 'meghanada
+  :type 'string)
+
 ;;
 ;; utility
 ;;
@@ -478,6 +488,10 @@ function."
     (when meghanada-server-remote-debug
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
     (push "-Dmeghanada.format=sexp" options)
+    (when meghanada-completion-matcher
+      (push (format "-Dmeghanada.completion.matcher=%s" meghanada-completion-matcher) options))
+    (when meghanada-class-completion-matcher
+      (push (format "-Dmeghanada.class.completion.matcher=%s" meghanada-class-completion-matcher) options))
     (push "-Djava.net.preferIPv4Stack=true" options)
     (mapconcat 'identity
                options
