@@ -1,3 +1,11 @@
+# Version 1.0.3 (2018-05-24)
+
+* Support import completion from symbol (added import-at-point function).
+* Completion matcher is selectable (default is prefix matcher).
+* Fix broken static import completion.
+* Fix import statement sort (in case google-java-format).
+* Fix some bugs and improve stability.
+
 # Version 1.0.2 (2018-05-08)
 
 * Show progress when meghanada downloading server module
