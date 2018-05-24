@@ -19,7 +19,7 @@ package and [meghanada-server][].
 * Syntax check and analyze java source (`flycheck-meghanada`)
 * Support `Generic Types`
 * Code completion with [company-mode][] (`company-meghanada`)
-* Optimize import
+* Optimize import and sort
 * Jump declaration
 * Run [Junit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
@@ -104,6 +104,8 @@ M-x meghanada-update-server
 
 Auto completion is supported by `comapany-mode`.
 
+Completion matcher is selectable. see type `M-x customize-group RET meghanada`.
+
 ## Syntax/error checking
 
 Error checking is supported by `flycheck`.
@@ -167,6 +169,10 @@ Add import all unqualified classes.
 Import all and remove unused import statement.
 
 The format of the import statement will be in `google-java-format`.
+
+### meghanada-import-at-point
+
+Add import statement from symbol at point.
 
 ### meghanada-local-variable (C-c C-r r)
 

@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.0.2
+;; Package-Version: 1.0.4
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.0.3")
+(defconst meghanada-version "1.0.4")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
@@ -169,7 +169,7 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'boolean)
 
-(defcustom meghanada-server-jvm-option "-Xms128m -XX:ReservedCodeCacheSize=240m -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
+(defcustom meghanada-server-jvm-option "-Xms128m -XX:ReservedCodeCacheSize=240m -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
   "Set to meghanada server process jvm option."
   :group 'meghanada
   :type 'string)
@@ -238,6 +238,16 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   "If true, enable full text search and meghanada-search-everywhere."
   :group 'meghanada
   :type 'boolean)
+
+(defcustom meghanada-completion-matcher "prefix"
+  "Select completion matcher.  You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
+  :group 'meghanada
+  :type 'string)
+
+(defcustom meghanada-class-completion-matcher "prefix"
+  "Select class completion matcher.  You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
+  :group 'meghanada
+  :type 'string)
 
 ;;
 ;; utility
@@ -478,6 +488,10 @@ function."
     (when meghanada-server-remote-debug
       (push "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005" options))
     (push "-Dmeghanada.format=sexp" options)
+    (when meghanada-completion-matcher
+      (push (format "-Dmeghanada.completion.matcher=%s" meghanada-completion-matcher) options))
+    (when meghanada-class-completion-matcher
+      (push (format "-Dmeghanada.class.completion.matcher=%s" meghanada-class-completion-matcher) options))
     (push "-Djava.net.preferIPv4Stack=true" options)
     (mapconcat 'identity
                options
