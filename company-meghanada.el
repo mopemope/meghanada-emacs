@@ -198,9 +198,12 @@
                                       (search-backward ".")
                                       (backward-word)
                                       (meghanada--what-word)))))
-                        (if rt
-                            (concat "*method:" rt "#" prefix)
-                          (concat "*" sym "#" prefix))))
+                        (if assign
+                            (if rt (concat "*method:" rt "*" vt "#" prefix)
+                              (concat "*" sym "*" vt "#" prefix))
+                          (if rt (concat "*method:" rt "#" prefix)
+                            (concat "*" sym "#" prefix))
+                          )))
 
                      ((string-match "\\(.*\\)\\.\\(\\w*\\)$" match)
                       (let* ((var (match-string 1 match))
