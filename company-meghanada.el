@@ -132,6 +132,27 @@
       (forward-char -1))
     (string= (char-to-string (char-after)) ")")))
 
+(defun meghanada--last-statement-position ()
+  ;; Get position of nearest ";" and "{" character before current line, And
+  ;; assume this is the last statement position
+  (max (save-excursion (search-backward ";"))
+   (save-excursion (search-backward "{"))))
+
+(defun meghanada--last-is-assignment (lap)
+  ;; Whether is in an assignment statement, if in assignment statement, variable
+  ;; type or name need to be send to backend to do smart completion
+  (save-excursion
+    (search-backward "=" lap t)))
+
+(defun meghanada--variable-type-or-name (lap)
+  ;; Get assignment statement variable type or variable name, then send it to
+  ;; backend for smart completion
+  (save-excursion
+    (search-backward "=" lap t) (backward-word 2)
+    (if (< (point) lap)
+        (forward-word 2))
+    (meghanada--what-word)))
+
 (defun meghanada--grab-symbol-cons ()
   (let ((symbol (company-grab-symbol))
         (re company-meghanada-trigger-regex))
@@ -161,6 +182,10 @@
                      ((string-match "\\.\\(\\w*\\)$" match)
                       (let* ((prefix (match-string 1 match))
                              (paren (meghanada--last-is-paren))
+                             (lap (meghanada--last-statement-position))
+                             (assign (meghanada--last-is-assignment lap))
+                             (vt (if assign
+                                     (ignore-errors (meghanada--variable-type-or-name lap))))
                              (rt (if paren
                                      (ignore-errors (meghanada--search-method-caller))
                                    (ignore-errors (meghanada--search-access-caller))))
