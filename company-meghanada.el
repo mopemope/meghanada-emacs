@@ -120,7 +120,8 @@
   (save-excursion
     (search-backward ".")
     (backward-word)
-    (get-text-property (point) 'return-type)))
+    (if (= (meghanada--what-word) "this" "this"
+           (get-text-property (point) 'return-type)))))
 
 (defun meghanada--last-is-paren ()
   (save-excursion
