@@ -1048,7 +1048,10 @@ e.g. java.lang.annotation)."
   "TODO: FIX DOC ."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (let ((output (meghanada--send-request-sync "oi" (meghanada--write-tmpfile))))
+      (let ((output (meghanada--send-request-sync
+                     "oi"
+                     (buffer-file-name)
+                     (meghanada--write-tmpfile))))
         (when output
           (let ((patchbuf (get-buffer-create "*meghanada-fmt patch*"))
                 (tmpfile output))
