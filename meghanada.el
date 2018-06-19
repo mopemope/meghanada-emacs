@@ -1390,6 +1390,7 @@ e.g. java.lang.annotation)."
       (unless (string= filename (buffer-file-name))
         (funcall #'find-file filename))
 
+      (meghanada-mode t)
       (meghanada--goto-line line)
       (beginning-of-line)
       (forward-char (1- col))
