@@ -1,3 +1,8 @@
+# Version 1.0.6 (2018-06-20)
+
+* Fix broken completion.
+* Fix some bugs and improve stability.
+
 # Version 1.0.5 (2018-06-13)
 
 * Fix broken completion.
