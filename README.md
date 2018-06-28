@@ -12,7 +12,7 @@ package and [meghanada-server][].
 
 * Easy install
 * Auto update server module
-* [Gradle][] and [Maven][] project support
+* [Gradle][] and [Maven][] and Eclipse project support
 * No need build tool's plugin
 * Run build tool task
 * Compile your project
