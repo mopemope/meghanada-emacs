@@ -1,3 +1,7 @@
+# Version 1.0.7 (2018-06-28)
+
+* Fix chained completion.
+
 # Version 1.0.6 (2018-06-20)
 
 * Fix broken completion.
