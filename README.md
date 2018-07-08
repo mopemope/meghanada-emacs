@@ -1,6 +1,6 @@
 # Meghanada-Mode [![MELPA](https://melpa.org/packages/meghanada-badge.svg)](https://melpa.org/#/meghanada) [![MELPA](http://melpa-stable.milkbox.net/packages/meghanada-badge.svg)](http://melpa-stable.milkbox.net/#/meghanada)
 
-[![Join the chat at https://gitter.im/mopemope/meghanada-emacs](https://badges.gitter.im/mopemope/meghanada-emacs.svg)](https://gitter.im/mopemope/meghanada-emacs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/mopemope/meghanada-emacs](https://badges.gitter.im/mopemope/meghanada-emacs.svg)](https://gitter.im/mopemope/meghanada-emacs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Patreon](https://img.shields.io/badge/patreon-become%20a%20patron-red.svg)](https://www.patreon.com/mopemope)
 
 ## A Better Java Development Environment for Emacs
 
@@ -401,6 +401,7 @@ Contributions are extremely welcome! Please push PR to `dev` branch.
 ## License
 
 GPL v3, See [LICENSE](LICENSE) file.
+
 
 
 [meghanada-server]: https://github.com/mopemope/meghanada-server
