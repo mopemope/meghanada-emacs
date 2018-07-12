@@ -84,8 +84,8 @@
         (setq msg (decode-coding-string
                    (encode-coding-string (car (last err)) flycheck-meghanada-java-encoding)
                    'utf-8))
-        (add-to-list 'result-errors (append (subseq err 0 -1) (list msg)) t))
-      (add-to-list 'result (list file result-errors) t))
+        (cl-pushnew (append (cl-subseq err 0 -1) (list msg)) result-errors))
+      (cl-pushnew (list file result-errors) result))
     result))
 
 (defun flycheck-meghanada--callback (result &rest args)
