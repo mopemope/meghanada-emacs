@@ -256,7 +256,7 @@ Debug Junit test class.
 
 Debug Junit testcase (select from imenu).
 
-### meghanada-run-task (C-v t)
+### meghanada-run-task (C-c C-v t)
 
 Run build tool task.
 
