@@ -1,6 +1,7 @@
-# Version 1.0.7 (2018-06-28)
+# Version 1.0.8 (2018-07-18)
 
-* Fix chained completion.
+* Fix broken completion.
+* Fix byte compile error.
 
 # Version 1.0.6 (2018-06-20)
 
