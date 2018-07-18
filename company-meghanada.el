@@ -118,7 +118,7 @@
 
 (defun meghanada--search-access-caller ()
   (save-excursion
-    (search-backward ".")
+    (search-backward "." nil t)
     (backward-word)
     (if (= (meghanada--what-word) "this")
         "this"
@@ -126,7 +126,7 @@
 
 (defun meghanada--last-is-paren ()
   (save-excursion
-    (search-backward ".")
+    (search-backward "." nil t)
     (forward-char -1)
     (while (or
             (string= (char-to-string (char-after)) " ")
@@ -137,14 +137,14 @@
 (defun meghanada--last-statement-position ()
   ;; Get position of nearest ";" and "{" character before current line, And
   ;; assume this is the last statement position
-  (max (save-excursion (search-backward ";"))
-   (save-excursion (search-backward "{"))))
+  (max (save-excursion (or (search-backward ";" nil t) 0)
+                       (save-excursion (or (search-backward "{" nil t) 0)))))
 
 (defun meghanada--last-is-assignment (lap)
   ;; Whether is in an assignment statement, if in assignment statement, variable
   ;; type or name need to be send to backend to do smart completion
   (save-excursion
-    (search-backward "=" lap t)))
+    (search-backward "=" lap t) 0))
 
 (defun meghanada--variable-type-or-name (lap)
   ;; Get assignment statement variable type or variable name, then send it to
@@ -197,7 +197,7 @@
                                         (forward-char -1)
                                         (meghanada--what-word))
                                     (save-excursion
-                                      (search-backward ".")
+                                      (search-backward "." nil t)
                                       (backward-word)
                                       (meghanada--what-word)))))
                         (if assign
