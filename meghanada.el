@@ -58,6 +58,7 @@
 (defconst meghanada--show-project-buf-name "*meghanada-project*")
 (defconst meghanada--typeinfo-buf-name "*meghanada-typeinfo*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
+(defconst meghanada--err-buf-name "*meghanada-error*")
 
 ;;
 ;; Customizable variables
@@ -565,7 +566,16 @@ function."
             (message "Server waiting client connection ...")
             (when meghanada--server-pending
               (funcall meghanada--server-pending)
-              (setq meghanada--server-pending nil))))))))
+              (setq meghanada--server-pending nil)))
+          (when (string-match "MEGHANADA_FAILED " output)
+            (string-match "FILE:\\(.*.log\\)" output)
+            (let* ((log-file (substring output (match-beginning 1) (match-end 1))))
+              (with-help-window (get-buffer-create meghanada--err-buf-name)
+                (pop-to-buffer meghanada--err-buf-name)
+                (save-excursion
+                  (insert-file-contents-literally log-file)
+                  (message
+                   (format "ERROR: project initialize error. please check log %s" log-file)))))))))))
 
 ;;;###autoload
 (defun meghanada-server-start ()
