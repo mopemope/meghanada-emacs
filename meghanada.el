@@ -1422,7 +1422,7 @@ e.g. java.lang.annotation)."
   "Jump to the specified symbol."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (let ((sym (ido-completing-read "Symbol: " (meghanada--list-symbols))))
+      (let ((sym (completing-read "Symbol: " (meghanada--list-symbols) nil nil)))
         (when sym
           (meghanada--send-request "js" #'meghanada--jump-callback
                                    (buffer-file-name)
