@@ -1,4 +1,4 @@
-# Version 1.0.8 (2018-09-10)
+# Version 1.0.9 (2018-09-10)
 
 * Add jump-symbol. (thanks @iocanel)
 * Fix search for junit test.
