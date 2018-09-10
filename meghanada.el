@@ -1421,6 +1421,26 @@ e.g. java.lang.annotation)."
                                    (format "\"%s\"" sym))))
     (message "client connection not established")))
 
+(defun meghanada--list-symbols ()
+  "List all available symbols."
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let* ((output (meghanada--send-request-sync "ls")))
+        (split-string output "\n"))
+       (message "client connection not established")))
+
+(defun meghanada-jump-symbol ()
+  "Jump to the specified symbol."
+  (interactive)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((sym (completing-read "Symbol: " (meghanada--list-symbols) nil nil)))
+        (when sym
+          (meghanada--send-request "js" #'meghanada--jump-callback
+                                   (buffer-file-name)
+                                   (meghanada--what-line)
+                                   (meghanada--what-column)
+                                   (format "\"%s\"" sym))))
+    (message "client connection not established")))
+
 (defun meghanada-back-jump ()
   "TODO: FIX DOC."
   (interactive)
