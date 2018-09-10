@@ -1,3 +1,10 @@
+# Version 1.0.8 (2018-09-10)
+
+* Add jump-symbol. (thanks @iocanel)
+* Fix search for junit test.
+* Display maven error details.
+* Fix some bugs and improve stability.
+
 # Version 1.0.8 (2018-07-18)
 
 * Fix broken completion.
