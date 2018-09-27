@@ -480,7 +480,7 @@ function."
       (push (format "-Dmeghanada.gradle.prepare.test.compile.task=%s" meghanada-gradle-prepare-test-compile-task) options))
     (if meghanada-skip-build-subprojects
         (push "-Dmeghanada.skip.build.subprojects=true" options)
-      (push "-Dmeghanada.skip.build.subprojects=true"  options))
+      (push "-Dmeghanada.skip.build.subprojects=false"  options))
     (if meghanada-cache-in-project
         (push "-Dmeghanada.cache.in.project=true" options)
       (push "-Dmeghanada.cache.in.project=false"  options))
