@@ -250,6 +250,9 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'string)
 
+(defcustom meghanada-mode-after-test-hook '()
+  "Hook that is called after a JUnit test execution is done."
+  :group 'meghanada)
 ;;
 ;; utility
 ;;
@@ -758,7 +761,11 @@ function."
                 (setq eot t))
               (when eot
                 (compilation-mode))))
-          (setq buffer-read-only t))
+          (setq buffer-read-only t)
+          ;; Run all after test hooks now that the buffer is read-only
+          (when (string= buffer meghanada--junit-buf-name)
+            (run-hooks 'meghanada-mode-after-test-hook))
+          )
         ;; If the cursor is already at the end of the buffer or if
         ;; auto-scrolling is activated, move the cursor to the end of the buffer
         ;; (moves both buffer point and window point)
