@@ -763,9 +763,9 @@ function."
                 (compilation-mode))))
           (setq buffer-read-only t)
           ;; Run all after test hooks now that the buffer is read-only
-          (when (string= buffer meghanada--junit-buf-name)
-            (run-hooks 'meghanada-mode-after-test-hook))
-          )
+          (when (string= buf meghanada--junit-buf-name)
+            (run-hooks 'meghanada-mode-after-test-hook)))
+
         ;; If the cursor is already at the end of the buffer or if
         ;; auto-scrolling is activated, move the cursor to the end of the buffer
         ;; (moves both buffer point and window point)
