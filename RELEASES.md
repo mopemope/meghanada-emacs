@@ -1,3 +1,8 @@
+# Version 1.0.10 (2018-11-16)
+
+* Add hooks after a test is executed. (thanks @roman)
+* Fix some bugs and improve stability.
+
 # Version 1.0.9 (2018-09-10)
 
 * Add jump-symbol. (thanks @iocanel)
