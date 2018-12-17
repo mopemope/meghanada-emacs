@@ -261,9 +261,13 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   "TODO: FIX DOC ."
   (format-mode-line "%l"))
 
+(defun meghanada--real-current-column ()
+  "like `current-column', but skip invisible characters in pretty-symbol-mode."
+  (- (point) (line-beginning-position)))
+
 (defun meghanada--what-column ()
   "TODO: FIX DOC ."
-  (number-to-string (1+ (current-column))))
+  (number-to-string (1+ (meghanada--real-current-column))))
 
 (defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
