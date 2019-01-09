@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.0.10
+;; Package-Version: 1.0.11
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.0.10")
+(defconst meghanada-version "1.0.11")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
@@ -261,9 +261,13 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   "TODO: FIX DOC ."
   (format-mode-line "%l"))
 
+(defun meghanada--real-current-column ()
+  "like `current-column', but skip invisible characters in pretty-symbol-mode."
+  (- (point) (line-beginning-position)))
+
 (defun meghanada--what-column ()
   "TODO: FIX DOC ."
-  (number-to-string (1+ (current-column))))
+  (number-to-string (1+ (meghanada--real-current-column))))
 
 (defun meghanada--what-symbol ()
   "TODO: FIX DOC ."
