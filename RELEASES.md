@@ -1,3 +1,10 @@
+# Version 1.0.11 (2019-01-09)
+
+* Improve completion order.
+* Support annotaion value completion.
+* Fix column position bug (thanks @Jeanhwea)
+* Fix some bugs and improve stability.
+
 # Version 1.0.10 (2018-11-16)
 
 * Add hooks after a test is executed. (thanks @roman)
