@@ -1,3 +1,8 @@
+# Version 1.0.12 (2019-01-22)
+
+* Support Java 11.
+* Fix some bugs and improve stability.
+
 # Version 1.0.11 (2019-01-09)
 
 * Improve completion order.
