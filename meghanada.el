@@ -564,8 +564,6 @@ function."
             (set-marker (process-mark process) (point)))
           (if moving
               (goto-char (process-mark process)))
-          (when (string-match "Ready" output)
-            (message "Meghanada Ready"))
           (when (string-match "Start server" output)
             (string-match "port:\\([0-9]+\\)+" output)
             (let* ((p (substring output (match-beginning 1) (match-end 1))))
