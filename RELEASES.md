@@ -1,3 +1,8 @@
+# Version 1.0.13 (2019-02-25)
+
+* support build.gradle.kts.
+* fix some bugs and improve stability.
+
 # Version 1.0.12 (2019-01-22)
 
 * Support Java 11.

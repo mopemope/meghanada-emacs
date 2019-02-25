@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.0.12
+;; Package-Version: 1.0.13
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.0.12")
+(defconst meghanada-version "1.0.13")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
@@ -564,8 +564,6 @@ function."
             (set-marker (process-mark process) (point)))
           (if moving
               (goto-char (process-mark process)))
-          (when (string-match "Ready" output)
-            (message "Meghanada Ready"))
           (when (string-match "Start server" output)
             (string-match "port:\\([0-9]+\\)+" output)
             (let* ((p (substring output (match-beginning 1) (match-end 1))))
