@@ -511,13 +511,14 @@ function."
     (if (file-exists-p jar)
         (let ((process-connection-type nil)
               (process-adaptive-read-buffering nil)
-              (cmd (format "%s %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+              (cmd (format "%s %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s %s"
                            (shell-quote-argument meghanada-java-path)
                            (meghanada--server-options)
                            meghanada-server-jvm-option
                            (shell-quote-argument jar)
                            meghanada-port
-                           (if meghanada-debug "-v" "")))
+                           (if meghanada-debug "-v" "")
+                           (concat "-l /tmp/meghanada_server_" (number-to-string (user-uid)) ".log")))
               process)
           (message (format "launch server cmd:%s" cmd))
           (setq process
