@@ -210,8 +210,8 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'function)
 
-(defcustom meghanada-cache-in-project t
-  "If true, create a cache in the project.otherwise, create in cache root directory (~/.cache/meghanada)."
+(defcustom meghanada-cache-in-project nil
+  "If true, create a cache in the project.otherwise, create in cache root directory (~/.cache/meghanada). default nil"
   :group 'meghanada
   :type 'boolean)
 
