@@ -518,7 +518,7 @@ function."
                            (shell-quote-argument jar)
                            meghanada-port
                            (if meghanada-debug "-v" "")
-                           (concat "-l /tmp/meghanada_server_" (number-to-string (user-uid)) ".log")))
+                           (concat "-l " (temporary-file-directory) "meghanada_server_" (number-to-string (user-uid)) ".log")))
               process)
           (message (format "launch server cmd:%s" cmd))
           (setq process
