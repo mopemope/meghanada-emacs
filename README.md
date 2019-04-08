@@ -304,7 +304,7 @@ if you want to debug your code, execute `meghanada-debug-xxxx` function and then
 
 ## Troubleshooting
 
-See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server.log`.
+See `*meghanada-server-log*` buffer. or `/tmp/meghanada_server_$UID.log`, where `$UID` is `(user-uid)`.
 
 Please press `C-g` when emacs seems to hang.
 
