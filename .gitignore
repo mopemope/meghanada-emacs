@@ -3,3 +3,4 @@ byte-compile.el
 *.jar
 meghanada-autoloads.el
 meghanada-pkg.el
+*.txt
