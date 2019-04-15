@@ -26,7 +26,8 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'cl-lib))
+  (require 'cl-lib)
+  (require 'pcase))
 
 (require 'company)
 (require 'company-template)
@@ -75,6 +76,16 @@
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
 
+(defun make-icon-hash (type)
+  (let ((kind-val (pcase type
+                    ("VAR" 6)
+                    ("METHOD" 2)
+                    ("FIELD" 5)
+                    ("CLASS" 6)))
+        (ht (make-hash-table :test 'equal)))
+    (puthash "kind" kind-val ht)
+    ht))
+
 (defun company-meghanada--to-candidate (result)
   (mapcar (lambda (candidate)
             (propertize (nth 1 candidate)
@@ -87,7 +98,9 @@
                         'return-type
                         (nth 4 candidate)
                         'extra
-                        (nth 5 candidate))) result))
+                        (nth 5 candidate)
+                        'lsp-completion-item
+                        (make-icon-hash (nth 0 candidate)))) result))
 
 (defun company-meghanada--to-candidates (output)
   (when (> (length output) 0)
