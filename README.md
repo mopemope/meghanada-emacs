@@ -100,6 +100,23 @@ The server will be automatically updated. To manually update bellows, type
 M-x meghanada-update-server
 ```
 
+### Manual Server Installation
+
+The server will be installed and updated automatically.
+
+If you set it up manually, please follow the instructions below.
+
+#### Download meghanada-setup.jar
+
+A meghanada-setup.jar is a small program that automatically updates the server.
+
+This can be downloaded from:
+
+https://github.com/mopemope/meghanada-server/releases/download/v1.0.13/meghanada-setup-0.0.2.jar
+
+Move the downloaded setup.jar to .emacs.d/meghanada/.
+Start Emacs and enable meghanada-mode.
+
 ## Autocompletion
 
 Auto-completion is supported by `company-mode`.
@@ -107,7 +124,6 @@ Auto-completion is supported by `company-mode`.
 Completion matcher is selectable. see type `M-x customize-group RET meghanada`.
 
 ## Syntax/error checking
-
 Error checking is supported by `flycheck`.
 
 ## Customize
