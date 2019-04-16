@@ -5,13 +5,13 @@
 ## A Better Java Development Environment for Emacs
 
 `Meghanada` is a new minor-mode (`meghanada-mode`) that aims at improving the editing
-experience for the Java. It works by using a combination of an Emacs
+experience for Java. It works by using a combination of an Emacs
 package and [meghanada-server][].
 
 **Features:**
 
 * Easy install
-* Auto update server module
+* Auto-update server module
 * [Gradle][] and [Maven][] and Eclipse project support
 * No need build tool's plugin
 * Run build tool task
@@ -21,13 +21,13 @@ package and [meghanada-server][].
 * Code completion with [company-mode][] (`company-meghanada`)
 * Optimize import and sort
 * Jump declaration
-* Run [Junit][] test (include test runner)
+* Run [JUnit][] test (include test runner)
 * Diagnostic reporting with [flycheck][] (`flycheck-meghanada`)
 * Show symbol's type info with `el-doc`
 * Search references
 * Full-featured text search
 
-`Meghanada` is tested under `linux`, `Windows` and `macOS`.
+`Meghanada` is tested under `Linux`, `Windows` and `macOS`.
 
 (Welcome contributions !)
 
@@ -48,12 +48,12 @@ Meghanada has been developed Emacs 25.1.1
 
 `meghanada-mode` require [meghanada-server][] and JDK (not JRE).
 [meghanada-server][] provides an interface to `meghanada-mode`. It uses a simple protocol
-based on S-expressions. This server, written in java, requires the following
+based on S-expressions. This server, written in Java, requires the following
 packages to be installed on your system:
 
 * JDK 1.8 or later
 
-The Meghanada architecture is almost the same as `ensime`. It is client server model.
+The Meghanada architecture is almost the same as `ensime`. It is a client-server model.
 
 Meghanada updates any information when saving and compile the java file.
 
@@ -94,15 +94,15 @@ If you open a java file and set `meghanada-mode`, a [meghanada-server][] process
 
 ### Updating
 
-The server will be automatically updated.To manually update bellows, type
+The server will be automatically updated. To manually update bellows, type
 
 ```
 M-x meghanada-update-server
 ```
 
-## Auto completion
+## Autocompletion
 
-Auto completion is supported by `comapany-mode`.
+Auto-completion is supported by `company-mode`.
 
 Completion matcher is selectable. see type `M-x customize-group RET meghanada`.
 
@@ -112,7 +112,7 @@ Error checking is supported by `flycheck`.
 
 ## Customize
 
-To customize other aspects of its behavior, type `M-x customize-group RET meghanada` .
+To customize other aspects of its behavior, type `M-x customize-group RET meghanada`.
 
 ## Usage
 
@@ -124,11 +124,11 @@ Download and install [meghanada-server] jar.
 
 ### meghanada-update-server
 
-Download and update [meghanada-server] jar. and restart server process.
+Download and update [meghanada-server] jar. and restart the server process.
 
 ### meghanada-server-start
 
-Start [meghanada-server][] process and connect to server.
+Start [meghanada-server][] process and connect to the server.
 
 `meghanada-mode` call this function by default. when open java file and set `meghanada-mode`.
 
@@ -192,7 +192,7 @@ Compile project (full build and reindex).
 
 ### meghanada-switch-testcase (C-M-,)
 
-Switch testcase or source.
+Switch test case or source.
 
 ### meghanada-exec-main
 
@@ -208,11 +208,11 @@ Find usage (method call, field access, class).
 
 ### meghanada-search-everywhere
 
-It does a full text search based search (class, method, symbol (field)).
+It does a full-text search based search (class, method, symbol (field)).
 
 ### meghanada-search-everywhere-ex
 
-It does a full text search expert-mode (Enter a query for Lucene).
+It does a full-text search expert-mode (Enter a query for Lucene).
 
 Here is a list of fields that can be used in the search.
 
@@ -221,9 +221,9 @@ Here is a list of fields that can be used in the search.
 * method
 * symbol
 * usage
-* dc (method's or field's declaringClass)
+* dc (method's or field's declaring class)
 
-ex. Seach class name contains `Search` .
+ex. Seach class name contains `Search`.
 
 ```
 class:*Search*
@@ -242,19 +242,19 @@ Show type hierarchies and implements interfaces.
 
 ### meghanada-run-junit-class (C-c C-c C-t)
 
-Run Junit test class.
+Run JUnit test class.
 
 ### meghanada-run-junit-test-case (C-c C-c t)
 
-Run Junit testcase (select from imenu).
+Run JUnit test case (select from imenu).
 
 ### meghanada-debug-junit-class (C-c C-c C-t)
 
-Debug Junit test class.
+Debug JUnit test class.
 
 ### meghanada-debug-junit-test-case (C-c C-c t)
 
-Debug Junit testcase (select from imenu).
+Debug JUnit test case (select from imenu).
 
 ### meghanada-run-task (C-c C-v t)
 
@@ -276,15 +276,15 @@ Format buffer code. The default formatter is `google-java-format`
 
 `meghanada-mode` uses `google-java-format` by default for formatter.
 
-It also supports eclipse formatter.
-If you want to customize the formatter, you uses the exported eclipse format settings.
+It also supports Eclipse formatter.
+If you want to customize the formatter, you use the exported eclipse format settings.
 To import the settings, change the name of the exported file to `meghanadaFormatter.xml` and put it in the `project root` or `subproject root`.
 
 ## Debug
 
-`meghanada-mode` has no debugger yet. However, external debugger is supported.
+`meghanada-mode` has no debugger yet. However, the external debugger is supported.
 
-if you want to debug your code, execute `meghanada-debug-xxxx` function and then use [realgud][] etc.
+if you want to debug your code, execute `meghanada-debug-xxxx` function and then use [realgud][], etc.
 
 ```
 # in Emacs now:
@@ -409,6 +409,6 @@ GPL v3, See [LICENSE](LICENSE) file.
 [Gradle]: https://gradle.org
 [company-mode]: http://company-mode.github.io/
 [flycheck]: http://flycheck.org
-[Junit]: http://www.junit.org/
+[JUnit]: http://www.junit.org/
 [yasnippet]: http://joaotavora.github.io/yasnippet/
 [realgud]: https://github.com/realgud/realgud
