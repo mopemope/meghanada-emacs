@@ -60,6 +60,7 @@
 (defconst meghanada--typeinfo-buf-name "*meghanada-typeinfo*")
 (defconst meghanada--install-err-buf-name "*meghanada-install-error*")
 (defconst meghanada--err-buf-name "*meghanada-error*")
+(defconst meghanada--install-buffer "*meghanada-install*")
 
 ;;
 ;; Customizable variables
@@ -396,29 +397,35 @@ function."
     (unless (file-exists-p jar)
       (error "Jar does not exist: %s" jar))
     (message "Download meghanada server module. Please wait ...")
-    (let ((proc (start-process "meghanada-setup" "*meghanada-install*"
+    (with-current-buffer (get-buffer-create meghanada--install-buffer)
+      (erase-buffer))
+    (let ((proc (start-process "meghanada-setup" meghanada--install-buffer
                                meghanada-java-path
                                "-jar" jar
                                "--dest" (expand-file-name dest)
                                "--server-version" meghanada-version
                                "--simple"))
           (orig-buf (current-buffer)))
-      (pop-to-buffer "*meghanada-install*")
+      (display-buffer meghanada--install-buffer)
       (set-process-filter
        proc
-       #'(lambda (process msg)
-           (when (process-live-p process)
-             (with-current-buffer (process-buffer process)
-               (insert msg)))))
+       #'(lambda (_process msg)
+           (with-current-buffer meghanada--install-buffer
+             (insert msg))))
       (set-process-sentinel
        proc
        #'(lambda (process msg)
+           (with-current-buffer meghanada--install-buffer
+             (insert msg))
            (cond
             ((string-equal "finished\n" msg)
+             (let ((w (get-buffer-window meghanada--install-buffer)))
+               (when w
+                 (quit-window w)))
              (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
-             (switch-to-buffer orig-buf)
-             (meghanada-mode t)
-             (meghanada-restart))
+             (with-current-buffer orig-buf
+               (meghanada-mode t)
+               (meghanada-restart)))
             ((string-prefix-p "exited abnormally with code " msg)
              (error "Non-zero exit code while installing meghanada: %s" msg))))))))
 
