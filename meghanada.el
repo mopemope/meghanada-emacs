@@ -393,32 +393,34 @@ function."
   "Setup meghanada server module."
   (let ((jar (meghanada--locate-setup-jar))
         (dest meghanada-server-install-dir))
-    (if (file-exists-p jar)
-        (let ((cmd (format "%s -jar %s --dest %s --server-version %s --simple"
-                           (shell-quote-argument meghanada-java-path)
-                           (shell-quote-argument jar)
-                           (expand-file-name dest)
-                           meghanada-version)))
-          (message "Download meghanada server module. Please wait ...")
-          (let ((proc (start-process-shell-command "*meghanada-install*" "*meghanada-install*" cmd))
-                (buf (current-buffer)))
-            (pop-to-buffer "*meghanada-install*")
-            (set-process-filter
-             proc
-             #'(lambda (process msg)
-                 (when (process-live-p process)
-                   (with-current-buffer (process-buffer process)
-                     (insert msg)
-                     (message "Download server module ...")))))
-             (set-process-sentinel
-              proc
-              #'(lambda (process msg)
-                  (unless (process-live-p process)
-                    (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
-                    (pop-to-buffer buf)
-                    (with-current-buffer buf
-                      (meghanada-mode t)
-                      (meghanada-restart))))))))))
+    (unless (file-exists-p jar)
+      (error "Jar does not exist: %s" jar))
+    (message "Download meghanada server module. Please wait ...")
+    (let ((proc (start-process "meghanada-setup" "*meghanada-install*"
+                               meghanada-java-path
+                               "-jar" jar
+                               "--dest" (expand-file-name dest)
+                               "--server-version" meghanada-version
+                               "--simple"))
+          (orig-buf (current-buffer)))
+      (pop-to-buffer "*meghanada-install*")
+      (set-process-filter
+       proc
+       #'(lambda (process msg)
+           (when (process-live-p process)
+             (with-current-buffer (process-buffer process)
+               (insert msg)))))
+      (set-process-sentinel
+       proc
+       #'(lambda (process msg)
+           (cond
+            ((string-equal "finished\n" msg)
+             (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
+             (switch-to-buffer orig-buf)
+             (meghanada-mode t)
+             (meghanada-restart))
+            ((string-prefix-p "exited abnormally with code " msg)
+             (error "Non-zero exit code while installing meghanada: %s" msg))))))))
 
 (defun meghanada--download-setup-jar ()
   "Download setup-jar file from bintray."
