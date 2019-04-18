@@ -442,18 +442,16 @@ function."
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
-  (let ((dest-jar (meghanada--locate-server-jar)))
-    (if (file-exists-p dest-jar)
-        nil
-      (condition-case err
-          (progn
-            (meghanada--setup)
-            t)
-        (error
-         (let ((error-buf meghanada--install-err-buf-name))
-           (with-current-buffer (get-buffer-create error-buf)
-             (insert (format "Error: %s" (error-message-string err)))
-             (compilation-mode))))))))
+  (unless (file-exists-p (meghanada--locate-server-jar))
+    (condition-case err
+        (progn
+          (meghanada--setup)
+          t)
+      (error
+       (let ((error-buf meghanada--install-err-buf-name))
+         (with-current-buffer (get-buffer-create error-buf)
+           (insert (format "Error: %s" (error-message-string err)))
+           (compilation-mode)))))))
 
 ;;;###autoload
 (defun meghanada-update-server ()
