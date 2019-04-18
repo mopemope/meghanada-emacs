@@ -7,7 +7,7 @@
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
 ;; Package-Version: 1.0.13
-;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
+;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23") (s "1.12"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 (require 'imenu)
 (require 'url)
 (require 'which-func)
+(require 's)
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -119,6 +120,15 @@ The slash is expected at the end."
   :group 'meghanada
   :risky t
   :type 'directory)
+
+(defcustom meghanada-server-setup-source-urls
+  '("https://dl.bintray.com/mopemope/meghanada/meghanada-setup-${setup-version}.jar"
+    ;; This URL doesn't work, since it is redirected to another location.
+    ;; "https://github.com/mopemope/meghanada-server/releases/download/v${version}/meghanada-setup-${setup-version}.jar"
+    )
+  "List of URL templates of setup-jar files."
+  :group 'meghanada
+  :type 'string)
 
 (defcustom meghanada-java-path "java"
   "Path of the java executable.
@@ -364,10 +374,15 @@ function."
     (url-handler-mode t)
     (if (file-exists-p url)
         (progn
+          ;; TODO: Follow redirection
           (url-copy-file url dest-jar)
           (message (format "Downloaded module from %s to %s." url dest-jar)))
       (error "Not found %s" url))))
 
+(defun meghanada--expand-url-template (template)
+  "Expand interpolations in TEMPLATE."
+  (s-format template 'aget `(("version" . ,meghanada-version)
+                             ("setup-version" . ,meghanada-setup-version))))
 
 (defun meghanada--setup ()
   "Setup meghanada-server-module."
@@ -407,30 +422,21 @@ function."
 
 (defun meghanada--download-setup-jar ()
   "Download setup-jar file from bintray."
-  (let ((url (format
-              "https://dl.bintray.com/mopemope/meghanada/meghanada-setup-%s.jar"
-              meghanada-setup-version))
-        (setup-jar (meghanada--locate-setup-jar)))
-
-    (unless (file-exists-p setup-jar)
-      (meghanada--download-from-url
-       url
-       setup-jar))))
-
-(defun meghanada--download-server-jar ()
-  "Direct download server jar file."
-  (let ((dest meghanada-server-install-dir)
-        (dest-jar (meghanada--locate-server-jar))
-        (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
-    (unless (file-exists-p dest)
-      (make-directory dest t))
-    (message (format "Download server module from %s. Please wait." url))
-    (url-handler-mode t)
-    (if (file-exists-p url)
-        (progn
-          (url-copy-file url dest-jar)
-          (message (format "Downloaded server module from %s to %s." url dest-jar)))
-      (error "Not found %s" url))))
+  (let ((setup-jar (meghanada--locate-setup-jar))
+        (template (car meghanada-server-setup-source-urls))
+        ok)
+    (while (and (not (setq ok (file-exists-p setup-jar)))
+                template)
+      (unless (condition-case _
+                  (progn
+                    (meghanada--download-from-url
+                     (meghanada--expand-url-template template)
+                     setup-jar)
+                    t)
+                (error nil))
+        (setq template (pop meghanada-server-setup-source-urls))))
+    (unless ok
+      (error "Failed to download the setup jar"))))
 
 ;;;###autoload
 (defun meghanada-install-server ()
