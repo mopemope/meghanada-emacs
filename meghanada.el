@@ -368,17 +368,21 @@ function."
 
 (defun meghanada--download-from-url (url dest-jar)
   "Download a jar file from URL to DEST-JAR Path."
-  (let ((dest meghanada-server-install-dir))
+  (let ((dest meghanada-server-install-dir)
+        (orig-url-handler-mode (bound-and-true-p url-handler-mode)))
     (unless (file-exists-p dest)
       (make-directory dest t))
     (message (format "Download module from %s. Please wait ..." url))
     (url-handler-mode t)
-    (if (file-exists-p url)
-        (progn
-          ;; TODO: Follow redirection
-          (url-copy-file url dest-jar)
-          (message (format "Downloaded module from %s to %s." url dest-jar)))
-      (error "Not found %s" url))))
+    (unwind-protect
+        (if (file-exists-p url)
+            (progn
+              ;; TODO: Follow redirection
+              (url-copy-file url dest-jar)
+              (message (format "Downloaded module from %s to %s." url dest-jar)))
+          (error "Not found %s" url))
+      (unless orig-url-handler-mode
+        (url-handler-mode 0)))))
 
 (defun meghanada--expand-url-template (template)
   "Expand interpolations in TEMPLATE."
