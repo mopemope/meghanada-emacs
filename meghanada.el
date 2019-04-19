@@ -131,6 +131,13 @@ The slash is expected at the end."
   :group 'meghanada
   :type 'string)
 
+(defcustom meghanada-server-server-source-urls
+  '("https://github.com/mopemope/meghanada-server/releases/download/v${version}/meghanada-${version}.jar"
+    "https://dl.bintray.com/mopemope/meghanada/meghanada-${version}.jar")
+  "List of URL templates of setup-jar files."
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-java-path "java"
   "Path of the java executable.
 
@@ -364,103 +371,113 @@ function."
 (defvar meghanada--task-client-process nil)
 (defvar meghanada--task-buffer nil)
 
-;; TODO pop-to-buffer
+;;
+;; downloading meghanada.
+;;
 
-(defun meghanada--download-from-url (url dest-jar)
-  "Download a jar file from URL to DEST-JAR Path."
-  (let ((dest meghanada-server-install-dir))
-    (unless (file-exists-p dest)
-      (make-directory dest t))
-    (message (format "Download module from %s. Please wait ..." url))
-    (url-handler-mode t)
-    (if (file-exists-p url)
-        (progn
-          ;; TODO: Follow redirection
-          (url-copy-file url dest-jar)
-          (message (format "Downloaded module from %s to %s." url dest-jar)))
-      (error "Not found %s" url))))
+(defvar meghanada--downloading nil
+  "Non-nil if meghanada is currently being downloaded.")
+(defvar meghanada--orig-java-buffer nil)
+
+
+;; TODO pop-to-buffer
 
 (defun meghanada--expand-url-template (template)
   "Expand interpolations in TEMPLATE."
   (s-format template 'aget `(("version" . ,meghanada-version)
                              ("setup-version" . ,meghanada-setup-version))))
 
+(defun meghanada--log-install (&rest messages)
+  "Log MESSAGES to the installation buffer."
+  (with-current-buffer meghanada--install-buffer
+    (goto-char (point-max))
+    (apply #'insert messages)))
+
+(defun meghanada--log-install-message (fmt &rest args)
+  "Log FMT with ARGS to the installation buffer. "
+  (with-current-buffer meghanada--install-buffer
+    (goto-char (point-max))
+    (insert (apply #'format fmt args) "\n")))
+
+(defun meghanada--download-server-jar (url dest remaining)
+  "Download meghanada.
+
+URL is the location of the server jar file.
+DEST is the local file name of the jar file to be created.
+REMAINING is a list of URL templates of mirrors."
+  (cond
+   (url
+    (let ((url-request-method "HEAD"))
+      (url-retrieve url
+                    #'(lambda (result)
+                        (cl-etypecase result
+                          (list
+                           (let ((err (plist-get result :error))
+                                 (location (plist-get result :redirect)))
+                             (cond
+                              (err
+                               (meghanada--log-install-message "%s from %s" err url)
+                               (meghanada--download-server-jar nil dest remaining))
+                              (location
+                               (meghanada--log-install-message "Redirected to %s" location)
+                               (meghanada--download-server-jar location dest remaining))
+                              (t
+                               (meghanada--log-install-message "Started downloading %s..." url)
+                               (async-start #'(lambda ()
+                                                (setq meghanada--downloading t)
+                                                (condition-case err
+                                                    (unwind-protect
+                                                        (url-copy-file url dest)
+                                                      (setq meghanada--downloading nil))
+                                                  (error
+                                                   (meghanada--log-install-message "Error: %s" err)
+                                                   (meghanada--download-server-jar nil
+                                                                                   dest
+                                                                                   remaining))))
+                                            (lambda (result)
+                                              (meghanada--log-install-message "Finished downloading: %s" result)
+                                              (message "Finished downloading meghanada")
+                                              (let ((window (get-buffer-window meghanada--install-buffer)))
+                                                (when window
+                                                  (quit-window t window)))
+                                              (when (bufferp meghanada--orig-java-buffer)
+                                                (with-current-buffer meghanada--orig-java-buffer
+                                                  (meghanada-mode t))))))))))))))
+   (remaining (let ((url (meghanada--expand-url-template (car remaining))))
+                (meghanada--log-install-message "Trying to download %s..." url)
+                (meghanada--download-server-jar url
+                                                dest
+                                                (cdr remaining))))
+   (t (progn
+        (meghanada--log-install-message "All mirrors failed")
+        (error "Failed to download meghanada from all servers")))))
+
 (defun meghanada--setup ()
   "Setup meghanada-server-module."
-  (meghanada--download-setup-jar)
-  (meghanada--run-setup))
-
-(defun meghanada--run-setup ()
-  "Setup meghanada server module."
-  (let ((jar (meghanada--locate-setup-jar))
-        (dest meghanada-server-install-dir))
-    (unless (file-exists-p jar)
-      (error "Jar does not exist: %s" jar))
-    (message "Download meghanada server module. Please wait ...")
-    (with-current-buffer (get-buffer-create meghanada--install-buffer)
-      (erase-buffer))
-    (let ((proc (start-process "meghanada-setup" meghanada--install-buffer
-                               meghanada-java-path
-                               "-jar" jar
-                               "--dest" (expand-file-name dest)
-                               "--server-version" meghanada-version
-                               "--simple"))
-          (orig-buf (current-buffer)))
-      (display-buffer meghanada--install-buffer)
-      (set-process-filter
-       proc
-       #'(lambda (_process msg)
-           (with-current-buffer meghanada--install-buffer
-             (insert msg))))
-      (set-process-sentinel
-       proc
-       #'(lambda (process msg)
-           (with-current-buffer meghanada--install-buffer
-             (insert msg))
-           (cond
-            ((string-equal "finished\n" msg)
-             (let ((w (get-buffer-window meghanada--install-buffer)))
-               (when w
-                 (quit-window w)))
-             (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
-             (with-current-buffer orig-buf
-               (meghanada-mode t)
-               (meghanada-restart)))
-            ((string-prefix-p "exited abnormally with code " msg)
-             (error "Non-zero exit code while installing meghanada: %s" msg))))))))
-
-(defun meghanada--download-setup-jar ()
-  "Download setup-jar file from bintray."
-  (let ((setup-jar (meghanada--locate-setup-jar))
-        (template (car meghanada-server-setup-source-urls))
-        ok)
-    (while (and (not (setq ok (file-exists-p setup-jar)))
-                template)
-      (unless (condition-case _
-                  (progn
-                    (meghanada--download-from-url
-                     (meghanada--expand-url-template template)
-                     setup-jar)
-                    t)
-                (error nil))
-        (setq template (pop meghanada-server-setup-source-urls))))
-    (unless ok
-      (error "Failed to download the setup jar"))))
+  (when meghanada--downloading
+    (user-error "meghanada is currently being downloaded. Please wait"))
+  (let* ((server-jar (meghanada--locate-server-jar))
+         (dir (file-name-directory server-jar)))
+    (unless (file-exists-p server-jar)
+      (unless (file-directory-p dir)
+        (make-directory dir t))
+      (with-current-buffer (get-buffer-create meghanada--install-buffer)
+        (erase-buffer)
+        (compilation-mode t)
+        (display-buffer (current-buffer))
+        (set-window-dedicated-p nil t))
+      (message "Start downloading meghanada")
+      (meghanada--download-server-jar nil
+                                      server-jar
+                                      meghanada-server-server-source-urls))))
 
 ;;;###autoload
 (defun meghanada-install-server ()
   "Install meghanada-server's jar file from bintray ."
   (interactive)
-  (unless (file-exists-p (meghanada--locate-server-jar))
-    (condition-case err
-        (progn
-          (meghanada--setup)
-          t)
-      (error
-       (let ((error-buf meghanada--install-err-buf-name))
-         (with-current-buffer (get-buffer-create error-buf)
-           (insert (format "Error: %s" (error-message-string err)))
-           (compilation-mode)))))))
+  (setq meghanada--orig-java-buffer (and (derived-mode-p 'java-mode)
+                                         (current-buffer)))
+  (meghanada--setup))
 
 ;;;###autoload
 (defun meghanada-update-server ()
