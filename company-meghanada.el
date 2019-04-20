@@ -81,7 +81,7 @@
                     ("VAR" 6)
                     ("METHOD" 2)
                     ("FIELD" 5)
-                    ("CLASS" 6)))
+                    ("CLASS" 22)))
         (ht (make-hash-table :test 'equal)))
     (puthash "kind" kind-val ht)
     ht))
