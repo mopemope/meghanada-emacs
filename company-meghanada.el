@@ -78,7 +78,7 @@
 
 (defun make-icon-hash (type)
   (let ((kind-val (pcase type
-                    ("VAR" 6)
+                    ("VARIABLE" 6)
                     ("METHOD" 2)
                     ("FIELD" 5)
                     ("CLASS" 22)))
