@@ -226,7 +226,6 @@
                         (concat "*" var "#" prefix)))
                      (t match))))
 
-              ;; (message (format "match:%s send-keyword:%s" match keyword))
               (setq meghanada--sp-prefix keyword)
               (cons symbol t))
           symbol)))))
@@ -298,9 +297,7 @@
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
          (list 'return-type return-t 'meta meta 'type 'method))))
-
     (when anno
-      (insert anno)
       (company-template-c-like-templatify anno)
       (when (and
              (> (length extra) 1)
@@ -353,7 +350,6 @@
         (meta (get-text-property 0 'meta arg))
         (desc (get-text-property 0 'desc arg))
         (anno (company-meghanada--annotation arg)))
-    ;;(message (format "@ arg:%s meta:%s desc:%s anno:%s" arg meta desc anno))
     (meghanada-autocomplete-resolve-async
      type
      arg
@@ -375,8 +371,7 @@
                  (backward-word)
                  (insert meta)
                  (insert ";")
-                 (delete-region (point) (+ (point) (length arg)))
-                 )))))
+                 (delete-region (point) (+ (point) (length arg))))))))
 
 (defun company-meghanada (command &optional arg &rest ignored)
   (cl-case command
@@ -391,10 +386,7 @@
     (ignore-case t)
     (sorted t)
     (no-cache
-     (unless
-         (and
-          (string= "prefix" meghanada-completion-matcher)
-          (string= "prefix" meghanada-class-completion-matcher))
+     (unless (and (string= "prefix" meghanada-completion-matcher) (string= "prefix" meghanada-class-completion-matcher))
        t))
     (require-match 'never)
     (post-completion
