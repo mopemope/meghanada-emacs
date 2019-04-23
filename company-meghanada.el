@@ -80,6 +80,7 @@
   (let ((kind-val (pcase type
                     ("VARIABLE" 6)
                     ("METHOD" 2)
+                    ("CONSTRUCTOR" 2)
                     ("FIELD" 5)
                     ("CLASS" 22)))
         (ht (make-hash-table :test 'equal)))
