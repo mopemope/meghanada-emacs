@@ -62,8 +62,6 @@
 (defun meghanada-company-enable ()
   "Enable auto completion with company."
   (company-mode t)
-  (set (make-local-variable 'company-backends) nil)
-  (set (make-local-variable 'company-transformers) nil)
   (if company-meghanada-prefix-length
       (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
     (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
