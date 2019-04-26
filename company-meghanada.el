@@ -26,7 +26,8 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'cl-lib))
+  (require 'cl-lib)
+  (require 'pcase))
 
 (require 'company)
 (require 'company-template)
@@ -61,8 +62,6 @@
 (defun meghanada-company-enable ()
   "Enable auto completion with company."
   (company-mode t)
-  (set (make-local-variable 'company-backends) nil)
-  (set (make-local-variable 'company-transformers) nil)
   (if company-meghanada-prefix-length
       (set (make-local-variable 'company-minimum-prefix-length) company-meghanada-prefix-length)
     (set (make-local-variable 'company-meghanada-prefix-length) company-minimum-prefix-length))
@@ -74,6 +73,17 @@
   (add-to-list 'company-backends '(company-meghanada :separate company-dabbrev-code))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map))
+
+(defun make-icon-hash (type)
+  (let ((kind-val (pcase type
+                    ("VARIABLE" 6)
+                    ("METHOD" 2)
+                    ("CONSTRUCTOR" 2)
+                    ("FIELD" 5)
+                    ("CLASS" 22)))
+        (ht (make-hash-table :test 'equal)))
+    (puthash "kind" kind-val ht)
+    ht))
 
 (defun company-meghanada--to-candidate (result)
   (mapcar (lambda (candidate)
@@ -87,7 +97,9 @@
                         'return-type
                         (nth 4 candidate)
                         'extra
-                        (nth 5 candidate))) result))
+                        (nth 5 candidate)
+                        'lsp-completion-item
+                        (make-icon-hash (nth 0 candidate)))) result))
 
 (defun company-meghanada--to-candidates (output)
   (when (> (length output) 0)
@@ -213,7 +225,6 @@
                         (concat "*" var "#" prefix)))
                      (t match))))
 
-              ;; (message (format "match:%s send-keyword:%s" match keyword))
               (setq meghanada--sp-prefix keyword)
               (cons symbol t))
           symbol)))))
@@ -285,9 +296,7 @@
          (beginning-of-thing 'symbol)
          (end-of-thing 'symbol)
          (list 'return-type return-t 'meta meta 'type 'method))))
-
     (when anno
-      (insert anno)
       (company-template-c-like-templatify anno)
       (when (and
              (> (length extra) 1)
@@ -340,7 +349,6 @@
         (meta (get-text-property 0 'meta arg))
         (desc (get-text-property 0 'desc arg))
         (anno (company-meghanada--annotation arg)))
-    ;;(message (format "@ arg:%s meta:%s desc:%s anno:%s" arg meta desc anno))
     (meghanada-autocomplete-resolve-async
      type
      arg
@@ -362,8 +370,7 @@
                  (backward-word)
                  (insert meta)
                  (insert ";")
-                 (delete-region (point) (+ (point) (length arg)))
-                 )))))
+                 (delete-region (point) (+ (point) (length arg))))))))
 
 (defun company-meghanada (command &optional arg &rest ignored)
   (cl-case command
@@ -378,10 +385,7 @@
     (ignore-case t)
     (sorted t)
     (no-cache
-     (unless
-         (and
-          (string= "prefix" meghanada-completion-matcher)
-          (string= "prefix" meghanada-class-completion-matcher))
+     (unless (and (string= "prefix" meghanada-completion-matcher) (string= "prefix" meghanada-class-completion-matcher))
        t))
     (require-match 'never)
     (post-completion

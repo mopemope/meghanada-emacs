@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.0.13
+;; Package-Version: 1.0.14
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.0.13")
+(defconst meghanada-version "1.0.14")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
@@ -170,6 +170,14 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-jvm-option nil
+  "Set to all meghanada java process jvm option.
+
+Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.proxyPort=8080\")
+"
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-server-jvm-option "-Xms128m -XX:ReservedCodeCacheSize=240m -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
   "Set to meghanada server process jvm option."
   :group 'meghanada
@@ -210,8 +218,8 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'function)
 
-(defcustom meghanada-cache-in-project t
-  "If true, create a cache in the project.otherwise, create in cache root directory (~/.cache/meghanada)."
+(defcustom meghanada-cache-in-project nil
+  "If true, create a cache in the project.otherwise, create in cache root directory (~/.cache/meghanada). default nil"
   :group 'meghanada
   :type 'boolean)
 
@@ -374,13 +382,20 @@ function."
   (meghanada--download-setup-jar)
   (meghanada--run-setup))
 
+(defun meghanada--setup-options ()
+  (let ((options '()))
+    (when meghanada-jvm-option
+      (push meghanada-jvm-option options))
+    (mapconcat 'identity  options " ")))
+
 (defun meghanada--run-setup ()
   "Setup meghanada server module."
   (let ((jar (meghanada--locate-setup-jar))
         (dest meghanada-server-install-dir))
     (if (file-exists-p jar)
-        (let ((cmd (format "%s -jar %s --dest %s --server-version %s --simple"
+        (let ((cmd (format "%s %s -jar %s --dest %s --server-version %s --simple"
                            (shell-quote-argument meghanada-java-path)
+                           (meghanada--setup-options)
                            (shell-quote-argument jar)
                            (expand-file-name dest)
                            meghanada-version)))
@@ -500,10 +515,10 @@ function."
       (push (format "-Dmeghanada.completion.matcher=%s" meghanada-completion-matcher) options))
     (when meghanada-class-completion-matcher
       (push (format "-Dmeghanada.class.completion.matcher=%s" meghanada-class-completion-matcher) options))
+    (when meghanada-jvm-option
+      (push meghanada-jvm-option options))
     (push "-Djava.net.preferIPv4Stack=true" options)
-    (mapconcat 'identity
-               options
-               " ")))
+    (mapconcat 'identity  options " ")))
 
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
@@ -511,13 +526,14 @@ function."
     (if (file-exists-p jar)
         (let ((process-connection-type nil)
               (process-adaptive-read-buffering nil)
-              (cmd (format "%s %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s"
+              (cmd (format "%s %s %s -Dfile.encoding=UTF-8 -jar %s -p %d %s %s"
                            (shell-quote-argument meghanada-java-path)
                            (meghanada--server-options)
                            meghanada-server-jvm-option
                            (shell-quote-argument jar)
                            meghanada-port
-                           (if meghanada-debug "-v" "")))
+                           (if meghanada-debug "-v" "")
+                           (concat "-l " (temporary-file-directory) "meghanada_server_" (number-to-string (user-uid)) ".log")))
               process)
           (message (format "launch server cmd:%s" cmd))
           (setq process

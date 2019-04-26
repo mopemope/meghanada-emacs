@@ -1,3 +1,11 @@
+# Version 1.0.14 (2019-04-26)
+
+* works without the project tool (mvn, gradle, etc).
+* support java 12 (experimental).
+* add jvm option setting (meghanada-jvm-option).
+* support company-box.
+* fix some bugs and improve stability.
+
 # Version 1.0.13 (2019-02-25)
 
 * support build.gradle.kts.
