@@ -170,6 +170,14 @@ In linux or macOS, it can be \"mvn\"; In Windows, it can be \"mvn.cmd\". "
   :group 'meghanada
   :type 'boolean)
 
+(defcustom meghanada-jvm-option nil
+  "Set to all meghanada java process jvm option.
+
+Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.proxyPort=8080\")
+"
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-server-jvm-option "-Xms128m -XX:ReservedCodeCacheSize=240m -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false"
   "Set to meghanada server process jvm option."
   :group 'meghanada
@@ -374,13 +382,20 @@ function."
   (meghanada--download-setup-jar)
   (meghanada--run-setup))
 
+(defun meghanada--setup-options ()
+  (let ((options '()))
+    (when meghanada-jvm-option
+      (push meghanada-jvm-option options))
+    (mapconcat 'identity  options " ")))
+
 (defun meghanada--run-setup ()
   "Setup meghanada server module."
   (let ((jar (meghanada--locate-setup-jar))
         (dest meghanada-server-install-dir))
     (if (file-exists-p jar)
-        (let ((cmd (format "%s -jar %s --dest %s --server-version %s --simple"
+        (let ((cmd (format "%s %s -jar %s --dest %s --server-version %s --simple"
                            (shell-quote-argument meghanada-java-path)
+                           (meghanada--setup-options)
                            (shell-quote-argument jar)
                            (expand-file-name dest)
                            meghanada-version)))
@@ -500,10 +515,10 @@ function."
       (push (format "-Dmeghanada.completion.matcher=%s" meghanada-completion-matcher) options))
     (when meghanada-class-completion-matcher
       (push (format "-Dmeghanada.class.completion.matcher=%s" meghanada-class-completion-matcher) options))
+    (when meghanada-jvm-option
+      (push meghanada-jvm-option options))
     (push "-Djava.net.preferIPv4Stack=true" options)
-    (mapconcat 'identity
-               options
-               " ")))
+    (mapconcat 'identity  options " ")))
 
 (defun meghanada--start-server-process ()
   "TODO: FIX DOC ."
