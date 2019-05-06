@@ -1,3 +1,8 @@
+# Version 1.1.0 (2019-05-06)
+
+* support open j9 (experimental).
+* fix some bugs and improve stability.
+
 # Version 1.0.14 (2019-04-26)
 
 * works without the project tool (mvn, gradle, etc).
