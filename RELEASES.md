@@ -1,3 +1,8 @@
+# Version 1.1.1 (2019-05-07)
+
+* fix unwrap temporary-file-directory (thanks @bsless).
+* fix some bugs and improve stability.
+
 # Version 1.1.0 (2019-05-06)
 
 * support open j9 (experimental).
