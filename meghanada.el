@@ -266,8 +266,15 @@ Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.pro
 ;;
 
 (defun meghanada--what-line ()
-  "TODO: FIX DOC ."
-  (format-mode-line "%l"))
+  "Return the current buffer line number and narrowed line number of point."
+  (let ((start (point-min))
+        (n (line-number-at-pos)))
+    (if (= start 1)
+        n
+      (save-excursion
+        (save-restriction
+          (widen)
+          (+ n (line-number-at-pos start) -1) n)))))
 
 (defun meghanada--real-current-column ()
   "like `current-column', but skip invisible characters in pretty-symbol-mode."
