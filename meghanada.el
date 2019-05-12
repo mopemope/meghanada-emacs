@@ -1066,13 +1066,13 @@ e.g. java.lang.annotation)."
 (defun meghanada-add-import-async (imp callback buf)
   "TODO: FIX DOC IMP CALLBACK BUF."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "ai" (list callback buf) (buffer-file-name) imp)
+      (meghanada--send-request "ai" (list callback buf) (format "\"%s\"" (buffer-file-name)) imp)
     (message "client connection not established")))
 
 (defun meghanada-import-all-async (callback buf optimize)
   "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
-      (meghanada--send-request "ia" (list callback buf optimize) (buffer-file-name))
+      (meghanada--send-request "ia" (list callback buf optimize)  (format "\"%s\"" (buffer-file-name)))
     (message "client connection not established")))
 
 (defun meghanada-import-at-point-async (callback buf optimize)
@@ -1080,7 +1080,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ip"
                                (list callback buf optimize)
-                               (buffer-file-name)
+                               (format "\"%s\"" (buffer-file-name))
                                (meghanada--what-line)
                                (meghanada--what-column)
                                (format "\"%s\"" (meghanada--what-symbol)))
@@ -1092,7 +1092,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((output (meghanada--send-request-sync
                      "oi"
-                     (buffer-file-name)
+                     (format "\"%s\"" (buffer-file-name))
                      (meghanada--write-tmpfile))))
         (when output
           (let ((patchbuf (get-buffer-create "*meghanada-fmt patch*"))
@@ -1130,10 +1130,10 @@ e.g. java.lang.annotation)."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ap"
                                callback
-                               (buffer-file-name)
+                               (format "\"%s\"" (buffer-file-name))
                                (meghanada--what-line)
                                (meghanada--what-column)
-                               prefix)
+                               (format "\"%s\"" prefix))
     (message "client connection not established")))
 
 (defun meghanada-autocomplete-resolve-async (type item desc callback)
@@ -1141,7 +1141,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "cr"
                                callback
-                               (buffer-file-name)
+                               (format "\"%s\"" (buffer-file-name))
                                (meghanada--what-line)
                                (meghanada--what-column)
                                (format "\"%s\"" type)
@@ -1171,7 +1171,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "lv"
                                #'meghanada--local-val-callback
-                               (buffer-file-name)
+                               (format "\"%s\"" (buffer-file-name))
                                (meghanada--what-line))
     (message "client connection not established")))
 
@@ -1184,7 +1184,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "di"
                                callback
-                               (buffer-file-name))
+                               (format "\"%s\"" (buffer-file-name)))
     (message "client connection not established")))
 
 (defun meghanada-diagnostic-string-async (callback)
@@ -1243,7 +1243,7 @@ e.g. java.lang.annotation)."
   (interactive)
   (when (meghanada-alive-p)
     (if (and meghanada--server-process (process-live-p meghanada--server-process))
-        (let ((buf (buffer-file-name)))
+        (let ((buf (format "\"%s\"" (buffer-file-name))))
           (message "compiling ... ")
           (meghanada--kill-buf "*compilation*")
           (pop-to-buffer "*compilation*")
@@ -1255,7 +1255,7 @@ e.g. java.lang.annotation)."
   (interactive)
   (when (meghanada-alive-p)
     (if (and meghanada--server-process (process-live-p meghanada--server-process))
-        (let ((buf (buffer-file-name)))
+        (let ((buf  (format "\"%s\"" (buffer-file-name))))
           (message "compiling ... ")
           (meghanada--kill-buf "*compilation*")
           (pop-to-buffer "*compilation*")
@@ -1285,7 +1285,7 @@ e.g. java.lang.annotation)."
   "TODO: FIX DOC CALLBACK."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (meghanada--send-request "st" #'meghanada--switch-testcase-callback (buffer-file-name))
+      (meghanada--send-request "st" #'meghanada--switch-testcase-callback (format "\"%s\"" (buffer-file-name)))
     (message "client connection not established")))
 
 
@@ -1317,8 +1317,8 @@ e.g. java.lang.annotation)."
         (setq meghanada--task-buffer meghanada--junit-buf-name)
         (pop-to-buffer meghanada--junit-buf-name)
         (if debug
-            (meghanada--send-request-process "dj" meghanada--task-client-process #'meghanada--junit-callback file test)
-          (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback file test)))
+            (meghanada--send-request-process "dj" meghanada--task-client-process #'meghanada--junit-callback (format "\"%s\"" file) test)
+          (meghanada--send-request-process "rj" meghanada--task-client-process #'meghanada--junit-callback (format "\"%s\"" file) test)))
     (message "client connection not established")))
 
 (defun meghanada-run-junit-class ()
@@ -1396,7 +1396,7 @@ e.g. java.lang.annotation)."
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
 
   (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
-      (let ((file (buffer-file-name)))
+      (let ((file (format "\"%s\"" (buffer-file-name))))
         (meghanada--kill-buf meghanada--task-buf-name)
         (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--task-buf-name)
@@ -1411,7 +1411,7 @@ e.g. java.lang.annotation)."
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
 
   (if (and meghanada--task-client-process (process-live-p meghanada--task-client-process))
-      (let ((file (buffer-file-name)))
+      (let ((file (format "\"%s\"" (buffer-file-name))))
         (meghanada--kill-buf meghanada--task-buf-name)
         (meghanada--kill-buf meghanada--junit-buf-name)
         (setq meghanada--task-buffer meghanada--task-buf-name)
@@ -1447,7 +1447,7 @@ e.g. java.lang.annotation)."
       (let ((sym (meghanada--what-symbol)))
         (when sym
           (meghanada--send-request "jd" #'meghanada--jump-callback
-                                   (buffer-file-name)
+                                   (format "\"%s\"" (buffer-file-name))
                                    (meghanada--what-line)
                                    (meghanada--what-column)
                                    (format "\"%s\"" sym))))
@@ -1467,7 +1467,7 @@ e.g. java.lang.annotation)."
       (let ((sym (completing-read "Symbol: " (meghanada--list-symbols) nil nil)))
         (when sym
           (meghanada--send-request "js" #'meghanada--jump-callback
-                                   (buffer-file-name)
+                                   (format "\"%s\"" (buffer-file-name))
                                    (meghanada--what-line)
                                    (meghanada--what-column)
                                    (format "\"%s\"" sym))))
@@ -1595,7 +1595,7 @@ e.g. java.lang.annotation)."
           (progn
             (funcall meghanada-reference-prepare)
             (meghanada--send-request "re" meghanada-reference-callback
-                                     buf
+                                     (format "\"%s\"" buf)
                                      line
                                      col
                                      (format "\"%s\"" sym)))))
@@ -1658,7 +1658,7 @@ e.g. java.lang.annotation)."
         (progn
           (funcall meghanada-typeinfo-prepare)
           (meghanada--send-request "ti" meghanada-typeinfo-callback
-                                   buf
+                                   (format "\"%s\"" buf)
                                    line
                                    col
                                    (format "\"%s\"" sym))))
@@ -1866,7 +1866,7 @@ e.g. java.lang.annotation)."
   "Change project root."
   (when (meghanada-alive-p)
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
-        (meghanada--send-request "pc" #'identity (buffer-file-name))
+        (meghanada--send-request "pc" #'identity (format "\"%s\"" (buffer-file-name)))
       (message "client connection not established"))))
 
 ;;;###autoload
