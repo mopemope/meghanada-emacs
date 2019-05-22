@@ -244,7 +244,7 @@ Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.pro
   :type 'string)
 
 (defcustom meghanada-full-text-search-enable nil
-  "If true, enable full text search and meghanada-search-everywhere."
+  "If true, Enable full text search and meghanada-search-everywhere."
   :group 'meghanada
   :type 'boolean)
 
@@ -254,13 +254,19 @@ Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.pro
   :type 'string)
 
 (defcustom meghanada-class-completion-matcher "prefix"
-  "Select class completion matcher.  You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
+  "Select class completion matcher. You can choose from prefix, contains, fuzzy, came-case.  default is prefix."
   :group 'meghanada
   :type 'string)
 
 (defcustom meghanada-mode-after-test-hook '()
   "Hook that is called after a JUnit test execution is done."
   :group 'meghanada)
+
+(defcustom meghanada-telemetry-enable nil
+  "If true, Enables telemetry and allows you to collect and submit performance data."
+  :group 'meghanada
+  :type 'boolean)
+
 ;;
 ;; utility
 ;;
@@ -524,6 +530,8 @@ function."
       (push (format "-Dmeghanada.class.completion.matcher=%s" meghanada-class-completion-matcher) options))
     (when meghanada-jvm-option
       (push meghanada-jvm-option options))
+    (when meghanada-telemetry-enable
+      (push "-Dmeghanada.telemetry.enable=true" options))
     (push "-Djava.net.preferIPv4Stack=true" options)
     (mapconcat 'identity  options " ")))
 
