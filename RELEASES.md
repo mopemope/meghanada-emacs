@@ -1,3 +1,10 @@
+# Version 1.2.0 (2019-05-26)
+
+* collect telemetry data of meghanada-server (default disabled).
+* fix constructor completion format.
+* fix array completion.
+* fix some bugs and improve stability.
+
 # Version 1.1.2 (2019-05-09)
 
 * fix NoClassDefFoundError when run junit.

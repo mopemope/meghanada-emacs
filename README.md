@@ -59,6 +59,12 @@ Meghanada updates any information when saving and compile the java file.
 
 If the completion candidate and others are incorrect, please fix the compile error.
 
+### Telemetry
+
+If you can help improve server performance etc. please enable Telemetry.
+
+If you allow Meghanada to submit performance data, the Telemetry system will collect and submit various measurement data from the user environment, such as Meghanada's performance.
+
 ## Installation
 
 ### Elisp
@@ -73,6 +79,8 @@ Install meghanada from melpa.
           (lambda ()
             ;; meghanada-mode on
             (meghanada-mode t)
+            ;; enable telemetry
+            (meghanada-telemetry-enable t)
             (flycheck-mode +1)
             (setq c-basic-offset 2)
             ;; use code format
