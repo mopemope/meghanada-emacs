@@ -1461,18 +1461,50 @@ e.g. java.lang.annotation)."
                                    (format "\"%s\"" sym))))
     (message "client connection not established")))
 
-(defun meghanada--list-symbols ()
+(defun meghanada--list-symbols (input)
   "List all available symbols."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (let* ((output (meghanada--send-request-sync "ls")))
+      (let* ((output (meghanada--send-request-sync "ls" input)))
         (split-string output "\n"))
        (message "client connection not established")))
+
+(defvar meghanada--jump-sympol-last nil)
+
+(defun meghanada--check-jump-symbol-input ()
+  (when (string-prefix-p "*Minibuf" (string-trim (buffer-name)))
+    (let* ((input (minibuffer-contents))
+           (len (length input)))
+      (when (and (> len 2) (not (string= input meghanada--jump-sympol-last)))
+        (setq meghanada--jump-sympol-last input)
+
+        (let ((sym (completing-read "Search: " (meghanada--list-symbols input) nil nil input)))
+          (when sym
+            (message (format "%s" sym))))))))
 
 (defun meghanada-jump-symbol ()
   "Jump to the specified symbol."
   (interactive)
+  (let* (timer is-input)
+    (unwind-protect
+        (minibuffer-with-setup-hook
+            #'(lambda ()
+                (setq timer (run-with-idle-timer
+                             0.5
+                             'repeat
+                             (lambda ()
+                               (meghanada--check-jump-symbol-input)))))
+          (prog1 (completing-read "Search: " nil nil nil)
+            (setq is-input t)))
+      (when timer
+        (cancel-timer timer)
+        (setq timer nil)))))
+
+(defun meghanada--jump-symbol-old ()
+  "Jump to the specified symbol."
+  (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
-      (let ((sym (completing-read "Symbol: " (meghanada--list-symbols) nil nil)))
+      (let* ((input (read-from-minibuffer "Search: "))
+             (sym (completing-read "Symbol: " (meghanada--list-symbols input) nil nil)))
         (when sym
           (meghanada--send-request "js" #'meghanada--jump-callback
                                    (format "\"%s\"" (buffer-file-name))
