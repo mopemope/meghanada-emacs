@@ -427,7 +427,7 @@ function."
              proc
              #'(lambda (process msg)
                  (unless (process-live-p process)
-                   (if (eq 1 (process-exit-status process))
+                   (if (eq 0 (process-exit-status process))
                        (progn
                          (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
                          (pop-to-buffer buf)
