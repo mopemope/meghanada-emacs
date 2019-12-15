@@ -6,7 +6,7 @@
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.2.0
+;; Package-Version: 1.2.1
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.2.0")
+(defconst meghanada-version "1.2.1")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
@@ -423,15 +423,18 @@ function."
                    (with-current-buffer (process-buffer process)
                      (insert msg)
                      (message "Download server module ...")))))
-             (set-process-sentinel
-              proc
-              #'(lambda (process msg)
-                  (unless (process-live-p process)
-                    (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
-                    (pop-to-buffer buf)
-                    (with-current-buffer buf
-                      (meghanada-mode t)
-                      (meghanada-restart))))))))))
+            (set-process-sentinel
+             proc
+             #'(lambda (process msg)
+                 (unless (process-live-p process)
+                   (if (eq 1 (process-exit-status process))
+                       (progn
+                         (message (format "Success. It downloaded to %s." meghanada-server-install-dir))
+                         (pop-to-buffer buf)
+                         (with-current-buffer buf
+                           (meghanada-mode t)
+                           (meghanada-restart)))
+                     (message (format "Failure. The installation seems to have failed, please check the message buffer for details. The jar should have been downloaded to %s." meghanada-server-install-dir)))))))))))
 
 (defun meghanada--download-setup-jar ()
   "Download setup-jar file from bintray."
@@ -854,8 +857,8 @@ function."
     (when (and process (process-live-p process))
       (meghanada--process-push-callback process callback)
       (meghanada--without-narrowing
-       (process-send-string process
-                            (format "%s\n" send-str))))))
+        (process-send-string process
+                             (format "%s\n" send-str))))))
 
 (defvar meghanada--sync-id 0)
 (defvar meghanada--sync-result '(-1 . nil))
@@ -1334,8 +1337,8 @@ e.g. java.lang.annotation)."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (test-name (car (split-string
-                           (car (last (split-string file-name "/")))
-                           "\\."))))
+                          (car (last (split-string file-name "/")))
+                          "\\."))))
     (meghanada--run-junit file-name nil test-name)))
 
 (defun meghanada-run-junit-test-case ()
@@ -1357,8 +1360,8 @@ e.g. java.lang.annotation)."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (test-name (car (split-string
-                           (car (last (split-string file-name "/")))
-                           "\\."))))
+                          (car (last (split-string file-name "/")))
+                          "\\."))))
     (meghanada--run-junit file-name t test-name)))
 
 (defun meghanada-debug-junit-test-case ()
@@ -1466,7 +1469,7 @@ e.g. java.lang.annotation)."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let* ((output (meghanada--send-request-sync "ls")))
         (split-string output "\n"))
-       (message "client connection not established")))
+    (message "client connection not established")))
 
 (defun meghanada-jump-symbol ()
   "Jump to the specified symbol."
@@ -1621,30 +1624,30 @@ e.g. java.lang.annotation)."
         (members (nth 3 messages))
         (indent 0))
     (if (and fqcn (not (string-empty-p fqcn)))
-      (with-help-window (get-buffer-create meghanada--typeinfo-buf-name)
-        (save-excursion
-          (insert (propertize (format "Class: ")
-                              'face '(:weight bold)))
-          (insert (format "%s\n\n" fqcn))
-          (dolist (c classes)
-            (dotimes (number indent 0)
-              (insert " "))
-            (insert (format "%s\n" c))
-            (setq indent (+ indent 2)))
-          (when (> (length interfaces) 0)
-            (insert "\n")
-            (insert (propertize (format "Implements:\n")
+        (with-help-window (get-buffer-create meghanada--typeinfo-buf-name)
+          (save-excursion
+            (insert (propertize (format "Class: ")
                                 'face '(:weight bold)))
-            (dolist (it interfaces)
-              (insert (format "  %s\n" it))))
-          (when (> (length members) 0)
-            (insert "\n")
-            (insert (propertize (format "Members:\n")
-                                'face '(:weight bold)))
-            (dolist (m members)
-              (insert (format "  %s\n" m))))
+            (insert (format "%s\n\n" fqcn))
+            (dolist (c classes)
+              (dotimes (number indent 0)
+                (insert " "))
+              (insert (format "%s\n" c))
+              (setq indent (+ indent 2)))
+            (when (> (length interfaces) 0)
+              (insert "\n")
+              (insert (propertize (format "Implements:\n")
+                                  'face '(:weight bold)))
+              (dolist (it interfaces)
+                (insert (format "  %s\n" it))))
+            (when (> (length members) 0)
+              (insert "\n")
+              (insert (propertize (format "Members:\n")
+                                  'face '(:weight bold)))
+              (dolist (m members)
+                (insert (format "  %s\n" m))))
 
-          (setq buffer-read-only t)))
+            (setq buffer-read-only t)))
       (progn
         (meghanada--kill-buf meghanada--typeinfo-buf-name)
         (message "no type found")))))

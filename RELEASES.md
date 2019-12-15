@@ -1,3 +1,7 @@
+# Version 1.2.1 (2019-12-15)
+
+* fix some bugs and improve stability.
+
 # Version 1.2.0 (2019-05-26)
 
 * collect telemetry data of meghanada-server (default disabled).
