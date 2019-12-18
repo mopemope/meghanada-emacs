@@ -432,7 +432,7 @@ GPL v3, See [LICENSE](LICENSE) file.
 [Maven]: http://maven.apache.org/
 [Gradle]: https://gradle.org
 [company-mode]: http://company-mode.github.io/
-[flycheck]: http://flycheck.org
+[flycheck]: https://www.flycheck.org/
 [JUnit]: http://www.junit.org/
 [yasnippet]: http://joaotavora.github.io/yasnippet/
 [realgud]: https://github.com/realgud/realgud
