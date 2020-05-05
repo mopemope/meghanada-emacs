@@ -39,6 +39,7 @@
 (require 'imenu)
 (require 'url)
 (require 'which-func)
+(require 'xref)
 
 (autoload 'meghanada-company-enable "company-meghanada")
 (autoload 'meghanada-flycheck-enable "flycheck-meghanada")
@@ -1583,7 +1584,7 @@ e.g. java.lang.annotation)."
         (setq buffer-read-only nil)
         (save-excursion
           (dolist (msg messages)
-            (insert (format "%s\n" msg))))
+            (insert (format "%s\n" (nth 0 msg)))))
         (compilation-mode))
     (progn
       (meghanada--kill-buf meghanada--ref-buf-name)
@@ -1645,7 +1646,7 @@ e.g. java.lang.annotation)."
               (insert (propertize (format "Members:\n")
                                   'face '(:weight bold)))
               (dolist (m members)
-                (insert (format "  %s\n" m))))
+                (insert (format "  %s\n" (nth 1 m)))))
 
             (setq buffer-read-only t)))
       (progn
@@ -1824,23 +1825,15 @@ e.g. java.lang.annotation)."
 (defvar meghanada-mode-map
   (let* ((map (make-sparse-keymap))
          (prefix-map (make-sparse-keymap)))
-
     (define-key prefix-map (kbd "C-c c") 'meghanada-compile-project)
     (define-key prefix-map (kbd "C-c C-c") 'meghanada-compile-file)
-
     (define-key prefix-map (kbd "C-r o") 'meghanada-optimize-import)
     (define-key prefix-map (kbd "C-r i") 'meghanada-import-all)
     (define-key prefix-map (kbd "C-r r") 'meghanada-local-variable)
-
     (define-key prefix-map (kbd "C-c t") 'meghanada-run-junit-test-case)
     (define-key prefix-map (kbd "C-c C-t") 'meghanada-run-junit-class)
-
     (define-key prefix-map (kbd "C-v t") 'meghanada-run-task)
-
-    (define-key map (kbd "M-.") 'meghanada-jump-declaration)
-    (define-key map (kbd "M-,") 'meghanada-back-jump)
     (define-key map (kbd "C-M-,") 'meghanada-switch-testcase)
-
     (define-key map meghanada-mode-key-prefix prefix-map)
 
     map)
@@ -1898,6 +1891,7 @@ e.g. java.lang.annotation)."
     (when meghanada-auto-start
       (meghanada-client-connect))
     (meghanada-change-project)
+    (add-hook 'xref-backend-functions 'meghanada-xref-backend nil t)
     (run-at-time 2 nil
                  #'(lambda ()
                      (when (member meghanada--install-err-buf-name
@@ -1917,6 +1911,56 @@ e.g. java.lang.annotation)."
          " MEGHANADA:Disconnected")
         ((meghanada-alive-p)
          " MEGHANADA")))
+
+(defun meghanada-xref-backend ()
+  "Meghanada xref backend."
+  'meghanada)
+
+(cl-defmethod xref-backend-identifier-at-point ((_backend (eql meghanada)))
+  (propertize (or (thing-at-point 'symbol) "")
+              'identifier-at-point t))
+
+;; (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql meghanada)))
+;;   (if (and meghanada--server-process (process-live-p meghanada--server-process))
+;;       (let* ((sym (meghanada--what-symbol))
+;;              (buf (buffer-file-name))
+;;              (line (meghanada--what-line))
+;;              (col (meghanada--what-column))
+;;              (output (meghanada--send-request-sync "ti" (format "\"%s\"" buf) line col (format "\"%s\"" sym))))
+;;         (let ((members (nth 3 output)))
+;;           (mapcar #'(lambda(m) (nth 0 m)) members)))
+;;     (message "client connection not established")))
+
+(cl-defmethod xref-backend-identifier-completion-table ((_backend (eql meghanada))))
+
+(cl-defmethod xref-backend-definitions ((_backend (eql meghanada)) symbol)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (when symbol
+        (meghanada--send-request "jd" #'meghanada--jump-callback
+                                 (format "\"%s\"" (buffer-file-name))
+                                 (meghanada--what-line)
+                                 (meghanada--what-column)
+                                 (format "\"%s\"" symbol)))
+    (message "client connection not established")))
+
+(cl-defmethod xref-backend-references ((_backend (eql meghanada)) symbol)
+  (if (and meghanada--server-process (process-live-p meghanada--server-process))
+      (let ((buf (buffer-file-name))
+            (line (meghanada--what-line))
+            (col (meghanada--what-column)))
+        (when symbol
+          (let ((output (meghanada--send-request-sync "re"  (format "\"%s\"" buf) line col (format "\"%s\"" symbol))))
+            (mapcar #'(lambda (m)
+                        (let* ((info (nth 1 m))
+                               (desc (nth 0 info))
+                               (file (nth 1 info))
+                               (line (nth 2 info))
+                               (column (nth 3 info)))
+                          (xref-make desc (xref-make-file-location file line column)))) output))))
+  (message "client connection not established")))
+
+(cl-defmethod xref-backend-apropos ((_backend (eql meghanada)) symbol)
+  (message (format "xref-backend-apropos %s" symbol)))
 
 (provide 'meghanada)
 
