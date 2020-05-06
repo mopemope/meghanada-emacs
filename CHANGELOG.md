@@ -3,6 +3,7 @@
 ## Added
 
 - implemented xref-backend to support xref-find-references and xref-find-definitions.
+- global code formatter configuration file support.
 
 ## Changed
 
