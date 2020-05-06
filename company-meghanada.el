@@ -76,7 +76,7 @@ If t is set, it will be inserted. The default is nil."
                                                 company-meghanada-prefix-length
                                                 company-meghanada-prefix-length
                                                 company-meghanada-prefix-length))
-  (add-to-list 'company-backends '(company-meghanada :separate company-dabbrev-code))
+  (set (make-local-variable 'company-backends) '((company-meghanada :separate company-dabbrev-code)))
   (yas-minor-mode t)
   (make-local-variable 'yas-minor-mode-map)
   (advice-add #' company--insert-candidate :override #'meghanada--insert-candidate))
