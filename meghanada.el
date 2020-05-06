@@ -1959,8 +1959,8 @@ e.g. java.lang.annotation)."
                           (xref-make desc (xref-make-file-location file line column)))) output))))
   (message "client connection not established")))
 
-(cl-defmethod xref-backend-apropos ((_backend (eql meghanada)) symbol)
-  (message (format "xref-backend-apropos %s" symbol)))
+;; (cl-defmethod xref-backend-apropos ((_backend (eql meghanada)) pattern)
+;;   (message (format "xref-backend-apropos %s" pattern)))
 
 (provide 'meghanada)
 
