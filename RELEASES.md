@@ -1,30 +1,41 @@
-# Version 1.2.1 (2019-12-15)
+# 1.3.0 (2020-05-07)
+
+## Added
+* implemented xref-backend to support xref-find-references and  xref-find-definitions.
+
+## Changed
+* change the auto-completion insertion of arguments to be selectable (see company-meghanada-insert-args).
+
+## Fixed
+* fix wrong return code for download progress.
+
+# 1.2.1 (2019-12-15)
 
 * fix some bugs and improve stability.
 
-# Version 1.2.0 (2019-05-26)
+# 1.2.0 (2019-05-26)
 
 * collect telemetry data of meghanada-server (default disabled).
 * fix constructor completion format.
 * fix array completion.
 * fix some bugs and improve stability.
 
-# Version 1.1.2 (2019-05-09)
+# 1.1.2 (2019-05-09)
 
 * fix NoClassDefFoundError when run junit.
 * fix some bugs and improve stability.
 
-# Version 1.1.1 (2019-05-07)
+# 1.1.1 (2019-05-07)
 
 * fix unwrap temporary-file-directory (thanks @bsless).
 * fix some bugs and improve stability.
 
-# Version 1.1.0 (2019-05-06)
+# 1.1.0 (2019-05-06)
 
 * support open j9 (experimental).
 * fix some bugs and improve stability.
 
-# Version 1.0.14 (2019-04-26)
+# 1.0.14 (2019-04-26)
 
 * works without the project tool (mvn, gradle, etc).
 * support java 12 (experimental).
@@ -32,51 +43,51 @@
 * support company-box.
 * fix some bugs and improve stability.
 
-# Version 1.0.13 (2019-02-25)
+# 1.0.13 (2019-02-25)
 
 * support build.gradle.kts.
 * fix some bugs and improve stability.
 
-# Version 1.0.12 (2019-01-22)
+# 1.0.12 (2019-01-22)
 
 * Support Java 11.
 * Fix some bugs and improve stability.
 
-# Version 1.0.11 (2019-01-09)
+# 1.0.11 (2019-01-09)
 
 * Improve completion order.
 * Support annotaion value completion.
 * Fix column position bug (thanks @Jeanhwea)
 * Fix some bugs and improve stability.
 
-# Version 1.0.10 (2018-11-16)
+# 1.0.10 (2018-11-16)
 
 * Add hooks after a test is executed. (thanks @roman)
 * Fix some bugs and improve stability.
 
-# Version 1.0.9 (2018-09-10)
+# 1.0.9 (2018-09-10)
 
 * Add jump-symbol. (thanks @iocanel)
 * Fix search for junit test.
 * Display maven error details.
 * Fix some bugs and improve stability.
 
-# Version 1.0.8 (2018-07-18)
+# 1.0.8 (2018-07-18)
 
 * Fix broken completion.
 * Fix byte compile error.
 
-# Version 1.0.6 (2018-06-20)
+# 1.0.6 (2018-06-20)
 
 * Fix broken completion.
 * Fix some bugs and improve stability.
 
-# Version 1.0.5 (2018-06-13)
+# 1.0.5 (2018-06-13)
 
 * Fix broken completion.
 * Fix some bugs and improve stability.
 
-# Version 1.0.4 (2018-06-05)
+# 1.0.4 (2018-06-05)
 
 * Support eclipse project (experimental).
 * Fix broken custom source formatter.
@@ -85,7 +96,7 @@
 * Decrease cpu usage  a little.
 * Fix some bugs and improve stability.
 
-# Version 1.0.3 (2018-05-24)
+# 1.0.3 (2018-05-24)
 
 * Support import completion from symbol (added import-at-point function).
 * Completion matcher is selectable (default is prefix matcher).
@@ -93,19 +104,19 @@
 * Fix import statement sort (in case google-java-format).
 * Fix some bugs and improve stability.
 
-# Version 1.0.2 (2018-05-08)
+# 1.0.2 (2018-05-08)
 
 * Show progress when meghanada downloading server module
 * Fix some bugs and improve stability.
 
-# Version 1.0.1 (2018-04-26)
+# 1.0.1 (2018-04-26)
 
 * Disable full-text-search by default
 * Supported import static method completion (experimental)
 * Fix package completion
 * Fix some bugs and improve stability.
 
-# Version 1.0.0 (2018-04-07)
+# 1.0.0 (2018-04-07)
 
 ## Highlights
 
@@ -116,48 +127,48 @@
 * Add show project information (meghanada-show-project).
 * Fix bugs and improve stability.
 
-# Version 0.9.2 (2018-02-22)
+# 0.9.2 (2018-02-22)
 
 * Fix bugs and improve stability.
 * Update some libraries
 
-# Version 0.9.1 (2018-02-14)
+# 0.9.1 (2018-02-14)
 
 * Initial support for Windows
 * Experimental support Android plugin for gradle. (supported only 3.0.0+)
 * Update some libraries
 * Fix bugs and improve stability.
 
-# Version 0.9.0 (2017-12-31)
+# 0.9.0 (2017-12-31)
 
 * Initial support for Java 9
 * Changeable meghanada cache directory
 * Update some libraries
 * Fix bugs and improve stability.
 
-# Version 0.8.4 (2017-11-29)
+# 0.8.4 (2017-11-29)
 
 * Update some libraries
 * Fix bugs and improve stability
 
-# Version 0.8.3 (2017-07-25)
+# 0.8.3 (2017-07-25)
 
 * Support external debugger
 * Fix autocompletion when use multiline statement
 * Fix bugs and improve stability.
 
-# Version 0.8.2 (2017-06-29)
+# 0.8.2 (2017-06-29)
 
 ## Highlights
 
 * Add type information command (meghanada-typeinfo)
 
-# Version 0.8.1 (2017-06-26)
+# 0.8.1 (2017-06-26)
 
 * Fix non-escaped code string used for reference.
 * Fix implicit type conversion bugs
 
-# Version 0.8.0 (2017-06-26)
+# 0.8.0 (2017-06-26)
 
 ## Highlights
 
@@ -166,15 +177,15 @@
 * Support search reference.
 * Fix bugs and improve stability.
 
-# Version 0.7.13 (2017-06-12)
+# 0.7.13 (2017-06-12)
 
 * Fix cache update bugs
 
-# Version 0.7.12 (2017-06-11)
+# 0.7.12 (2017-06-11)
 
 * Add customize variable `meghanada-server-jvm-option`
 
-# Version 0.7.11 (2017-06-09)
+# 0.7.11 (2017-06-09)
 
 * Change to use fast-serialization.
 * Change to use xodous for cache backend.
@@ -184,7 +195,7 @@
 * Fix optimize import is broken.
 * Fix bugs and improve stability.
 
-# Version 0.7.10 (2017-05-26)
+# 0.7.10 (2017-05-26)
 
 * Change meghanada-project-compile to fully build.
 * Change diagnostic use meghanada-compile-file.
@@ -193,7 +204,7 @@
 * Fix compilation sort.
 * Fix bugs and improve stability.
 
-# Version 0.7.9 (2017-05-24)
+# 0.7.9 (2017-05-24)
 
 * Change completion sort to a better sort.
 * Fix Sexp parse error.
@@ -201,78 +212,78 @@
 * Fix an empty line on optimize import.
 * Fix many bugs and improve stability.
 
-# Version 0.7.8 (2017-05-22)
+# 0.7.8 (2017-05-22)
 
 * Fix many bugs and improve stability.
 
-# Version 0.7.7 (2017-05-18)
+# 0.7.7 (2017-05-18)
 
 * Fix many bugs and improve stability.
 
-# Version 0.7.6 (2017-05-16)
+# 0.7.6 (2017-05-16)
 
 * Change sort order of the candidates to more better
 * Support maven parent pom
 * Change default formatter to google-java-format
 * Support make import from eclipse code format settings (meghanadaFormatter.xml)
 
-# Version 0.7.5 (2017-04-27)
+# 0.7.5 (2017-04-27)
 
 * Exclude anonymous class from candidates
 
-# Version 0.7.4 (2017-04-13)
+# 0.7.4 (2017-04-13)
 
 * Fix import all and optimize import bugs
 * Fix jump to enum declaration bugs
 
-# Version 0.7.3 (2017-04-03)
+# 0.7.3 (2017-04-03)
 
 * Fix optimize import
 * Fix el-doc API bugs
 
-# Version 0.7.2 (2017-03-28)
+# 0.7.2 (2017-03-28)
 
 * Fix NPE
 * Improve code fomatter
 
-# Version 0.7.1 (2017-03-23)
+# 0.7.1 (2017-03-23)
 
 * Fix jump to declaration bugs
 
-# Version 0.7.0 (2017-03-18)
+# 0.7.0 (2017-03-18)
 
 ## Highlights
 
 * Support eldoc.
 * Add server remote-debug flag.
 
-# Version 0.6.6 (2017-03-01)
+# 0.6.6 (2017-03-01)
 
 * Fix jump to declarations bugs.
 
-# Version 0.6.5 (2017-02-28)
+# 0.6.5 (2017-02-28)
 
 * Fix jump to declarations for variadic method.
 * Fix parse try resources.
 * Supported jump to third party library source.(from sources.jar or decompiled file)
 
-# Version 0.6.4 (2017-02-24)
+# 0.6.4 (2017-02-24)
 
 * Fix jump from method refernce.
 * Supported jump to java standard lib source.
 
-# Version 0.6.3 (2017-02-22)
+# 0.6.3 (2017-02-22)
 
 * Fix jump to declarations for overload method.
 * Fix wildcard type completion.
 * Fix cache error log.
 
-# Version 0.6.2 (2017-02-20)
+# 0.6.2 (2017-02-20)
 
 * Fix Send column number count from 1.
 * Fix Send nil symbol.
 
-# Version 0.6.1 (2017-02-17)
+# 0.6.1 (2017-02-17)
 
 * Fix auto-import bugs.
 * Fix optimize-import bugs.
@@ -280,7 +291,7 @@
 * Fix genecrics method completion bugs.
 * Fix some bugs.
 
-# Version 0.6.0 (2017-02-13)
+# 0.6.0 (2017-02-13)
 
 ## Highlights
 
@@ -292,7 +303,7 @@
 * Fix nested class completion.
 * Fix some bugs.
 
-# Version 0.5.0 (2017-01-31)
+# 0.5.0 (2017-01-31)
 
 ## Highlights
 
@@ -311,7 +322,7 @@ Rule detail see below url.
 
 http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fjdt%2Fcore%2Fformatter%2Fpackage-summary.html
 
-# Version 0.4.0 (2017-01-25)
+# 0.4.0 (2017-01-25)
 
 ## Highlights
 
@@ -320,13 +331,13 @@ http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Frefere
 * Fix maven compilation-error-regexp-alist.
 * Fix some cache bugs.
 
-# Version 0.3.1 (2017-01-21)
+# 0.3.1 (2017-01-21)
 
 ## Highlights
 
 * Fix local variable completion.
 
-# Version 0.3.0 (2017-01-20)
+# 0.3.0 (2017-01-20)
 
 ## Highlights
 
@@ -335,7 +346,7 @@ http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Frefere
 * Decrease memory usage.
 * Fix some bugs.
 
-# Version 0.2.4 (2016-10-18)
+# 0.2.4 (2016-10-18)
 
 ## Highlights
 
