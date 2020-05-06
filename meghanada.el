@@ -1,12 +1,12 @@
 ;;; meghanada.el --- A better java development mode -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright (C) 2016 - 2019 Yutaka Matsubara
+;; Copyright (C) 2016 - 2020 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
 
 ;; Author: Yutaka Matsubara (yutaka.matsubara@gmail.com)
 ;; Homepage: https://github.com/mopemope/meghanada-emacs
 ;; Keywords: languages java
-;; Package-Version: 1.3.0
+;; Package-Version: 1.3.1
 ;; Package-Requires: ((emacs "24.3") (yasnippet "0.6.1") (company "0.9.0") (flycheck "0.23"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@
 ;; Const
 ;;
 
-(defconst meghanada-version "1.3.0")
+(defconst meghanada-version "1.3.1")
 (defconst meghanada-setup-version "0.0.2")
 (defconst meghanada--eot "\n;;EOT\n")
 (defconst meghanada--junit-buf-name "*meghanada-junit*")
