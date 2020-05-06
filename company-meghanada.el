@@ -1,6 +1,6 @@
 ;;; company-meghanada.el --- Company support for meganada -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright (C) 2017 Yutaka Matsubara
+;; Copyright (C) 2017 - 2020 Yutaka Matsubara
 ;; License: http://www.gnu.org/licenses/gpl.html
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -54,6 +54,12 @@
   :group 'company-meghanada
   :type 'integer)
 
+(defcustom company-meghanada-insert-args nil
+  "Insert method argument information when you select a completion candidate.
+If t is set, it will be inserted. The default is nil."
+  :group 'company-meghanada
+  :type 'boolean)
+
 (defconst company-meghanada--trigger "^package \\|^import \\w\\{%d,\\}\\|new \\w\\{%d,\\}\\|@\\w\\{%d,\\}\\|(.*)\\.\\w*\\|[A-Za-z0-9]+\\.\\w*\\|\\.\\w*")
 
 (defvar company-meghanada-trigger-regex nil)
@@ -72,7 +78,8 @@
                                                 company-meghanada-prefix-length))
   (add-to-list 'company-backends '(company-meghanada :separate company-dabbrev-code))
   (yas-minor-mode t)
-  (make-local-variable 'yas-minor-mode-map))
+  (make-local-variable 'yas-minor-mode-map)
+  (advice-add #' company--insert-candidate :override #'meghanada--insert-candidate))
 
 (defun make-icon-hash (type)
   (let ((kind-val (pcase type
@@ -283,7 +290,8 @@
               (backward-char 1)))
       (when anno
         (insert anno)
-        (company-template-c-like-templatify anno)))))
+        (when company-meghanada-insert-args
+            (company-template-c-like-templatify anno))))))
 
 (defun company-meghanada--post-method (arg)
   (let* ((meta (get-text-property 0 'meta arg))
@@ -299,7 +307,8 @@
          (end-of-thing 'symbol)
          (list 'return-type return-t 'meta meta 'type 'method))))
     (when anno
-      (company-template-c-like-templatify anno)
+      (when company-meghanada-insert-args
+          (company-template-c-like-templatify anno))
       (when (and
              (> (length extra) 1)
              (string= "static-import" (car extra)))
@@ -351,11 +360,7 @@
         (meta (get-text-property 0 'meta arg))
         (desc (get-text-property 0 'desc arg))
         (anno (company-meghanada--annotation arg)))
-    (meghanada-autocomplete-resolve-async
-     type
-     arg
-     desc
-     #'identity)
+    (meghanada-autocomplete-resolve-async type arg desc #'identity)
     (pcase type
       ;; completion class
       (`CLASS (company-meghanada--post-class arg))
@@ -373,6 +378,22 @@
                  (insert meta)
                  (insert ";")
                  (delete-region (point) (+ (point) (length arg))))))))
+
+(defun substring--candidate (candidate)
+  (if (and (meghanada-alive-p) (not company-meghanada-insert-args))
+      (if (string-match "\\(([^-]*\\)" candidate)
+          (substring candidate 0 (match-beginning 1))
+        candidate)
+    candidate))
+
+(defun meghanada--insert-candidate (candidate)
+  (when (> (length candidate) 0)
+    (setq candidate (substring-no-properties candidate))
+    (if (eq (company-call-backend 'ignore-case) 'keep-prefix)
+        (insert (substring--candidate (company-strip-prefix candidate)))
+      (unless (equal company-prefix candidate)
+        (delete-region (- (point) (length company-prefix)) (point))
+        (insert (substring--candidate candidate))))))
 
 (defun company-meghanada (command &optional arg &rest ignored)
   (cl-case command
