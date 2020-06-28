@@ -288,35 +288,31 @@ Example. (setq meghanada-jvm-option \"-Dhttp.proxyHost=test.proxy.com -Dhttp.pro
   (- (point) (line-beginning-position)))
 
 (defun meghanada--what-column ()
-  "TODO: FIX DOC ."
+  "Returns the current column number."
   (number-to-string (1+ (meghanada--real-current-column))))
 
 (defun meghanada--what-symbol ()
-  "TODO: FIX DOC ."
+  "Returns the symbol on the cursor."
   (thing-at-point 'symbol))
 
 (defun meghanada--what-word ()
-  "TODO: FIX DOC ."
+  "Returns the word on the cursor."
   (thing-at-point 'word))
 
 (defmacro meghanada--without-narrowing (&rest body)
-  "TODO: FIX DOC BODY."
   (declare (indent 0) (debug t))
   `(save-restriction
      (widen)
      (progn ,@body)))
 
 (defun meghanada--remove-eot (out)
-  "TODO: FIX DOC OUT ."
   (replace-regexp-in-string meghanada--eot "" out))
 
 (defun meghanada--goto-line (line)
-  "TODO: FIX LINE ."
   (goto-char (point-min))
   (forward-line (1- line)))
 
 (defun meghanada--line-column-to-point (line column)
-  "TODO: FIX LINE COLUMN."
   (save-excursion
     (meghanada--goto-line line)
     (forward-char (1- column))
@@ -488,7 +484,6 @@ function."
   (meghanada-install-server))
 
 (defun meghanada--locate-server-jar ()
-  "TODO FIX DOC."
   (expand-file-name
    (format "meghanada-%s.jar" meghanada-version)
    meghanada-server-install-dir))
@@ -540,7 +535,6 @@ function."
     (mapconcat 'identity  options " ")))
 
 (defun meghanada--start-server-process ()
-  "TODO: FIX DOC ."
   (let ((jar (meghanada--locate-server-jar)))
     (if (file-exists-p jar)
         (let ((process-connection-type nil)
@@ -571,7 +565,6 @@ function."
                 "Missing server module. Type `\\[meghanada-install-server]' to install meghanada-server")))))
 
 (defun meghanada--get-server-process-create ()
-  "TODO: FIX DOC ."
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (progn
         (message "already started meghanada-server. see *meghanada-server-log* buffer.")
@@ -579,7 +572,6 @@ function."
     (setq meghanada--server-process (meghanada--start-server-process))))
 
 (defun meghanada--server-process-sentinel (process msg)
-  "TODO: FIX DOC PROCESS MSG ."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
@@ -588,7 +580,6 @@ function."
     (error (format "Error:meghanada-server process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
 (defun meghanada--server-process-filter (process output)
-  "TODO: FIX DOC PROCESS OUTPUT ."
   (let ((pbuf (process-buffer process)))
     (when (buffer-live-p pbuf)
       (with-current-buffer pbuf
@@ -619,13 +610,13 @@ function."
 
 ;;;###autoload
 (defun meghanada-server-start ()
-  "TODO: FIX DOC ."
+  "Start the meghanada server."
   (interactive)
   (meghanada--get-server-process-create))
 
 ;;;###autoload
 (defun meghanada-server-kill ()
-  "TODO: FIX DOC ."
+  "Kill the meghanada server."
   (interactive)
   (when (and meghanada--server-process (process-live-p meghanada--server-process))
     (set-process-sentinel meghanada--server-process 'ignore)
@@ -637,7 +628,6 @@ function."
 
 
 (defun meghanada--start-client-process ()
-  "TODO: FIX DOC ."
   (let (process)
     (message "meghanada-client process start ...")
     (setq process
@@ -654,7 +644,6 @@ function."
     process))
 
 (defun meghanada--start-task-client-process ()
-  "TODO: FIX DOC ."
   (make-network-process
    :name "meghanada-task-client"
    :buffer "*meghanada-task-client*"
@@ -666,7 +655,6 @@ function."
    :filter 'meghanada--task-client-process-filter))
 
 (defun meghanada--start-server-and-client ()
-  "TODO: FIX DOC ."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       meghanada--client-process
     (unless (and meghanada--server-process (process-live-p meghanada--server-process))
@@ -679,13 +667,11 @@ function."
         (meghanada--get-server-process-create)))))
 
 (defun meghanada--get-client-process-create ()
-  "TODO: FIX DOC ."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       meghanada--client-process
     (setq meghanada--client-process (meghanada--start-client-process))))
 
 (defun meghanada--client-process-sentinel (process msg)
-  "TODO: FIX DOC PROCESS MSG."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
@@ -695,7 +681,6 @@ function."
     (error (format "Disconnected:meghanada-client process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
 (defun meghanada--task-client-process-sentinel (process msg)
-  "TODO: FIX DOC PROCESS MSG."
   (unless (process-live-p process)
     (set-process-sentinel process 'ignore)
     (set-process-filter process 'ignore)
@@ -705,7 +690,6 @@ function."
     (error (format "Disconnected:meghanada-task-client process stopped: %s. Please check *meghanada-server-log* buffer" msg))))
 
 (defun meghanada--process-client-response (process response)
-  "TODO: FIX DOC PROCESS RESPONSE ."
   (let* ((output (read (meghanada--normalize-repsonse-file-path (meghanada--remove-eot response))))
          (callback (meghanada--process-pop-callback process))
          (status (car output))
@@ -722,7 +706,6 @@ function."
            (apply (car callback) nil (cdr callback))))))))
 
 (defun meghanada--normalize-repsonse-file-path (response)
-  "TODO: FIX RESPONSE ."
   (if (eq system-type 'windows-nt)
       (let (diver-char downcase-char)
         (setq response (replace-regexp-in-string "\\\\" "/" response))
@@ -734,7 +717,6 @@ function."
   response)
 
 (defun meghanada--normalize-request-file-path (request)
-  "TODO: FIX REQUEST ."
   (if (eq system-type 'windows-nt)
       (let (diver-char upcase-char)
         (when (string-match "\\([a-z]\\):/" request)
@@ -746,7 +728,6 @@ function."
   request)
 
 (defun meghanada--client-process-filter (process output)
-  "TODO: FIX DOC PROCESS OUTPUT."
   (let ((pbuf (process-buffer process))
         responses)
     (when meghanada--client-pending
@@ -771,7 +752,6 @@ function."
           (nreverse responses))))
 
 (defun meghanada--task-client-process-filter (ignored output)
-  "TODO: FIX DOC IGNORED OUTPUT."
   (let ((buf meghanada--task-buffer))
     ;; (pop-to-buffer buf)
     (with-current-buffer (get-buffer-create buf)
@@ -811,14 +791,12 @@ function."
           (when win (set-window-point win (point))))))))
 
 (defun meghanada--process-push-callback (process cb)
-  "TODO: FIX DOC PROCESS CB."
   (let ((callbacks (process-get process 'meghanada-callback-stack)))
     (if callbacks
         (nconc callbacks (list cb))
       (process-put process 'meghanada-callback-stack (list cb)))))
 
 (defun meghanada--process-pop-callback (process)
-  "TODO: FIX DOC PROCESS."
   (let ((callbacks (process-get process 'meghanada-callback-stack)))
     (process-put process 'meghanada-callback-stack (cdr callbacks))
     (car callbacks)))
@@ -839,7 +817,6 @@ function."
     (setq meghanada--task-client-process nil)))
 
 (defun meghanada--send-request (request callback &rest args)
-  "TODO: FIX DOC REQUEST CALLBACK ARGS."
   (let* ((process (meghanada--get-client-process-create))
          (argv (cons request args))
          (callback (if (listp callback) callback (list callback)))
@@ -851,7 +828,6 @@ function."
                              (format "%s\n" send-str))))))
 
 (defun meghanada--send-request-process (request process callback &rest args)
-  "TODO: FIX DOC REQUEST PROCESS CALLBACK ARGS."
   (let* ((argv (cons request args))
          (callback (if (listp callback) callback (list callback)))
          (send-str (format "%s" argv)))
@@ -865,11 +841,9 @@ function."
 (defvar meghanada--sync-result '(-1 . nil))
 
 (defun meghanada--sync-request-callback (response id)
-  "TODO: FIX DOC RESPONSE ID."
   (setq meghanada--sync-result (cons id response)))
 
 (defun meghanada--send-request-sync (request &rest args)
-  "TODO: FIX DOC REQUEST ARGS."
   (let* ((id meghanada--sync-id)
          (callback (list #'meghanada--sync-request-callback id)))
     (setq meghanada--sync-id (1+ meghanada--sync-id))
@@ -885,7 +859,6 @@ function."
 ;;
 
 (defun meghanada-alive-p ()
-  "TODO: FIX DOC ."
   (and meghanada-mode
        meghanada--client-process
        (process-live-p meghanada--client-process)))
@@ -895,7 +868,6 @@ function."
 ;;
 
 (defun meghanada--goto-imports-start ()
-  "TODO: FIX DOC ."
   (goto-char (point-min))
   (let ((package-point (re-search-forward "package .*;" nil t))
         (import-point (re-search-forward "import .*;" nil t)))
@@ -909,7 +881,6 @@ function."
              (open-line 1)))))
 
 (defun meghanada--import-name (imp)
-  "TODO: FIX DOC IMP ."
   (let ((cs case-fold-search))
     (when cs
       (setq case-fold-search nil))
@@ -929,13 +900,11 @@ e.g. java.lang.annotation)."
    (<= (length (split-string fqcn "\\.")) 3)))
 
 (defun meghanada--import-exists-p (imp)
-  "TODO: FIX DOC IMP ."
   (save-excursion
     (goto-char (point-min))
     (re-search-forward (concat "^import\\s-+" imp "\\s-*;") nil t)))
 
 (defun meghanada--add-import-callback (result buf)
-  "TODO: FIX DOC OUT BUF."
   (with-current-buffer buf
     (let ((severity (car result)))
       (pcase severity
@@ -959,7 +928,6 @@ e.g. java.lang.annotation)."
                    (insert (format "import %s;\n" imp))))))))))))
 
 (defun meghanada--add-import (imp buf)
-  "TODO: FIX DOC IMP BUF."
   (unless
       (or
        (meghanada--is-java-lang-package-p imp)
@@ -970,7 +938,6 @@ e.g. java.lang.annotation)."
      buf)))
 
 (defun meghanada-import-all--callback (result buf optimize)
-  "TODO: FIX DOC OUT BUF OPTIMIZE."
   (with-current-buffer buf
     (when result
       (mapc
@@ -985,7 +952,6 @@ e.g. java.lang.annotation)."
       (meghanada-optimize-import))))
 
 (defun meghanada-import-at--callback (result buf optimize)
-  "TODO: FIX DOC RESULT BUF OPTIMIZE."
   (with-current-buffer buf
     (when result
       (mapc
@@ -1015,20 +981,20 @@ e.g. java.lang.annotation)."
 
 ;;;###autoload
 (defun meghanada-client-direct-connect ()
-  "TODO: FIX DOC ."
+  "Connect the client to a server that is already running."
   (interactive)
   (meghanada--get-client-process-create))
 
 ;;;###autoload
 (defun meghanada-client-connect ()
-  "TODO: FIX DOC ."
+  "Start the server and connect the client"
   (interactive)
   ;; TODO check
   (meghanada--start-server-and-client))
 
 ;;;###autoload
 (defun meghanada-client-disconnect ()
-  "TODO: FIX DOC ."
+  "Disconnecting the client."
   (interactive)
   (meghanada--client-kill))
 
@@ -1045,7 +1011,7 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada-ping ()
-  "TODO: FIX DOC ."
+  "Ping the connected server."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((res (meghanada--send-request-sync "ping")))
@@ -1054,7 +1020,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-kill-running-process ()
-  "TODO: FIX DOC ."
+  "Kills another test process running on the server, etc."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((res (meghanada--send-request-sync "kp")))
@@ -1065,7 +1031,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-clear-cache ()
-  "TODO: FIX DOC ."
+  "Clear the server cache."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "cc" #'message)
@@ -1076,19 +1042,16 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada-add-import-async (imp callback buf)
-  "TODO: FIX DOC IMP CALLBACK BUF."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ai" (list callback buf) (format "\"%s\"" (buffer-file-name)) imp)
     (message "client connection not established")))
 
 (defun meghanada-import-all-async (callback buf optimize)
-  "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ia" (list callback buf optimize)  (format "\"%s\"" (buffer-file-name)))
     (message "client connection not established")))
 
 (defun meghanada-import-at-point-async (callback buf optimize)
-  "TODO: FIX DOC CALLBACK BUF OPTIMIZE."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ip"
                                (list callback buf optimize)
@@ -1099,7 +1062,8 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-optimize-import ()
-  "TODO: FIX DOC ."
+  "Optimize the import statement.
+If there are unimported classes, we will automatically import them as much as possible. Also, unused import statements are deleted."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((output (meghanada--send-request-sync
@@ -1123,12 +1087,13 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-import-all ()
-  "TODO: FIX DOC ."
+  "Automatically add all import statements.
+If there are unimported classes, we will automatically import them as much as possible."
   (interactive)
   (meghanada-import-all-async #'meghanada-import-all--callback (current-buffer) nil))
 
 (defun meghanada-import-at-point ()
-  "TODO: FIX DOC ."
+  "Add the import statement for the class on the cursor."
   (interactive)
   (meghanada-import-at-point-async #'meghanada-import-at--callback (current-buffer) nil))
 
@@ -1138,7 +1103,6 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada-autocomplete-prefix-async (prefix callback)
-  "TODO: FIX DOC PREFIX CALLBACK."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "ap"
                                callback
@@ -1149,7 +1113,6 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-autocomplete-resolve-async (type item desc callback)
-  "TODO: FIX DOC TYPE ITEM DESC CALLBACK."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "cr"
                                callback
@@ -1163,7 +1126,6 @@ e.g. java.lang.annotation)."
 
 
 (defun meghanada--local-val-callback (result)
-  "TODO: FIX DOC OUTPUT ."
   (let* ((return-type (car result))
          (vals (car (cdr result)))
          (len (length vals)))
@@ -1178,7 +1140,7 @@ e.g. java.lang.annotation)."
             (insert res)))))))
 
 (defun meghanada-local-variable ()
-  "TODO: FIX DOC CALLBACK."
+  "Assign a local variable from the return value of an expression."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "lv"
@@ -1192,7 +1154,6 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada-diagnostics-async (callback)
-  "TODO: FIX DOC CALLBACK."
   (if (and meghanada--client-process (process-live-p meghanada--client-process))
       (meghanada--send-request "di"
                                callback
@@ -1200,7 +1161,6 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-diagnostic-string-async (callback)
-  "TODO: FIX DOC CALLBACK."
   (let ((buf (buffer-file-name))
         (tmp (meghanada--write-tmpfile)))
     (if (and meghanada--client-process (process-live-p meghanada--client-process))
@@ -1226,13 +1186,11 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--kill-buf (name)
-  "TODO: FIX NAME ."
   (when (get-buffer name)
     (delete-windows-on (get-buffer name))
     (kill-buffer name)))
 
 (defun meghanada--compile-callback (result)
-  "TODO: FIX DOC RESULT ."
   (let ((severity (car result)))
     (pcase severity
       (`success
@@ -1251,7 +1209,7 @@ e.g. java.lang.annotation)."
            (compilation-mode)))))))
 
 (defun meghanada-compile-file ()
-  "TODO: FIX DOC ."
+  "Compile the current file."
   (interactive)
   (when (meghanada-alive-p)
     (if (and meghanada--server-process (process-live-p meghanada--server-process))
@@ -1263,7 +1221,7 @@ e.g. java.lang.annotation)."
       (message "client connection not established"))))
 
 (defun meghanada-compile-project ()
-  "TODO: FIX DOC ."
+  "Compile the current project."
   (interactive)
   (when (meghanada-alive-p)
     (if (and meghanada--server-process (process-live-p meghanada--server-process))
@@ -1289,12 +1247,11 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--switch-testcase-callback (result)
-  "TODO: FIX DOC OUT."
   (when (and result (file-exists-p result))
     (find-file result)))
 
 (defun meghanada-switch-testcase ()
-  "TODO: FIX DOC CALLBACK."
+  "Switch the buffer to the test class of the current class."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "st" #'meghanada--switch-testcase-callback (format "\"%s\"" (buffer-file-name)))
@@ -1302,7 +1259,6 @@ e.g. java.lang.annotation)."
 
 
 (defun meghanada--setup-task-buffer (buf-name height)
-  "TODO: FIX DOC BUF-NAME HEIGHT."
   (when (not (get-buffer-window buf-name))
     (save-selected-window
       (save-excursion
@@ -1317,8 +1273,6 @@ e.g. java.lang.annotation)."
   )
 
 (defun meghanada--run-junit (file debug test)
-  "TODO: FIX DOC FILE DEBUG TEST."
-
   (unless (process-live-p meghanada--task-client-process)
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
 
@@ -1334,7 +1288,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-run-junit-class ()
-  "TODO: FIX DOC."
+  "Run the current test class on JUnit."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (test-name (car (split-string
@@ -1343,7 +1297,7 @@ e.g. java.lang.annotation)."
     (meghanada--run-junit file-name nil test-name)))
 
 (defun meghanada-run-junit-test-case ()
-  "TODO: FIX DOC."
+  "Tests the specified test case for the current test class on JUnit."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (class-name (car (split-string
@@ -1357,7 +1311,7 @@ e.g. java.lang.annotation)."
     (meghanada--run-junit file-name nil test-name)))
 
 (defun meghanada-debug-junit-class ()
-  "TODO: FIX DOC."
+  "Run the current test class in debug mode on JUnit."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (test-name (car (split-string
@@ -1366,7 +1320,7 @@ e.g. java.lang.annotation)."
     (meghanada--run-junit file-name t test-name)))
 
 (defun meghanada-debug-junit-test-case ()
-  "TODO: FIX DOC."
+  "Tests the specified test case for the current test class in debug mode on JUnit.."
   (interactive)
   (let* ((file-name (buffer-file-name))
          (class-name (car (split-string
@@ -1380,12 +1334,12 @@ e.g. java.lang.annotation)."
     (meghanada--run-junit file-name t test-name)))
 
 (defun meghanada-run-junit-recent ()
-  "TODO: FIX DOC."
+  "Run the most recent test on JUnit."
   (interactive)
   (meghanada--run-junit (buffer-file-name) nil ""))
 
 (defun meghanada-run-task (args)
-  "TODO: FIX DOC ARGS."
+  "Runs the tasks of a given maven or gradle project management tool."
   (interactive "sArgs: ")
   (message args)
 
@@ -1402,7 +1356,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-exec-main ()
-  "TODO: FIX."
+  "Execute the Main class."
   (interactive)
   (unless (process-live-p meghanada--task-client-process)
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
@@ -1417,7 +1371,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-debug-main ()
-  "TODO: FIX."
+  "Execute the Main class in debug mode."
   (interactive)
   (unless (process-live-p meghanada--task-client-process)
     (setq meghanada--task-client-process (meghanada--start-task-client-process)))
@@ -1436,7 +1390,6 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--jump-callback (res)
-  "TODO FIX DOC RES."
   (let* ((filename (nth 0 res))
          (line (nth 1 res))
          (col (nth 2 res)))
@@ -1453,7 +1406,7 @@ e.g. java.lang.annotation)."
           (message "Buffer is modified, file position might not have been correct")))))
 
 (defun meghanada-jump-declaration ()
-  "TODO: FIX DOC."
+  "Jump to the definition of the symbol on the cursor."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((sym (meghanada--what-symbol)))
@@ -1486,7 +1439,7 @@ e.g. java.lang.annotation)."
     (message "client connection not established")))
 
 (defun meghanada-back-jump ()
-  "TODO: FIX DOC."
+  "Jump to the original position before jumping."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (meghanada--send-request "bj" #'meghanada--jump-callback)
@@ -1596,7 +1549,7 @@ e.g. java.lang.annotation)."
   (message "searching ..."))
 
 (defun meghanada-reference ()
-  "Search for reference."
+  "Searches for a reference to a field or method on the cursor."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((sym (meghanada--what-symbol))
@@ -1618,7 +1571,6 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--typeinfo-callback (messages)
-  "Show typeinfo result."
   (let ((fqcn (nth 0 messages))
         (classes (nth 1 messages))
         (interfaces (nth 2 messages))
@@ -1659,7 +1611,7 @@ e.g. java.lang.annotation)."
   (message "searching ..."))
 
 (defun meghanada-typeinfo ()
-  "Search for type information."
+  "Show information about the class on the cursor."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (let ((sym (meghanada--what-symbol))
@@ -1793,7 +1745,6 @@ e.g. java.lang.annotation)."
 ;;
 
 (defun meghanada--show-project-callback (msg)
-  "TODO MSG."
   (with-help-window (get-buffer-create meghanada--show-project-buf-name)
     (pop-to-buffer meghanada--show-project-buf-name)
     (save-excursion
@@ -1803,11 +1754,10 @@ e.g. java.lang.annotation)."
       (setq buffer-read-only t))))
 
 (defun meghanada--show-project-prepare ()
-  "TODO ."
   (meghanada--kill-buf meghanada--show-project-buf-name))
 
 (defun meghanada-show-project ()
-  "Show project details."
+  "Show more information about the current project."
   (interactive)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (progn
