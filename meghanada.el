@@ -1886,12 +1886,17 @@ If there are unimported classes, we will automatically import them as much as po
 (cl-defmethod xref-backend-definitions ((_backend (eql meghanada)) symbol)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
       (when symbol
-        (meghanada--send-request "jd" #'meghanada--jump-callback
+        (let ((output (meghanada--send-request-sync "jd"
                                  (format "\"%s\"" (buffer-file-name))
                                  (meghanada--what-line)
                                  (meghanada--what-column)
-                                 (format "\"%s\"" symbol)))
-    (message "client connection not established")))
+                                 (format "\"%s\"" symbol))))
+          (when output
+              (let ((file (nth 0 output))
+                    (line (nth 1 output))
+                    (column (nth 2 output)))
+                (list (xref-make file (xref-make-file-location file line column))))))
+        (message "client connection not established"))))
 
 (cl-defmethod xref-backend-references ((_backend (eql meghanada)) symbol)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
