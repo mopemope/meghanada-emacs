@@ -221,7 +221,7 @@ Connect to [meghanada-server][] . Call automatically at the start `meghanada-mod
 
 Disconnect from [meghanada-server][] .
 
-### meghanada-client-ping
+### meghanada-ping
 
 Send ping [meghanada-server][]
 
@@ -251,11 +251,11 @@ Introduce local variable. (need expression is end `;`)
 
 Compile file (and related files).
 
-### meghanada-project-show
+### meghanada-show-project
 
 Show project details.
 
-### meghanada-project-compile (C-c C-c c)
+### meghanada-compile-project (C-c C-c c)
 
 Compile project (full build and reindex).
 
