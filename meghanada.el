@@ -1895,8 +1895,8 @@ If there are unimported classes, we will automatically import them as much as po
               (let ((file (nth 0 output))
                     (line (nth 1 output))
                     (column (nth 2 output)))
-                (list (xref-make file (xref-make-file-location file line column))))))
-        (message "client connection not established"))))
+                (list (xref-make file (xref-make-file-location file line column)))))))
+        (message "client connection not established")))
 
 (cl-defmethod xref-backend-references ((_backend (eql meghanada)) symbol)
   (if (and meghanada--server-process (process-live-p meghanada--server-process))
