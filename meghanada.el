@@ -121,6 +121,11 @@ The slash is expected at the end."
   :risky t
   :type 'directory)
 
+(defcustom meghanada-server-download-url "https://github.com/mopemope/meghanada-server/releases/download/v%s/meghanada-setup-%s.jar"
+  "Download location of meghanada-server's jar."
+  :group 'meghanada
+  :type 'string)
+
 (defcustom meghanada-java-path "java"
   "Path of the java executable.
 
@@ -435,9 +440,9 @@ function."
 
 (defun meghanada--download-setup-jar ()
   "Download setup-jar file from bintray."
-  (let ((url (format
-              "https://dl.bintray.com/mopemope/meghanada/meghanada-setup-%s.jar"
-              meghanada-setup-version))
+  (let ((url (format meghanada-server-download-url
+                     meghanada-version
+                     meghanada-setup-version))
         (setup-jar (meghanada--locate-setup-jar)))
 
     (unless (file-exists-p setup-jar)
@@ -449,7 +454,9 @@ function."
   "Direct download server jar file."
   (let ((dest meghanada-server-install-dir)
         (dest-jar (meghanada--locate-server-jar))
-        (url (format "https://dl.bintray.com/mopemope/meghanada/meghanada-%s.jar" meghanada-version)))
+        (url (format meghanada-server-download-url
+                     meghanada-version
+                     meghanada-setup-version)))
     (unless (file-exists-p dest)
       (make-directory dest t))
     (message (format "Download server module from %s. Please wait." url))
