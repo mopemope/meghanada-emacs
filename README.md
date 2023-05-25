@@ -2,6 +2,9 @@
 
 [![Patreon](https://img.shields.io/badge/patreon-become%20a%20patron-red.svg)](https://www.patreon.com/mopemope)
 
+## Since we already have LSP, this product is no longer necessary, right?
+This project is almost never used. This is because there is a useful product lsp-java. Please use it.
+
 ## A Better Java Development Environment for Emacs
 
 `Meghanada` is a new minor-mode (`meghanada-mode`) that aims at improving the editing
